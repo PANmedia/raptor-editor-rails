@@ -44,7 +44,7 @@ and jQuery UI:
 You can now make elements of your site editable using:
 
 ```js
-$(".editable").editor();
+$("#my_editable_element").editor();
 ```
 
 See the [Raptor Editor documentation](http://www.raptor-editor.com/demo) for
