@@ -17,7 +17,7 @@ raptor-editor-rails provides two Raptor Editor packages:
 * `raptor.light.min.js` is Raptor Editor and
     [Rangy](http://code.google.com/p/rangy/).
 
-If by some chance you are already using Rangy then use `raptor.min`.
+If, by some chance, you are already using Rangy then use `raptor.min`.
 Otherwise, use `raptor.light.min`.
 
 Add raptor-editor-rails to your `Gemfile`:
