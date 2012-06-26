@@ -41,6 +41,15 @@ and jQuery UI:
 //= require raptor.light.min # or raptor.min.js if you already have Rangy
 ```
 
+You can now make elements of your site editable using:
+
+```js
+$(".editable").editor();
+```
+
+See the [Raptor Editor documentation](http://www.raptor-editor.com/demo) for
+more information.
+
 ## Bugs, Issues and Feature Requests
 
 Please raise an issue on
