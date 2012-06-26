@@ -8,8 +8,8 @@ Gem::Specification.new do |s|
   s.authors     = ["Tristan McHardie"]
   s.email       = ["info@jquery-raptor.com"]
   s.homepage    = "http://www.github.com/PANmedia/raptor-editor-rails"
-  s.summary     = "Get Raptor Editor into your Rails apps"
-  s.description = "The simple way to get Raptor Editor into your Rails applications."
+  s.summary     = "Raptor Editor on the Rails Asset Pipeline"
+  s.description = "The simplest way to get Raptor Editor onto the Asset Pipeline in your Rails applications."
 
   s.files = Dir["{lib}/**/*"] + ["MIT-LICENSE", "Rakefile", "README.rdoc"]
 
