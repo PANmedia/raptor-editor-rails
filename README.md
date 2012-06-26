@@ -20,11 +20,26 @@ raptor-editor-rails provides two Raptor Editor packages:
 If by some chance you are already using Rangy then use `raptor.min`.
 Otherwise, use `raptor.light.min`.
 
-1. Add `gem "raptor-editor-rails"` to your app's `Gemfile`.
-2. Run `bundle install`.
-3. Add `require raptor.light.min` (or `require raptor.min` if you already have
-    Rangy) to your app's `app/assets/javascripts/application.js` file. Make sure
-    Raptor Editor is included AFTER jQuery and jQuery UI!
+Add raptor-editor-rails to your `Gemfile`:
+
+```ruby
+gem "raptor-editor-rails"
+```
+
+and then
+
+```sh
+bundle install
+```
+
+Add Raptor Editor to your `app/assets/javascripts/application.js` after jQuery
+and jQuery UI:
+
+```js
+//= require jquery
+//= require jquery-ui
+//= require raptor.light.min # or raptor.min.js if you already have Rangy
+```
 
 ## Bugs, Issues and Feature Requests
 
@@ -47,6 +62,6 @@ Raptor Editor is [distributed under GPL](http://www.raptor-editor.com/license).
 
 1. Find the latest version number from the latest release's tag name at
     https://github.com/PANmedia/Raptor/tags,
-2. Update RAPTOR_EDITOR_VERSION in lib/raptor_editor_rails/version.rb (don't
+2. Update `RAPTOR_EDITOR_VERSION` in `lib/raptor_editor_rails/version.rb` (don't
     include the "v" in the tag name),
 3. Run `rake fetch` to automatically download the correct files.
