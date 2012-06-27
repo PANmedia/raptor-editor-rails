@@ -8,14 +8,14 @@ Asset Pipeline in your Rails applications.
 * [jQuery](http://jquery.com/),
 * [jQuery UI](http://jqueryui.com/),
 * a jQuery UI theme.
+* [Rangy](http://code.google.com/p/rangy/) - [see below](#usage)
 
 ## Usage
 
 raptor-editor-rails provides two Raptor Editor packages:
 
-* `raptor.min.js` is just Raptor Editor on its own, and
-* `raptor.light.min.js` is Raptor Editor AND
-    [Rangy](http://code.google.com/p/rangy/).
+* `raptor.min.js` is Raptor Editor on its own
+* `raptor.light.min.js` is Raptor Editor and Rangy
 
 If, by some chance, you are already using Rangy then use `raptor.min`.
 Otherwise, use `raptor.light.min`.
