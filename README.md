@@ -14,7 +14,7 @@ Asset Pipeline in your Rails applications.
 raptor-editor-rails provides two Raptor Editor packages:
 
 * `raptor.min.js` is just Raptor Editor on its own, and
-* `raptor.light.min.js` is Raptor Editor and
+* `raptor.light.min.js` is Raptor Editor AND
     [Rangy](http://code.google.com/p/rangy/).
 
 If, by some chance, you are already using Rangy then use `raptor.min`.
