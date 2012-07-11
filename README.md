@@ -3,6 +3,10 @@
 The simplest way to get [Raptor Editor](http://www.raptor-editor.com/) onto the
 Asset Pipeline in your Rails applications.
 
+## Version
+
+Version 0.1.1 contains Raptor Editor 0.0.9-beta.
+
 ## Requirements
 
 * [jQuery](http://jquery.com/),
@@ -73,4 +77,5 @@ Raptor Editor is [distributed under GPL](http://www.raptor-editor.com/license).
     https://github.com/PANmedia/Raptor/tags,
 2. Update `RAPTOR_EDITOR_VERSION` in `lib/raptor_editor_rails/version.rb` (don't
     include the "v" in the tag name),
-3. Run `rake fetch` to automatically download the correct files.
+3. Run `rake fetch` to automatically download the correct files,
+4. Update README.md with the latest version number.
