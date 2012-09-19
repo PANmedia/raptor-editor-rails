@@ -59,7 +59,7 @@ more information.
 Please raise an issue on
 [GitHub](https://github.com/PANmedia/raptor-editor-rails/issues).
 
-## License
+## Licence
 
 This Gem, jquery-raptor-rails, is distributed under the MIT License.
 
