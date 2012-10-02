@@ -4,7 +4,7 @@ require "raptor_editor_rails/version"
 
 Gem::Specification.new do |s|
   s.name        = "raptor-editor-rails"
-  s.version     = RaptorEditorRails::VERSION
+  s.version     = RaptorEditorRails::Version::VERSION
   s.authors     = ["Tristan McHardie"]
   s.email       = ["info@jquery-raptor.com"]
   s.homepage    = "http://www.github.com/PANmedia/raptor-editor-rails"
