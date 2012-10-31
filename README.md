@@ -5,7 +5,7 @@ Asset Pipeline in your Rails applications.
 
 ## Version
 
-Version 0.1.6 contains Raptor Editor 0.0.26-beta.
+Version 0.1.7 contains Raptor Editor 0.0.29-beta.
 
 ## Requirements
 
