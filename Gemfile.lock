@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    raptor-editor-rails (0.1.7)
+    raptor-editor-rails (0.1.8)
       rails (> 3.1)
 
 GEM

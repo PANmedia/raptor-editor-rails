@@ -1,4 +1,4 @@
 module RaptorEditorRails
-  VERSION = "0.1.7"
-  RAPTOR_EDITOR_VERSION = "0.0.29-beta"
+  VERSION = "0.1.8"
+  RAPTOR_EDITOR_VERSION = "0.0.30-beta"
 end
