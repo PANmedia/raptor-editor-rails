@@ -1,4 +1,5 @@
 require "raptor_editor_rails"
+require "raptor_editor_rails/version"
 
 module RaptorEditorRails
   module Generators
