@@ -71,6 +71,9 @@ Raptor Editor is [distributed under GPL](http://www.raptor-editor.com/license).
 2. Hack,
 3. Create a Pull Request.
 
+Please do not bump the version number. This will be done by the maintainers
+when a release is ready.
+
 ### Getting the latest version of Raptor Editor
 
 1. Find the latest version number from the latest release's tag name at
