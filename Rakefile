@@ -8,13 +8,14 @@ end
 Bundler::GemHelper.install_tasks
 
 require "raptor_editor_rails"
+require "open-uri"
 
-desc "Fetch Raptor Editor builds from GitHub"
+desc "Fetch Raptor Editor build"
 task :fetch do
-  tag = "v#{RaptorEditorRails::RAPTOR_EDITOR_VERSION}"
-  files = RaptorEditorRails::JS_FILES.join(",")
-  source = "https://raw.github.com/PANmedia/Raptor/#{tag}/packages/\\{#{files}\\}"
-  target = File.join(File.expand_path('..', __FILE__), "vendor/assets/javascripts")
+  $stderr.puts "Fetching has been temporarily disabled pending changes to the Raptor Editor website."
 
-  `mkdir -p #{target} ; cd #{target} ; curl -O #{source} ; cd -`
+  # source = "http://www.raptor-editor.com/download"
+  # target = RaptorEditorRails::Engine.root.join("vendor/assets/javascripts/blah.html")
+
+  # open(target, "w+") { |f| f << open(source).read }
 end

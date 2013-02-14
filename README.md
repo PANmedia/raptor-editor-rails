@@ -1,28 +1,22 @@
 # raptor-editor-rails
 
-The simplest way to get [Raptor Editor](http://www.raptor-editor.com/) onto the
-Asset Pipeline in your Rails applications.
+The simplest way to get [Raptor Editor] onto the asset pipeline in your Rails applications.
 
 ## Version
 
-Version 0.1.8 contains Raptor Editor 0.0.30-beta.
+Version 0.2.0 contains Raptor Editor 0.5.11.
+
+## What does raptor-editor-rails do?
+
+It provides the Raptor Editor assets to your Rails applications via the asset pipeline, just like how [jquery-ui-rails] provides [jQuery UI] and [ruby-modernizr] provides [Modernizr].
 
 ## Requirements
 
-* [jQuery](http://jquery.com/),
-* [jQuery UI](http://jqueryui.com/),
-* a jQuery UI theme.
-* [Rangy](http://code.google.com/p/rangy/) - [see below](#usage)
+* [jQuery]
+* [jQuery UI] \(minimally Button, Dialog, Menu and Tabs for custom builds)
+* a jQuery UI theme
 
 ## Usage
-
-raptor-editor-rails provides two Raptor Editor packages:
-
-* `raptor.min.js` is Raptor Editor on its own
-* `raptor.light.min.js` is Raptor Editor and Rangy
-
-If, by some chance, you are already using Rangy then use `raptor.min`.
-Otherwise, use `raptor.light.min`.
 
 Add raptor-editor-rails to your `Gemfile`:
 
@@ -30,40 +24,37 @@ Add raptor-editor-rails to your `Gemfile`:
 gem "raptor-editor-rails"
 ```
 
-and then
+and then run:
 
 ```sh
 bundle install
 ```
 
-Add Raptor Editor to your `app/assets/javascripts/application.js` after jQuery
-and jQuery UI:
+Now add Raptor Editor to your `app/assets/javascripts/application.js` after jQuery and jQuery UI:
 
 ```js
 //= require jquery
 //= require jquery-ui
-//= require raptor.light.min # or raptor.min.js if you already have Rangy
+//= require raptor
 ```
 
-You can now make elements of your site editable using:
+Now you can now make elements of your site editable:
 
 ```js
 $("#my_editable_element").editor();
 ```
 
-See the [Raptor Editor documentation](http://www.raptor-editor.com/demo) for
-more information.
+See the [Raptor Editor docs] for more.
 
 ## Bugs, Issues and Feature Requests
 
-Please raise an issue on
-[GitHub](https://github.com/PANmedia/raptor-editor-rails/issues).
+Please raise an issue on [GitHub][issues].
 
 ## Licence
 
 This Gem, jquery-raptor-rails, is distributed under the MIT License.
 
-Raptor Editor is [distributed under GPL](http://www.raptor-editor.com/license).
+Raptor Editor is [distributed under GPL][Raptor Editor licence].
 
 ## Contributing
 
@@ -71,14 +62,19 @@ Raptor Editor is [distributed under GPL](http://www.raptor-editor.com/license).
 2. Hack,
 3. Create a Pull Request.
 
-Please do not bump the version number. This will be done by the maintainers
-when a release is ready.
+**Please do not bump the version number**. This will be done by the maintainers when a release is ready.
 
 ### Getting the latest version of Raptor Editor
 
-1. Find the latest version number from the latest release's tag name at
-    https://github.com/PANmedia/Raptor/tags,
-2. Update `RAPTOR_EDITOR_VERSION` in `lib/raptor_editor_rails/version.rb` (don't
-    include the "v" in the tag name),
-3. Run `rake fetch` to automatically download the correct files,
-4. Update README.md with the latest version number.
+1. Run `rake fetch` to automatically download the latest build from [Raptor Editor][], and
+2. update the Raptor Editor version number in `lib/raptor_editor_rails/version.rb` and `README.md` to the value at the top of `raptor.js`.
+
+[Raptor Editor]: http://www.raptor-editor.com/
+[jQuery]: http://jquery.com/
+[jQuery UI]: http://jqueryui.com/
+[jquery-ui-rails]: https://github.com/joliss/jquery-ui-rails
+[ruby-modernizr]: https://github.com/josh/ruby-modernizr
+[Modernizr]: http://modernizr.com/
+[Raptor Editor docs]: http://www.raptor-editor.com/docs
+[Raptor Editor licence]: http://www.raptor-editor.com/license
+[issues]: https://github.com/PANmedia/raptor-editor-rails/issues
