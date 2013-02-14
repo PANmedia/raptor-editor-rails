@@ -4,7 +4,7 @@ The simplest way to get [Raptor Editor] onto the asset pipeline in your Rails ap
 
 ## Version
 
-Version 0.2.0 contains Raptor Editor 0.5.11.
+Version 0.2.1 contains Raptor Editor 0.5.11.
 
 ## What does raptor-editor-rails do?
 
@@ -12,8 +12,8 @@ It provides the Raptor Editor assets to your Rails applications via the asset pi
 
 ## Requirements
 
-* [jQuery]
-* [jQuery UI] \(minimally Button, Dialog, Menu and Tabs for custom builds)
+* [jQuery][jQuery 1.9+]
+* [jQuery UI][jQuery UI 1.10+] (minimally Button, Dialog, Menu and Tabs for custom builds)
 * a jQuery UI theme
 
 ## Usage

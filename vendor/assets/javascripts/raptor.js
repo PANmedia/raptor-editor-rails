@@ -3752,6 +3752,32 @@ rangy.createModule("Applier", function(api, module) {
         return true;
     }
 
+    /**
+     * Convert a DOMFragment to an HTML string. Optionally wraps the string in a tag.
+     * @todo type for domFragment and tag.
+     * @param {type} domFragment The fragment to be converted to a HTML string.
+     * @param {type} tag The tag that the string may be wrapped in.
+     * @returns {String} The DOMFragment as a string, optionally wrapped in a tag.
+     */
+    function fragmentToHtml(domFragment, tag) {
+        var html = '';
+        // Get all nodes in the extracted content
+        for (var j = 0, l = domFragment.childNodes.length; j < l; j++) {
+            var node = domFragment.childNodes.item(j);
+            var content = node.nodeType === Node.TEXT_NODE ? node.nodeValue : elementOuterHtml($(node));
+            if (content) {
+                html += content;
+            }
+        }
+        if (tag) {
+            html = $('<' + tag + '>' + html + '</' + tag + '>');
+            html.find('p').wrapInner('<' + tag + '/>');
+            html.find('p > *').unwrap();
+            html = $('<div/>').html(html).html();
+        }
+        return html;
+    }
+
     var getComputedStyleProperty;
 
     if (typeof window.getComputedStyle != "undefined") {
@@ -4672,6 +4698,32 @@ rangy.createModule("CssClassApplier", function(api, module) {
             }
         }
         return true;
+    }
+
+    /**
+     * Convert a DOMFragment to an HTML string. Optionally wraps the string in a tag.
+     * @todo type for domFragment and tag.
+     * @param {type} domFragment The fragment to be converted to a HTML string.
+     * @param {type} tag The tag that the string may be wrapped in.
+     * @returns {String} The DOMFragment as a string, optionally wrapped in a tag.
+     */
+    function fragmentToHtml(domFragment, tag) {
+        var html = '';
+        // Get all nodes in the extracted content
+        for (var j = 0, l = domFragment.childNodes.length; j < l; j++) {
+            var node = domFragment.childNodes.item(j);
+            var content = node.nodeType === Node.TEXT_NODE ? node.nodeValue : elementOuterHtml($(node));
+            if (content) {
+                html += content;
+            }
+        }
+        if (tag) {
+            html = $('<' + tag + '>' + html + '</' + tag + '>');
+            html.find('p').wrapInner('<' + tag + '/>');
+            html.find('p > *').unwrap();
+            html = $('<div/>').html(html).html();
+        }
+        return html;
     }
 
     var getComputedStyleProperty = dom.getComputedStyleProperty;
@@ -8254,9 +8306,7 @@ GoogTable.prototype.mergeCells = function(
     var cells = [];
     var cell;
     if (startRowIndex == endRowIndex && startColIndex == endColIndex) {
-        // <strict>
-        handleError("Can't merge single cell");
-        // </strict>
+        // <strict/>
         return false;
     }
     // Gather cells and do sanity check.
@@ -8267,11 +8317,7 @@ GoogTable.prototype.mergeCells = function(
                     cell.endRow > endRowIndex ||
                     cell.startCol < startColIndex ||
                     cell.endCol > endColIndex) {
-                // <strict>
-                handleError(
-                        "Can't merge cells: the cell in row " + i + ', column ' + j +
-                        'extends outside the supplied rectangle.');
-                // </strict>
+                // <strict/>
                 return false;
             }
             // TODO(user): this is somewhat inefficient, as we will add
@@ -8562,21 +8608,21 @@ GoogTableCell.prototype.setRowSpan = function(rowSpan) {
 
 /**
  * Wrap the jQuery UI button function.
- * @todo Check please.
- * @param {Element|jQuery|selector} element The selector for which the button it to be created.
+ *
+ * @param {Element|Node|selector} element
  * @param {Object|null} options The options relating to the creation of the button.
- * @returns {jQuery} A button for the element.
+ * @returns {Element} The modified element.
  */
 function aButton(element, options) {
     return $(element).button(options);
 }
 
 /**
- * Wrap the jQuery set label function.
+ * Wrap the jQuery UI button's set label function.
  *
- * @param {Element|jQuery|selector} element This is the selector for the button.
- * @param {String} text This is the text for the label.
- * @returns {jQuery} The labelled button.
+ * @param {Element|Node|selector} element
+ * @param {String} text The text for the label.
+ * @returns {Element} The labelled button.
  */
 function aButtonSetLabel(element, text) {
     $(element).button('option', 'text', true);
@@ -8584,11 +8630,11 @@ function aButtonSetLabel(element, text) {
 }
 
 /**
- * Wrap the jQuery set button icon function.
+ * Wrap the jQuery UI button's set icon function.
  *
- * @param {Element|jQuery|selector} element This is the selector for the button.
- * @param {Object} icon The icon which is to be added to the button
- * @returns {jQuery} The iconised button.
+ * @param {Element|Node|selector} element
+ * @param {String} icon The icon name to be added to the button, e.g. 'ui-icon-disk'
+ * @returns {Element} The modified button.
  */
 function aButtonSetIcon(element, icon) {
     return $(element).button('option', 'icons', {
@@ -8597,62 +8643,62 @@ function aButtonSetIcon(element, icon) {
 }
 
 /**
- * Wrap the jQuery UI enable button function.
+ * Wrap the jQuery UI button's enable function.
  *
- * @param {Element|jQuery|selector} element This is the selector for the button.
- * @returns {jQuery} The enabled button.
+ * @param {Element|Node|selector} element
+ * @returns {Element} The enabled button.
  */
 function aButtonEnable(element) {
     return $(element).button('option', 'disabled', false);
 }
 
 /**
- * Wrap the jQuery UI diable button function.
+ * Wrap the jQuery UI button's disable function.
  *
- * @param {Element|jQuery|selector} element This is the selector for the button.
- * @returns {jQuery} The disabled button.
+ * @param {Element|Node|selector} element
+ * @returns {Element} The disabled button.
  */
 function aButtonDisable(element) {
     return $(element).button('option', 'disabled', true);
 }
 
 /**
- * Wrap the jQuery UI add class function.
+ * Wrap the jQuery UI button's add class function.
  *
- * @param {Element|jQuery|selector} element This is the selector for the button.
- * @returns {jQuery} The highlighted button.
+ * @param {Element|Node|selector} element
+ * @returns {Element} The highlighted button.
  */
 function aButtonActive(element) {
     return $(element).addClass('ui-state-highlight');
 }
 
 /**
- * Wrap the jQuery UI remove class function.
+ * Wrap the jQuery UI button's remove class function.
  *
- * @param {Element|jQuery|selector} element This is the selector for the button.
- * @returns {jQuery} The button back in its normal state.
+ * @param {Element|Node|selector} element
+ * @returns {Element} The button back in its normal state.
  */
 function aButtonInactive(element) {
     return $(element).removeClass('ui-state-highlight');
 }
 
 /**
- * Wrap the jQuery UI initialise menu function.
+ * Wrap the jQuery UI button's initialise menu function.
  *
- * @param {Element|jQuery|selector} element This is the selector for the menu creation.
- * @param {Object|null} options This is the set of options for the menu creation.
- * @returns {jQuery} The menu.
+ * @param {Element|Node|selector} element
+ * @param {Object|null} options The set of options for menu creation.
+ * @returns {Element} The menu.
  */
 function aMenu(element, options) {
     return $(element).menu(options);
 }
 
 /**
- * Initialises a dialog with a given element.
+ * Initialises a dialog with the given element.
  *
- * @param {Element|jQuery|selector} element This is the selector for the dialog creation.
- * @param {Object|null} options This is the set of options for the menu creation.
- * @returns {jQuery} A dialog.
+ * @param {Element|Node|selector} element
+ * @param {Object|null} options The set of options for the menu.
+ * @returns {Element} A dialog.
  */
 function aDialog(element, options) {
     var dialog = $(element).dialog(options);
@@ -8674,8 +8720,8 @@ function aDialog(element, options) {
 /**
  * Wrap the jQuery UI open dialog function.
  *
- * @param {Element|jQuery|selector} element This is the selector for the dialog opening.
- * @returns {jQuery}
+ * @param {Element|Node|selector} element
+ * @returns {Element}
  */
 function aDialogOpen(element) {
     return $(element).dialog('open');
@@ -8684,8 +8730,8 @@ function aDialogOpen(element) {
 /**
  * Wrap the jQuery UI close dialog function.
  *
- * @param {Element|jQuery|selector} element This is the selector for the dialog closing.
- * @returns {jQuery}
+ * @param {Element|Node|selector} element
+ * @returns {Element}
  */
 function aDialogClose(element) {
     return $(element).dialog('close');
@@ -8693,10 +8739,10 @@ function aDialogClose(element) {
 
 /**
  * Wrap the jQuery UI tabs function.
- * @todo not sure what to put for descroption for options
- * @param  {Element|jQuery|selector} element This is the selector for the tabs function.
+ *
+ * @param  {Element|Node|selector} element
  * @param  {Object|null} options
- * @return {jQuery}
+ * @returns {Element}
  */
 function aTabs(element, options) {
     return $(element).tabs(options);
@@ -8735,11 +8781,7 @@ var localeNames = {};
  * @param {Object} strings
  */
 function registerLocale(name, nativeName, strings) {
-    // <strict>
-    if (locales[name]) {
-        handleError(_('Locale "{{localeName}}" has already been registered, and will be overwritten', {localeName: name}));
-    }
-    // </strict>
+    // <strict/>
 
     locales[name] = strings;
     localeNames[name] = nativeName;
@@ -8878,7 +8920,7 @@ registerLocale('en', 'English', {
     historyRedoTitle: 'Redo',
     historyUndoTitle: 'Undo',
 
-    hrCreateTitle: "Insert Horizontal Rule",
+    hrCreateTitle: 'Insert Horizontal Rule',
 
     imageResizeButtonText: 'Resize Image',
     imageResizeButtonDialogWidth: 'Image width',
@@ -8889,6 +8931,7 @@ registerLocale('en', 'English', {
     imageResizeButtonDialogOKButton: 'Resize',
     imageResizeButtonDialogCancelButton: 'Cancel',
 
+    insertFileTitle: 'Insert file',
     insertFileDialogOKButton: 'Insert file',
     insertFileDialogCancelButton: 'Cancel',
 
@@ -9041,58 +9084,7 @@ registerLocale('en', 'English', {
                 // <debug/>
 
 
-// <strict>
-
-/**
- * Handles an error message by either displaying it in the JS console, or throwing
- * and exception (only avalible in development and strict build).
- * @static
- * @param {String} errorMessage The error message to display or throw
- */
-function handleError(errorMessage) {
-    if (console && console.error) {
-        var args = Array.prototype.slice.call(arguments);
-
-        // <ie>
-        if (!console.error.apply) {
-            for (var i = 0, l = args.length;i < l; i++) {
-                console.error(args[i]);
-            }
-            return;
-        }
-        // </ie>
-
-
-        console.error.apply(console, args);
-        if (args[0] instanceof Error) {
-            console.error.apply(console, [args[0].toString()]);
-            console.error.apply(console, [args[0].stack]);
-        }
-    } else {
-        throw errorMessage;
-    }
-}
-
-function handleInvalidArgumentError(errorMessage, argument) {
-    handleError(errorMessage + ', got: ', argument);
-}
-
-// Ensure jQuery has been included
-if (typeof $ === 'undefined') handleError('jQuery is required');
-
-// Ensure jQuery UI has been included
-else if (!$.ui) handleError('jQuery UI is required');
-
-// Ensure dialog has been included
-else if (!$.ui.dialog) handleError('jQuery UI Dialog is required.');
-
-// Ensure dialog has been included
-else if (!$.ui.position) handleError('jQuery UI Position is required.');
-
-// Ensure rangy has been included
-if (typeof rangy === 'undefined') handleError('Rangy is required. This library should have been included with the file you downloaded. If not, acquire it here: http://code.google.com/p/rangy/"');
-
-// </strict>
+// <strict/>
 
 
 $(function() {
@@ -9124,14 +9116,14 @@ $('html').click(function(event) {
                 /* File: temp/default/src/support.js */
                 var supported, ios, hotkeys, firefox, ie;
 
-function isSupported(editor) {
+function isSupported() {
     if (supported === undefined) {
         supported = true;
 
         // <ios>
         ios = /(iPhone|iPod|iPad).*AppleWebKit/i.test(navigator.userAgent);
         if (ios) {
-            $('html').addClass(editor.options.baseClass + '-ios');
+            $('html').addClass('raptor-ios');
 
             // Fixed position hack
             if (ios) {
@@ -9146,24 +9138,20 @@ function isSupported(editor) {
 
         firefox = /Firefox/i.test(navigator.userAgent);
         if (firefox) {
-            $('html').addClass(editor.options.baseClass + '-ff');
+            $('html').addClass('raptor-ff');
         }
 
         // <ie>
         /**
          * Returns the version of Internet Explorer or a -1 (indicating the use of another browser).
-         * http://msdn.microsoft.com/en-us/library/ms537509(v=vs.85).aspx
+         * http://obvcode.blogspot.co.nz/2007/11/easiest-way-to-check-ie-version-with.html
          */
         var ieVersion = (function() {
-            var rv = -1; // Return value assumes failure.
-            if (navigator.appName == 'Microsoft Internet Explorer') {
-                var ua = navigator.userAgent;
-                var re  = new RegExp("MSIE ([0-9]{1,}[\.0-9]{0,})");
-                if (re.exec(ua) != null) {
-                    rv = parseFloat(RegExp.$1);
-                }
+            var version = -1;
+            if (navigator.appVersion.indexOf("MSIE") != -1) {
+                version = parseFloat(navigator.appVersion.split("MSIE")[1]);
             }
-            return rv;
+            return version;
         })();
 
         ie = ieVersion !== -1;
@@ -9171,16 +9159,49 @@ function isSupported(editor) {
             supported = false;
 
             // Create message modal
-            var message = $('<div/>')
-                .addClass(editor.options.baseClass + '-unsupported')
-                .html(editor.getTemplate('unsupported'))
-                .appendTo('body');
+            $(function() {
+                var message = $('<div/>')
+                    .addClass('raptor-unsupported')
+                    .html(
+                        '<div class="raptor-unsupported-overlay"></div>' +
+                        '<div class="raptor-unsupported-content">' +
+                        '    It has been detected that you a using a browser that is not supported by Raptor, please' +
+                        '    use one of the following browsers:' +
+                        '    <ul>' +
+                        '        <li><a href="http://www.google.com/chrome">Google Chrome</a></li>' +
+                        '        <li><a href="http://www.firefox.com">Mozilla Firefox</a></li>' +
+                        '        <li><a href="http://www.google.com/chromeframe">Internet Explorer with Chrome Frame</a></li>' +
+                        '    </ul>' +
+                        '    <div class="raptor-unsupported-input">' +
+                        '        <button class="raptor-unsupported-close">Close</button>' +
+                        '        <input name="raptor-unsupported-show" type="checkbox" />' +
+                        '        <label>Don\'t show this message again</label>' +
+                        '    </div>' +
+                        '<div>'
+                    )
+                    .appendTo('body');
 
-            elementBringToTop(message);
+                /**
+                 * Sets the z-index CSS property on an element to 1 above all its sibling elements.
+                 *
+                 * @param {jQuery} element The jQuery element to have it's z index increased.
+                 */
+                function elementBringToTop(element) {
+                    var zIndex = 1;
+                    element.siblings().each(function() {
+                        var z = $(this).css('z-index');
+                        if (!isNaN(z) && z > zIndex) {
+                            zIndex = z + 1;
+                        }
+                    });
+                    element.css('z-index', zIndex);
+                }
+                elementBringToTop(message);
 
-            // Close event
-            message.find('.' + editor.options.baseClass + '-unsupported-close').click(function() {
-                message.remove();
+                // Close event
+                message.find('.raptor-unsupported-close').click(function() {
+                    message.remove();
+                });
             });
         }
         // </ie>
@@ -9189,6 +9210,19 @@ function isSupported(editor) {
     }
     return supported;
 }
+
+// <ie>
+if (!Object.create) {
+    Object.create = function (o) {
+        if (arguments.length > 1) {
+            throw new Error('Object.create implementation only accepts the first parameter.');
+        }
+        function F() {}
+        F.prototype = o;
+        return new F();
+    };
+}
+// </ie>
 
                 /* End of file: temp/default/src/support.js */
             
@@ -9208,11 +9242,7 @@ function isSupported(editor) {
  * @returns {Object} ??
  */
 function actionPreview(previewState, target, action) {
-    // <strict>
-    if (!typeIsElement(target)) {
-        handleError("Target must be a jQuery instance when previewing an action", target);
-    }
-    // </strict>
+    // <strict/>
 
     actionPreviewRestore(previewState, target);
 
@@ -9323,12 +9353,7 @@ function cleanUnwrapElements(selector) {
  * @param {array} attributes This is an array of the elements attributes.
  */
 function cleanEmptyAttributes(element, attributes) {
-    // <strict>
-    if (!typeIsElement(element)) {
-        handleInvalidArgumentError('Paramter 1 to cleanEmptyAttributes is expected a jQuery element');
-        return;
-    }
-    // </strict>
+    // <strict/>
 
     for (i = 0; i < attributes.length; i++) {
         if (!$.trim(element.attr(attributes[i]))) {
@@ -9350,12 +9375,7 @@ function cleanEmptyAttributes(element, attributes) {
  * @return {jQuery} The modified parent.
  */
 function cleanRemoveComments(parent) {
-    // <strict>
-    if (!typeIsElement(parent)) {
-        handleInvalidArgumentError('Paramter 1 to cleanRemoveComments is expected a jQuery element');
-        return;
-    }
-    // </strict>
+    // <strict/>
 
     parent.contents().each(function() {
         if (this.nodeType == Node.COMMENT_NODE) {
@@ -9377,12 +9397,7 @@ function cleanRemoveComments(parent) {
  * @return {jQuery} The modified parent.
  */
 function cleanEmptyElements(parent, tags) {
-    // <strict>
-    if (!typeIsElement(parent)) {
-        handleInvalidArgumentError('Paramter 1 to cleanEmptyElements is expected a jQuery element');
-        return;
-    }
-    // </strict>
+    // <strict/>
 
     parent.find(tags.join(',')).each(function() {
         if ($.trim($(this).html()) == '') {
@@ -9399,12 +9414,7 @@ function cleanEmptyElements(parent, tags) {
  * @param  {String} tag The tag to use from wrapping the text nodes.
  */
 function cleanWrapTextNodes(node, tag) {
-    // <strict>
-    if (!typeIsNode(node)) {
-        handleInvalidArgumentError('Paramter 1 to cleanWrapTextNodes is expected a node.');
-        return;
-    }
-    // </strict>
+    // <strict/>
 
     var textNodes = elementFindTextNodes(node);
     for (var i = 0, l = textNodes.length; i < l; i++) {
@@ -9734,20 +9744,10 @@ function elementIsValid(element, validTags) {
  * @return {Node}           [description]
  */
 function elementFirstInvalidElementOfValidParent(element, validTags, wrapper) {
-    // <strict>
-    if (!typeIsNode(element)) {
-        handleError('Parameter 1 to elementFirstInvalidElementOfValidParent must be a node');
-        return;
-    }
-    // </strict>
+    // <strict/>
     var parent = element.parentNode;
     if (parent[0] === wrapper[0]) {
-        // <strict>
-        if (!elementIsValid(parent, validTags)) {
-            handleError('elementFirstInvalidElementOfValidParent requires a valid wrapper');
-            return;
-        }
-        // </strict>
+        // <strict/>
         return element;
     }
     if (elementIsValid(parent, validTags)) {
@@ -9932,16 +9932,7 @@ function elementDetachedManip(element, manip) {
  * @returns {jQuery} Closest element that is not display inline or null, or null if the parent element is the same as the limit element.
  */
 function elementClosestBlock(element, limitElement) {
-    // <strict>
-    if (!typeIsElement(element)) {
-        handleInvalidArgumentError('Parameter 1 to elementClosestBlock must be a jQuery element', element);
-        return;
-    }
-    if (!typeIsElement(limitElement)) {
-        handleInvalidArgumentError('Parameter 2 to elementClosestBlock must be a jQuery element', limitElement);
-        return;
-    }
-    // </strict>
+    // <strict/>
     while (element.length > 0 &&
         element[0] !== limitElement[0] &&
         (element[0].nodeType === Node.TEXT_NODE || element.css('display') === 'inline')) {
@@ -9975,11 +9966,7 @@ function elementUniqueId() {
  * @returns {Element}
  */
 function elementChangeTag(element, newTag) {
-    // <strict>
-    if (!typeIsElement(element)) {
-        handleError('Parameter 1 to elementChangeTag must be a jQuery element');
-    }
-    // </strict>
+    // <strict/>
     var tags = [];
     for (var i = element.length - 1; 0 <= i ; i--) {
         var node = document.createElement(newTag);
@@ -10066,6 +10053,7 @@ function fragmentInsertBefore(domFragment, beforeElement, wrapperTag) {
  * @param {Element} wrapper Element containing the entire action, may not be modified.
  */
 function listToggle(listType, listItem, wrapper) {
+    if (wrapper.html().trim() === '') return;
     if (listShouldConvertType(listType, listItem, wrapper)) {
         return listConvertListType(listType, listItem, wrapper);
     }
@@ -10084,6 +10072,9 @@ function listShouldUnwrap(listType, listItem) {
     var selectedElements = $(selectionGetElements());
     if (selectedElements.is(listType)) {
         return true;
+    }
+    if (listType === 'blockquote' && !selectedElements.parent().is(listType)) {
+        return false;
     }
     if (selectedElements.is(listItem) && selectedElements.parent().is(listType)) {
         return true;
@@ -10172,12 +10163,11 @@ var listValidPParents = [
  * @param  {String[]} validChildren
  */
 function listEnforceValidChildren(list, listItem, validChildren) {
-    // <strict>
-    if (!typeIsElement(list)) {
-        handleInvalidArgumentError('Parameter 1 for listEnforceValidChildren must be a jQuery element', list);
-    }
-    // </strict>
+    // <strict/>
     var removeEmpty = function(node) {
+        if ($(node).is('img')) {
+            return;
+        }
         if (!$(node).text().trim()) {
             $(node).remove();
             return true;
@@ -10223,6 +10213,13 @@ function listWrapSelection(listType, listItem, wrapper) {
     var range = rangy.getSelection().getRangeAt(0);
     var commonAncestor = rangeGetCommonAncestor(range);
 
+    /**
+     * <wrapper>{}<p>Some content</p></wrapper>
+     */
+    if (rangeIsEmpty(range) && commonAncestor === wrapper.get(0)) {
+        return;
+    }
+
     // Having a <td> fully selected is a special case: without intervention
     // the surrounding <table> would be split, with a <listType> inserted between
     // the two <tables>.
@@ -10266,6 +10263,10 @@ function listConvertItemsForList(items, listItem) {
     items = $('<div/>').html(items);
 
     if (!elementContainsBlockElement(items)) {
+        // Do not double wrap p's
+        if (listItem === 'p') {
+            return '<' + listItem + '>' + items.html() + '</' + listItem + '>';
+        }
         return '<' + listItem + '><p>' + items.html() + '</p></' + listItem + '>';
     }
 
@@ -10296,11 +10297,7 @@ function listConvertItemsForList(items, listItem) {
  * @return {Element|null} Result of the final conversion.
  */
 function listConvertListItem(listItem, listType, tag) {
-     // <strict>
-    if (!typeIsElement(listItem)) {
-        handleInvalidArgumentError('Parameter 1 for listConvertListItem must be a jQuery element', listItem);
-    }
-    // </strict>
+     // <strict/>
     var listItemChildren = listItem.contents();
     if (listItemChildren.length) {
         listItemChildren.each(function() {
@@ -10325,11 +10322,7 @@ function listConvertListItem(listItem, listType, tag) {
  * @param  {string} listType
  */
 function listUnwrap(list, listItem, listType) {
-    // <strict>
-    if (!typeIsElement(list)) {
-        handleInvalidArgumentError('Parameter 1 for listUnwrap must be a jQuery element', list);
-    }
-    // </strict>
+    // <strict/>
     var convertedItem = null;
     list.find(listItem).each(function() {
         listConvertListItem($(this), listType, 'p');
@@ -10346,11 +10339,7 @@ function listUnwrap(list, listItem, listType) {
  * @param  {string} listItem
  */
 function listTidyModified(list, listType, listItem) {
-    // <strict>
-    if (!typeIsElement(list)) {
-        handleInvalidArgumentError('Parameter 1 for listTidyModified must be a jQuery element', list);
-    }
-    // </strict>
+    // <strict/>
     listRemoveEmptyItems(list, listType, listItem);
     listRemoveEmpty(list, listType, listItem);
 }
@@ -10363,11 +10352,7 @@ function listTidyModified(list, listType, listItem) {
  * @param  {string} listItem
  */
 function listRemoveEmptyItems(list, listType, listItem) {
-    // <strict>
-    if (!typeIsElement(list)) {
-        handleInvalidArgumentError('Parameter 1 for listRemoveEmptyItems must be a jQuery element', list);
-    }
-    // </strict>
+    // <strict/>
     if (!list.is(listType)) {
         return;
     }
@@ -10386,11 +10371,7 @@ function listRemoveEmptyItems(list, listType, listItem) {
  * @param  {string} listItem
  */
 function listRemoveEmpty(list, listType, listItem) {
-    // <strict>
-    if (!typeIsElement(list)) {
-        handleInvalidArgumentError('Parameter 1 for listRemoveEmpty must be a jQuery element', list);
-    }
-    // </strict>
+    // <strict/>
     if (!list.is(listType)) {
         return;
     }
@@ -10665,12 +10646,7 @@ function persistGet(key) {
  * @param {RangyRange} range The range to expand.
  */
 function rangeExpandToParent(range) {
-    // <strict>
-    if (!typeIsRange(range)) {
-        handleInvalidArgumentError('Parameter 1 to rangeExpandToParent is expected to be a range', range);
-        return;
-    }
-    // </strict>
+    // <strict/>
     range.setStartBefore(range.startContainer);
     range.setEndAfter(range.endContainer);
 }
@@ -10682,30 +10658,12 @@ function rangeExpandToParent(range) {
  * @param  {Element} element
  */
 function rangeSelectElement(range, element) {
-    // <strict>
-    if (!typeIsRange(range)) {
-        handleInvalidArgumentError('Parameter 1 to rangeSelectElement is expected to be a range', range);
-        return;
-    }
-    if (!typeIsElement(element)) {
-        handleInvalidArgumentError('Parameter 2 to rangeSelectElement is expected to be a jQuery element', element);
-        return;
-    }
-    // </strict>
+    // <strict/>
     range.selectNode($(element)[0]);
 }
 
 function rangeSelectElementContent(range, element) {
-    // <strict>
-    if (!typeIsRange(range)) {
-        handleInvalidArgumentError('Parameter 1 to rangeSelectElement is expected to be a range', range);
-        return;
-    }
-    if (!typeIsElement(element) && !typeIsNode(element)) {
-        handleInvalidArgumentError('Parameter 2 to rangeSelectElement is expected to be a jQuery element or node', element);
-        return;
-    }
-    // </strict>
+    // <strict/>
     range.selectNodeContents($(element).get(0));
 }
 
@@ -10716,16 +10674,7 @@ function rangeSelectElementContent(range, element) {
  * @param {array} elements An array of elements to check the current range against.
  */
 function rangeExpandTo(range, elements) {
-    // <strict>
-    if (!typeIsRange(range)) {
-        handleInvalidArgumentError('Parameter 1 to rangeReplace is expected to be a range', range);
-        return;
-    }
-    if (!typeIsArray(elements)) {
-        handleInvalidArgumentError('Parameter 2 to rangeExpandTo is expected to be an array', elements);
-        return;
-    }
-    // </strict>
+    // <strict/>
     do {
         rangeExpandToParent(range);
         for (var i = 0, l = elements.length; i < l; i++) {
@@ -10744,16 +10693,7 @@ function rangeExpandTo(range, elements) {
  * @return {Node[]} Array of new nodes inserted.
  */
 function rangeReplace(range, html) {
-    // <strict>
-    if (!typeIsRange(range)) {
-        handleInvalidArgumentError('Parameter 1 to rangeReplace is expected to be a range', range);
-        return;
-    }
-    if (!typeIsElement(html) && !typeIsString(html)) {
-        handleInvalidArgumentError('Parameter 2 to rangeReplace is expected to be a string or jQuery element', html);
-        return;
-    }
-    // </strict>
+    // <strict/>
 
     var result = [],
         nodes = $('<div/>').append(html)[0].childNodes;
@@ -10789,11 +10729,7 @@ function rangeEmptyTag(range) {
  * @return {Node} The range's start element.
  */
 function rangeGetStartElement(range) {
-    // <strict>
-    if (!typeIsRange(range)) {
-        handleInvalidArgumentError('Parameter 1 to rangeGetStartElement is expected to be a range', range);
-    }
-    // </strict>
+    // <strict/>
     return nodeFindParent(range.startContainer);
 }
 
@@ -10802,11 +10738,7 @@ function rangeGetStartElement(range) {
  * @return {Node} The range's end element.
  */
 function rangeGetEndElement(range) {
-    // <strict>
-    if (!typeIsRange(range)) {
-        handleInvalidArgumentError('Parameter 1 to rangeGetEndElement is expected to be a range', range);
-    }
-    // </strict>
+    // <strict/>
     return nodeFindParent(range.endContainer);
 }
 
@@ -10818,11 +10750,7 @@ function rangeGetEndElement(range) {
  * @return {Element} The range's common ancestor.
  */
 function rangeGetCommonAncestor(range) {
-    // <strict>
-    if (!typeIsRange(range)) {
-        handleInvalidArgumentError('Parameter 1 to rangeGetCommonAncestor is expected to be a range', range);
-    }
-    // </strict>
+    // <strict/>
     return nodeFindParent(range.commonAncestorContainer);
 }
 
@@ -10833,11 +10761,7 @@ function rangeGetCommonAncestor(range) {
  * @param {RangyRange} range The range to check if it is empty
  */
 function rangeIsEmpty(range) {
-    // <strict>
-    if (!typeIsRange(range)) {
-        handleInvalidArgumentError('Parameter 1 to rangeGetCommonAncestor is expected to be a range', range);
-    }
-    // </strict>
+    // <strict/>
     return range.startOffset === range.endOffset &&
            range.startContainer === range.endContainer;
 }
@@ -10848,14 +10772,7 @@ function rangeIsEmpty(range) {
  * @return {boolean} True if the range is entirely contained by the given node.
  */
 function rangeIsContainedBy(range, node) {
-    // <strict>
-    if (!typeIsRange(range)) {
-        handleInvalidArgumentError('Parameter 1 to rangeIsContainedBy is expected to be a range', range);
-    }
-    if (!typeIsNode(node)) {
-        handleInvalidArgumentError('Parameter 1 to rangeIsContainedBy is expected to be a node', node);
-    }
-    // </strict>
+    // <strict/>
     var nodeRange = range.cloneRange();
     nodeRange.selectNodeContents(node);
     return nodeRange.containsRange(range);
@@ -10867,14 +10784,7 @@ function rangeIsContainedBy(range, node) {
  * @return {Boolean} True if node is contained within the range, false otherwise.
  */
 function rangeContainsNode(range, node) {
-    // <strict>
-    if (!typeIsRange(range)) {
-        handleInvalidArgumentError('Parameter 1 to rangeContainsNode is expected to be a range', range);
-    }
-    if (!typeIsNode(node)) {
-        handleInvalidArgumentError('Parameter 1 to rangeContainsNode is expected to be a node', node);
-    }
-    // </strict>
+    // <strict/>
     return range.containsNode(node);
 }
 
@@ -10889,14 +10799,7 @@ function rangeContainsNode(range, node) {
  * @return {Boolean}
  */
 function rangeContainsNodeText(range, node) {
-    // <strict>
-    if (!typeIsRange(range)) {
-        handleInvalidArgumentError('Parameter 1 to rangeContainsText is expected to be a range', range);
-    }
-    if (!typeIsNode(node)) {
-        handleInvalidArgumentError('Parameter 1 to rangeContainsText is expected to be a node', node);
-    }
-    // </strict>
+    // <strict/>
     return range.containsNodeText(node);
 }
 
@@ -10906,11 +10809,7 @@ function rangeContainsNodeText(range, node) {
  * @param {RangyRange} range This is the range of selected text.
  */
 function rangeTrim(range) {
-    // <strict>
-    if (!typeIsRange(range)) {
-        handleInvalidArgumentError('Parameter 1 to rangeTrim is expected to be a range', range);
-    }
-    // </strict>
+    // <strict/>
     var selectedText = range.text();
 
     // Trim start
@@ -10934,14 +10833,7 @@ function rangeTrim(range) {
  * @returns {String} A string of the serialized ranges separated by '|'.
  */
 function rangeSerialize(ranges, rootNode) {
-    // <strict>
-    if (!typeIsArray(ranges)) {
-        handleInvalidArgumentError('Parameter 1 to rangeSerialize is expected to be an array', ranges);
-    }
-    if (!typeIsNode(rootNode)) {
-        handleInvalidArgumentError('Parameter 1 to rangeSerialize is expected to be a node', rootNode);
-    }
-    // </strict>
+    // <strict/>
     var serializedRanges = [];
     for (var i = 0, l = ranges.length; i < l; i++) {
         serializedRanges[i] = rangy.serializeRange(ranges[i], true);
@@ -10956,11 +10848,7 @@ function rangeSerialize(ranges, rootNode) {
  * @returns {Array} An array of deserialized ranges.
  */
 function rangeDeserialize(serialized) {
-    // <strict>
-    if (!typeIsString(serialized)) {
-        handleInvalidArgumentError('Parameter 1 to rangeDeserialize is expected to be a string', serialized);
-    }
-    // </strict>
+    // <strict/>
     var serializedRanges = serialized.split("|"),
         ranges = [];
     for (var i = 0, l = serializedRanges.length; i < l; i++) {
@@ -10976,11 +10864,7 @@ function rangeDeserialize(serialized) {
  * @param  {jQuery|Element|string} html The html to replace selection with.
  */
 function rangeReplaceSplitInvalidTags(range, html, wrapper, validTagNames) {
-    // <strict>
-    if (!typeIsRange(range)) {
-        handleInvalidArgumentError('Parameter 1 to rangeReplaceSplitInvalidTags is expected to be a range', range);
-    }
-    // </strict>
+    // <strict/>
     var commonAncestor = rangeGetCommonAncestor(range);
 
     if (!elementIsValid(commonAncestor, validTagNames)) {
@@ -11173,12 +11057,7 @@ function selectionSelectInner(element, selection) {
  * @param {RangySelection} [selection] A RangySelection, or by default, the current selection.
  */
 function selectionSelectInner(node, selection) {
-    // <strict>
-    if (!typeIsNode(node)) {
-        handleError('Paramter 1 to selectionSelectInner is expected a Node, got:', node);
-        return;
-    }
-    // </strict>
+    // <strict/>
     selection = selection || rangy.getSelection();
     var range = rangy.createRange();
     range.selectNodeContents(node);
@@ -11548,20 +11427,7 @@ function selectionToggleBlockStyle(styles, limit) {
  * @param {undefined|Sring} blockContainer Thia parameter is unused for some reason.
  */
 function selectionEachBlock(callback, limitElement, blockContainer) {
-    // <strict>
-    if (!$.isFunction(callback)) {
-        handleError('Paramter 1 to selectionEachBlock is expected to be a function');
-        return;
-    }
-    if (!(limitElement instanceof jQuery)) {
-        handleError('Paramter 2 to selectionEachBlock is expected a jQuery element');
-        return;
-    }
-    if (typeof blockContainer !== 'undefined' && typeof blockContainer !== 'string') {
-        handleError('Paramter 3 to selectionEachBlock is expected be undefined or a string');
-        return;
-    }
-    // </strict>
+    // <strict/>
     selectionEachRange(function(range) {
         // Loop range parents until a block element is found, or the limit element is reached
         var startBlock = elementClosestBlock($(range.startContainer), limitElement),
@@ -11598,24 +11464,7 @@ function selectionEachBlock(callback, limitElement, blockContainer) {
  * @param {undefined|String} blockContainer Thia parameter is unused for some reason.
  */
 function selectionToggleBlockClasses(addClasses, removeClasses, limitElement, blockContainer) {
-    // <strict>
-    if (!$.isArray(addClasses)) {
-        handleError('Paramter 1 to selectionToggleBlockClasses is expected to be an array of classes');
-        return;
-    }
-    if (!$.isArray(removeClasses)) {
-        handleError('Paramter 2 to selectionToggleBlockClasses is expected to be an array of classes');
-        return;
-    }
-    if (!(limitElement instanceof jQuery)) {
-        handleError('Paramter 3 to selectionToggleBlockClasses is expected a jQuery element');
-        return;
-    }
-    if (typeof blockContainer !== 'undefined' && typeof blockContainer !== 'string') {
-        handleError('Paramter 4 to selectionToggleBlockClasses is expected be undefined or a string');
-        return;
-    }
-    // </strict>
+    // <strict/>
 
     var apply = false,
         blocks = new jQuery();
@@ -11885,11 +11734,7 @@ function selectionContains(selector, limit) {
  * @returns {Object} The saved state of the element.
  */
 function stateSave(element) {
-    // <strict>
-    if (!(element instanceof $)) {
-        handleError("Element must be a jQuery instance when saving a state", element);
-    }
-    // </strict>
+    // <strict/>
 
     var ranges = rangy.getSelection().getAllRanges();
     return {
@@ -11905,14 +11750,7 @@ function stateSave(element) {
  * @returns {Object} The restored element.
  */
 function stateRestore(element, state) {
-    // <strict>
-    if (!(element instanceof $)) {
-        handleError("Element must be a jQuery instance when restoring a state", element);
-    }
-    if (!(state.element instanceof $)) {
-        handleError("Preview state element must be a jQuery instance when restoring a state", state.element);
-    }
-    // </strict>
+    // <strict/>
 
     element.replaceWith(state.element);
     return {
@@ -12294,34 +12132,35 @@ function tagCustomRemoveFromSelection(tag, className) {
  *
  * @type type
  */
-var templateCache = { 'class-menu.item': "<li data-value=\"{{value}}\"><a>{{label}}<\/a><\/li>\n",
+var templateCache = { 'message': "<div class=\"{{baseClass}}-message-wrapper {{baseClass}}-message-{{type}}\">\n    <div class=\"ui-icon ui-icon-{{type}}\" \/>\n    <div class=\"{{baseClass}}-message\">{{message}}<\/div>\n    <div class=\"{{baseClass}}-message-close ui-icon ui-icon-circle-close\"><\/div>\n<\/div>\n",
+'messages': "<div class=\"{{baseClass}}-messages\" \/>\n",
+'unsupported': "<div class=\"{{baseClass}}-unsupported-overlay\"><\/div>\n<div class=\"{{baseClass}}-unsupported-content\">\n    It has been detected that you a using a browser that is not supported by Raptor, please\n    use one of the following browsers:\n\n    <ul>\n        <li><a href=\"http:\/\/www.google.com\/chrome\">Google Chrome<\/a><\/li>\n        <li><a href=\"http:\/\/www.firefox.com\">Mozilla Firefox<\/a><\/li>\n        <li><a href=\"http:\/\/www.google.com\/chromeframe\">Internet Explorer with Chrome Frame<\/a><\/li>\n    <\/ul>\n\n    <div class=\"{{baseClass}}-unsupported-input\">\n        <button class=\"{{baseClass}}-unsupported-close\">Close<\/button>\n        <input name=\"{{baseClass}}-unsupported-show\" type=\"checkbox\" \/>\n        <label>Don't show this message again<\/label>\n    <\/div>\n<div>",
+'class-menu.item': "<li data-value=\"{{value}}\"><a>{{label}}<\/a><\/li>\n",
 'click-button-to-edit.button': "<button class=\"{{baseClass}}-button\">_('clickButtonToEditPluginButton')<\/button>\n",
 'color-menu-basic.menu': "<li data-color=\"automatic\"><a><div class=\"{{baseClass}}-swatch\" style=\"display: none\"><\/div> <span>_('colorMenuBasicAutomatic')<\/span><\/a><\/li>\n<li data-color=\"white\"><a><div class=\"{{baseClass}}-swatch\" style=\"background-color: #ffffff\"><\/div> <span>_('colorMenuBasicWhite')<\/span><\/a><\/li>\n<li data-color=\"black\"><a><div class=\"{{baseClass}}-swatch\" style=\"background-color: #000000\"><\/div> <span>_('colorMenuBasicBlack')<\/span><\/a><\/li>\n<li data-color=\"grey\"><a><div class=\"{{baseClass}}-swatch\" style=\"background-color: #999\"><\/div> <span>_('colorMenuBasicGrey')<\/span><\/a><\/li>\n<li data-color=\"blue\"><a><div class=\"{{baseClass}}-swatch\" style=\"background-color: #4f81bd\"><\/div> <span>_('colorMenuBasicBlue')<\/span><\/a><\/li>\n<li data-color=\"red\"><a><div class=\"{{baseClass}}-swatch\" style=\"background-color: #c0504d\"><\/div> <span>_('colorMenuBasicRed')<\/span><\/a><\/li>\n<li data-color=\"green\"><a><div class=\"{{baseClass}}-swatch\" style=\"background-color: #9bbb59\"><\/div> <span>_('colorMenuBasicGreen')<\/span><\/a><\/li>\n<li data-color=\"purple\"><a><div class=\"{{baseClass}}-swatch\" style=\"background-color: #8064a2\"><\/div> <span>_('colorMenuBasicPurple')<\/span><\/a><\/li>\n<li data-color=\"orange\"><a><div class=\"{{baseClass}}-swatch\" style=\"background-color: #f79646\"><\/div> <span>_('colorMenuBasicOrange')<\/span><\/a><\/li>\n",
 'embed.dialog': "<div class=\"{{baseClass}}-panel-tabs ui-tabs ui-widget ui-widget-content ui-corner-all\">\n    <ul class=\"ui-tabs-nav ui-helper-reset ui-helper-clearfix ui-widget-header ui-corner-all\">\n        <li class=\"ui-state-default ui-corner-top ui-tabs-selected ui-state-active\"><a>_('embedDialogTabCode')<\/a><\/li>\n        <li class=\"ui-state-default ui-corner-top\"><a>_('embedDialogTabPreview')<\/a><\/li>\n    <\/ul>\n    <div class=\"{{baseClass}}-code-tab\">\n        <p>_('embedDialogTabCodeContent')<\/p>\n        <textarea><\/textarea>\n    <\/div>\n    <div class=\"{{baseClass}}-preview-tab\" style=\"display: none\">\n        <p>_('embedDialogTabPreviewContent')<\/p>\n        <div class=\"{{baseClass}}-preview\"><\/div>\n    <\/div>\n<\/div>\n",
+'image-resize-button.button': "<div class=\"{{baseClass}}-button\">\n    _('imageResizeButtonText')\n<\/div>\n",
+'image-resize-button.dialog': "<div>\n    <div>\n        <label for=\"{{baseClass}}-width\">_('imageResizeButtonDialogWidth')<\/label>\n        <input id=\"{{baseClass}}-width\" name=\"width\" type=\"text\" placeholder=\"_('imageResizeButtonDialogWidthPlaceHolder')\"\/>\n    <\/div>\n    <div>\n        <label for=\"{{baseClass}}-height\">_('imageResizeButtonDialogHeight')<\/label>\n        <input id=\"{{baseClass}}-height\" name=\"height\" type=\"text\" placeholder=\"_('imageResizeButtonDialogHeightPlaceHolder')\"\/>\n    <\/div>\n<\/div>\n",
 'insert-file.dialog': "<div>\n    <label>_('File URL')<\/label>\n    <input type=\"text\" name=\"location\" placeholder=\"Paste file URL here\"\/>\n    <label>_('File Name')<\/label>\n    <input type=\"text\" name=\"name\" placeholder=\"Name of file\"\/>\n<\/div>\n",
 'link.dialog': "<div style=\"display:none\" class=\"{{baseClass}}-panel\">\n    <div class=\"{{baseClass}}-menu\">\n        <p>_('linkCreateDialogMenuHeader')<\/p>\n        <fieldset data-menu=\"\"><\/fieldset>\n    <\/div>\n    <div class=\"{{baseClass}}-wrap\">\n        <div class=\"{{baseClass}}-content\" data-content=\"\"><\/div>\n    <\/div>\n<\/div>\n",
 'link.document': "<h2>_('linkTypeDocumentHeader')<\/h2>\n<fieldset>\n    <label for=\"{{baseClass}}-document-href\">_('linkTypeDocumentLocationLabel')<\/label>\n    <input id=\"{{baseClass}}-document-href\" value=\"http:\/\/\" name=\"location\" class=\"{{baseClass}}-document-href\" type=\"text\" placeholder=\"_('linkTypeDocumentLocationPlaceHolder')\" \/>\n<\/fieldset>\n<h2>_('linkTypeDocumentNewWindowHeader')<\/h2>\n<fieldset>\n    <label for=\"{{baseClass}}-document-target\">\n        <input id=\"{{baseClass}}-document-target\" name=\"blank\" type=\"checkbox\" \/>\n        <span>_('linkTypeDocumentNewWindowLabel')<\/span>\n    <\/label>\n<\/fieldset>\n_('linkTypeDocumentInfo')\n",
 'link.email': "<h2>_('linkTypeEmailHeader')<\/h2>\n<fieldset class=\"{{baseClass}}-email\">\n    <label for=\"{{baseClass}}-email\">_('linkTypeEmailToLabel')<\/label>\n    <input id=\"{{baseClass}}-email\" name=\"email\" type=\"text\" placeholder=\"_('linkTypeEmailToPlaceHolder')\"\/>\n<\/fieldset>\n<fieldset class=\"{{baseClass}}-email\">\n    <label for=\"{{baseClass}}-email-subject\">_('linkTypeEmailSubjectLabel')<\/label>\n    <input id=\"{{baseClass}}-email-subject\" name=\"subject\" type=\"text\" placeholder=\"_('linkTypeEmailSubjectPlaceHolder')\"\/>\n<\/fieldset>\n",
+'link.error': "<div style=\"display:none\" class=\"ui-widget {{baseClass}}-error-message {{messageClass}}\">\n    <div class=\"ui-state-error ui-corner-all\"> \n        <p>\n            <span class=\"ui-icon ui-icon-alert\"><\/span> \n            {{message}}\n        <\/p>\n    <\/div>\n<\/div>",
 'link.external': "<h2>_('linkTypeExternalHeader')<\/h2>\n<fieldset>\n    <label for=\"{{baseClass}}-external-href\">_('linkTypeExternalLocationLabel')<\/label>\n    <input id=\"{{baseClass}}-external-href\" value=\"http:\/\/\" name=\"location\" class=\"{{baseClass}}-external-href\" type=\"text\" placeholder=\"_('linkTypeExternalLocationPlaceHolder')\" \/>\n<\/fieldset>\n<h2>_('linkTypeExternalNewWindowHeader')<\/h2>\n<fieldset>\n    <label for=\"{{baseClass}}-external-target\">\n        <input id=\"{{baseClass}}-external-target\" name=\"blank\" type=\"checkbox\" \/>\n        <span>_('linkTypeExternalNewWindowLabel')<\/span>\n    <\/label>\n<\/fieldset>\n_('linkTypeExternalInfo')\n",
+'link.file-url': "<h2>_('Link to a document or other file')<\/h2>\n<fieldset>\n    <label for=\"{{baseClass}}-external-href\">_('Location')<\/label>\n    <input id=\"{{baseClass}}-external-href\" value=\"http:\/\/\" name=\"location\" class=\"{{baseClass}}-external-href\" type=\"text\" placeholder=\"_('Enter your URL')\" \/>\n<\/fieldset>\n<h2>_('New window')<\/h2>\n<fieldset>\n    <label for=\"{{baseClass}}-external-target\">\n        <input id=\"{{baseClass}}-external-target\" name=\"blank\" type=\"checkbox\" \/>\n        <span>_('Check this box to have the file open in a new browser window')<\/span>\n    <\/label>\n<\/fieldset>\n<h2>_('Not sure what to put in the box above?')<\/h2>\n<ol>\n    <li>_('Ensure the file has been uploaded to your website')<\/li>\n    <li>_('Open the uploaded file in your browser')<\/li>\n    <li>_(\"Copy the file's URL from your browser's address bar and paste it into the box above\")<\/li>\n<\/ol>\n",
 'link.internal': "<h2>_('linkTypeInternalHeader')<\/h2>\n<fieldset>\n    <label for=\"{{baseClass}}-internal-href\">_('linkTypeInternalLocationLabel') {{domain}}<\/label>\n    <input id=\"{{baseClass}}-internal-href\" value=\"\" name=\"location\" class=\"{{baseClass}}-internal-href\" type=\"text\" placeholder=\"_('linkTypeInternalLocationPlaceHolder')\" \/>\n<\/fieldset>\n<h2>_('linkTypeInternalNewWindowHeader')<\/h2>\n<fieldset>\n    <label for=\"{{baseClass}}-internal-target\">\n        <input id=\"{{baseClass}}-internal-target\" name=\"blank\" type=\"checkbox\" \/>\n        <span>_('linkTypeInternalNewWindowLabel')<\/span>\n    <\/label>\n<\/fieldset>\n_('linkTypeInternalInfo')\n",
 'link.label': "<label>\n    <input type=\"radio\" name=\"link-type\" autocomplete=\"off\"\/>\n    <span>{{label}}<\/span>\n<\/label>\n",
-'image-resize-button.button': "<div class=\"{{baseClass}}-button\">\n    _('imageResizeButtonText')\n<\/div>\n",
-'image-resize-button.dialog': "<div>\n    <div>\n        <label for=\"{{baseClass}}-width\">_('imageResizeButtonDialogWidth')<\/label>\n        <input id=\"{{baseClass}}-width\" name=\"width\" type=\"text\" placeholder=\"_('imageResizeButtonDialogWidthPlaceHolder')\"\/>\n    <\/div>\n    <div>\n        <label for=\"{{baseClass}}-height\">_('imageResizeButtonDialogHeight')<\/label>\n        <input id=\"{{baseClass}}-height\" name=\"height\" type=\"text\" placeholder=\"_('imageResizeButtonDialogHeightPlaceHolder')\"\/>\n    <\/div>\n<\/div>\n",
-'insert-file.dialog': "<div>\n    <label>_('File URL')<\/label>\n    <input type=\"text\" name=\"location\" placeholder=\"Paste file URL here\"\/>\n    <label>_('File Name')<\/label>\n    <input type=\"text\" name=\"name\" placeholder=\"Name of file\"\/>\n<\/div>\n",
-'special-characters.dialog': "<div>\n    _('specialCharactersHelp')\n    <br\/>\n    <ul><\/ul>\n<\/div>\n",
-'special-characters.tab-li': "<li><a href=\"#{{baseClass}}-{{key}}\">{{name}}<\/a><\/li>\n",
-'special-characters.tab-content': "<div id=\"{{baseClass}}-{{key}}\"><\/div>\n",
-'special-characters.tab-button': "<button data-setKey=\"{{setKey}}\" data-charactersIndex=\"{{charactersIndex}}\" title=\"{{description}}\">{{htmlEntity}}<\/button>\n",
 'paste.dialog': "<div class=\"{{baseClass}}-panel ui-dialog-content ui-widget-content\">\n    <div class=\"{{baseClass}}-panel-tabs ui-tabs ui-widget ui-widget-content ui-corner-all\">\n        <ul class=\"ui-tabs-nav ui-helper-reset ui-helper-clearfix ui-widget-header ui-corner-all\">\n            <li class=\"ui-state-default ui-corner-top ui-tabs-selected ui-state-active\"><a>_('pasteDialogPlain')<\/a><\/li>\n            <li class=\"ui-state-default ui-corner-top\"><a>_('pasteDialogFormattedCleaned')<\/a><\/li>\n            <li class=\"ui-state-default ui-corner-top\"><a>_('pasteDialogFormattedUnclean')<\/a><\/li>\n            <li class=\"ui-state-default ui-corner-top\"><a>_('pasteDialogSource')<\/a><\/li>\n        <\/ul>\n        <div class=\"{{baseClass}}-plain-tab\">\n            <textarea class=\"{{baseClass}}-area {{baseClass}}-plain\"><\/textarea>\n        <\/div>\n        <div class=\"{{baseClass}}-markup-tab\" style=\"display: none\">\n            <div contenteditable=\"true\" class=\"{{baseClass}}-area {{baseClass}}-markup\"><\/div>\n        <\/div>\n        <div class=\"{{baseClass}}-rich-tab\" style=\"display: none\">\n            <div contenteditable=\"true\" class=\"{{baseClass}}-area {{baseClass}}-rich\"><\/div>\n        <\/div>\n        <div class=\"{{baseClass}}-source-tab\" style=\"display: none\">\n            <textarea class=\"{{baseClass}}-area {{baseClass}}-source\"><\/textarea>\n        <\/div>\n    <\/div>\n<\/div>\n",
 'snippet-menu.item': "<li data-name=\"{{name}}\"><a>{{name}}<\/a><\/li>",
+'special-characters.dialog': "<div>\n    _('specialCharactersHelp')\n    <br\/>\n    <ul><\/ul>\n<\/div>\n",
+'special-characters.tab-button': "<button data-setKey=\"{{setKey}}\" data-charactersIndex=\"{{charactersIndex}}\" title=\"{{description}}\">{{htmlEntity}}<\/button>\n",
+'special-characters.tab-content': "<div id=\"{{baseClass}}-{{key}}\"><\/div>\n",
+'special-characters.tab-li': "<li><a href=\"#{{baseClass}}-{{key}}\">{{name}}<\/a><\/li>\n",
 'statistics.dialog': "<div>\n    <ul>\n        <li data-name=\"characters\"><\/li>\n        <li data-name=\"words\"><\/li>\n        <li data-name=\"sentences\"><\/li>\n        <li data-name=\"truncation\"><\/li>\n    <\/ul>\n<\/div>\n",
 'table.create-menu': "<table class=\"{{baseClass}}-menu\">\n    <tr>\n        <td><\/td>\n        <td><\/td>\n        <td><\/td>\n        <td><\/td>\n        <td><\/td>\n        <td><\/td>\n        <td><\/td>\n        <td><\/td>\n    <\/tr>\n    <tr>\n        <td><\/td>\n        <td><\/td>\n        <td><\/td>\n        <td><\/td>\n        <td><\/td>\n        <td><\/td>\n        <td><\/td>\n        <td><\/td>\n    <\/tr>\n    <tr>\n        <td><\/td>\n        <td><\/td>\n        <td><\/td>\n        <td><\/td>\n        <td><\/td>\n        <td><\/td>\n        <td><\/td>\n        <td><\/td>\n    <\/tr>\n    <tr>\n        <td><\/td>\n        <td><\/td>\n        <td><\/td>\n        <td><\/td>\n        <td><\/td>\n        <td><\/td>\n        <td><\/td>\n        <td><\/td>\n    <\/tr>\n    <tr>\n        <td><\/td>\n        <td><\/td>\n        <td><\/td>\n        <td><\/td>\n        <td><\/td>\n        <td><\/td>\n        <td><\/td>\n        <td><\/td>\n    <\/tr>\n    <tr>\n        <td><\/td>\n        <td><\/td>\n        <td><\/td>\n        <td><\/td>\n        <td><\/td>\n        <td><\/td>\n        <td><\/td>\n        <td><\/td>\n    <\/tr>\n    <tr>\n        <td><\/td>\n        <td><\/td>\n        <td><\/td>\n        <td><\/td>\n        <td><\/td>\n        <td><\/td>\n        <td><\/td>\n        <td><\/td>\n    <\/tr>\n    <tr>\n        <td><\/td>\n        <td><\/td>\n        <td><\/td>\n        <td><\/td>\n        <td><\/td>\n        <td><\/td>\n        <td><\/td>\n        <td><\/td>\n    <\/tr>\n<\/table>\n",
 'tag-menu.menu': "<li data-value=\"na\"><a>_('tagMenuTagNA')<\/a><\/li>\n<li data-value=\"p\"><a>_('tagMenuTagP')<\/a><\/li>\n<li data-value=\"h1\"><a>_('tagMenuTagH1')<\/a><\/li>\n<li data-value=\"h2\"><a>_('tagMenuTagH2')<\/a><\/li>\n<li data-value=\"h3\"><a>_('tagMenuTagH3')<\/a><\/li>\n<li data-value=\"h4\"><a>_('tagMenuTagH4')<\/a><\/li>\n<li data-value=\"div\"><a>_('tagMenuTagDiv')<\/a><\/li>\n<li data-value=\"pre\"><a>_('tagMenuTagPre')<\/a><\/li>\n<li data-value=\"address\"><a>_('tagMenuTagAddress')<\/a><\/li>\n",
-'unsaved-edit-warning.warning': "<div class=\"{{baseClass}}\">\n    <span class=\"ui-icon ui-icon-alert\"><\/span>\n    <span>_('unsavedEditWarningText')<\/span>\n<\/div>\n",
-'view-source.dialog': "<div class=\"{{baseClass}}-inner-wrapper\">\n    <textarea><\/textarea>\n<\/div>\n",
-'message': "<div class=\"{{baseClass}}-message-wrapper {{baseClass}}-message-{{type}}\">\n    <div class=\"ui-icon ui-icon-{{type}}\" \/>\n    <div class=\"{{baseClass}}-message\">{{message}}<\/div>\n    <div class=\"{{baseClass}}-message-close ui-icon ui-icon-circle-close\"><\/div>\n<\/div>\n",
-'messages': "<div class=\"{{baseClass}}-messages\" \/>\n",
-'unsupported': "<div class=\"{{baseClass}}-unsupported-overlay\"><\/div>\n<div class=\"{{baseClass}}-unsupported-content\">\n    It has been detected that you a using a browser that is not supported by Raptor, please\n    use one of the following browsers:\n\n    <ul>\n        <li><a href=\"http:\/\/www.google.com\/chrome\">Google Chrome<\/a><\/li>\n        <li><a href=\"http:\/\/www.firefox.com\">Mozilla Firefox<\/a><\/li>\n        <li><a href=\"http:\/\/www.google.com\/chromeframe\">Internet Explorer with Chrome Frame<\/a><\/li>\n    <\/ul>\n\n    <div class=\"{{baseClass}}-unsupported-input\">\n        <button class=\"{{baseClass}}-unsupported-close\">Close<\/button>\n        <input name=\"{{baseClass}}-unsupported-show\" type=\"checkbox\" \/>\n        <label>Don't show this message again<\/label>\n    <\/div>\n<div>" };
+'unsaved-edit-warning.warning': "<div class=\"{{baseClass}} ui-corner-tl\">\n    <span class=\"ui-icon ui-icon-alert\"><\/span>\n    <span>_('unsavedEditWarningText')<\/span>\n<\/div>\n",
+'view-source.dialog': "<div class=\"{{baseClass}}-inner-wrapper\">\n    <textarea><\/textarea>\n<\/div>\n" };
 
 /**
  *
@@ -12671,23 +12510,7 @@ var Raptor =  {
      * @param {Object} ui
      */
     registerUi: function(ui) {
-        // <strict>
-        if (typeof ui !== 'object') {
-            handleError(_('errorUINotObject', {
-                ui: ui
-            }));
-            return;
-        } else if (typeof ui.name !== 'string') {
-            handleError(_('errorUINoName', {
-                ui: ui
-            }));
-            return;
-        } else if (this.ui[ui.name]) {
-            handleError(_('errorUIOverride', {
-                name: ui.name
-            }));
-        }
-        // </strict>
+        // <strict/>
         this.ui[ui.name] = ui;
     },
 
@@ -12698,32 +12521,12 @@ var Raptor =  {
      * @param {Object} layout
      */
     registerLayout: function(name, layout) {
-        // <strict>
-        if (this.ui[name]) {
-            handleError(_('Layout "{{name}}" has already been registered, and will be overwritten', {name: name}));
-        }
-        // </strict>
+        // <strict/>
         this.layouts[name] = layout;
     },
 
     registerPlugin: function(plugin) {
-        // <strict>
-        if (typeof plugin !== 'object') {
-            handleError(_('errorPluginNotObject', {
-                plugin: plugin
-            }));
-            return;
-        } else if (typeof plugin.name !== 'string') {
-            handleError(_('errorPluginNoName', {
-                plugin: plugin
-            }));
-            return;
-        } else if (this.plugins[plugin.name]) {
-            handleError(_('errorPluginOverride', {
-                name: plugin.name
-            }));
-        }
-        // </strict>
+        // <strict/>
 
         this.plugins[plugin.name] = plugin;
     },
@@ -12829,15 +12632,7 @@ var RaptorWidget = {
         }
 
         var currentInstance = this;
-        // <strict>
-        // Check for nested editors
-        Raptor.eachInstance(function(instance) {
-            if (currentInstance != instance &&
-                    currentInstance.element.closest(instance.element).length) {
-                handleError('Nesting editors is unsupported', currentInstance.element, instance.element);
-            }
-        });
-        // </strict>
+        // <strict/>
 
         this.options = $.extend({}, Raptor.defaults, this.options);
 
@@ -12860,7 +12655,7 @@ var RaptorWidget = {
         this.enabled = false;
 
         // True if editing is enabled at least once
-        this.initialised = false
+        this.initialised = false;
 
         // True if the layout has been loaded and displayed
         this.visible = false;
@@ -12886,7 +12681,7 @@ var RaptorWidget = {
         this.historyEnabled = true;
 
         // Check for browser support
-        if (!isSupported(this)) {
+        if (!isSupported()) {
             // @todo If element isn't a textarea, replace it with one
             return;
         }
@@ -13190,9 +12985,7 @@ var RaptorWidget = {
             this.checkChange();
         } catch (exception) {
             this.stateRestore(state);
-            // <strict>
-            handleError(exception);
-            // </strict>
+            // <strict/>
         }
     },
 
@@ -13263,9 +13056,7 @@ var RaptorWidget = {
                     document.execCommand('enableInlineTableEditing', false, false);
                     document.execCommand('styleWithCSS', true, true);
                 } catch (error) {
-                    // <strict>
-                    handleError(error);
-                    // </strict>
+                    // <strict/>
                 }
 
                 for (var name in this.plugins) {
@@ -13540,6 +13331,7 @@ var RaptorWidget = {
         if (!this.templates[name]) {
             this.templates[name] = templateGet(name, this.options.urlPrefix);
         }
+        // <strict/>
         return templateConvertTokens(this.templates[name], variables);
     },
 
@@ -13614,17 +13406,7 @@ var RaptorWidget = {
      * @param {Object} The hotkey object or null
      */
     registerHotkey: function(mixed, action) {
-        // <strict>
-        if (!typeIsString(mixed)) {
-            handleInvalidArgumentError('Expected argument 1 to raptor.registerHotkey to be a string');
-            return;
-        }
-        if (this.hotkeys[mixed]) {
-            handleError(_('Hotkey "{{hotkey}}" has already been registered, and will be overwritten', {
-                hotkey: mixed
-            }));
-        }
-        // </strict>
+        // <strict/>
 
         this.hotkeys[mixed] = action;
     },
@@ -13806,11 +13588,7 @@ var RaptorWidget = {
      * @param {Object} [context]
      */
     bind: function(name, callback, context) {
-        // <strict>
-        if (!$.isFunction(callback)) {
-            handleError('Must bind a valid callback, ' + name + ' was a ' + typeof callback);
-        }
-        // </strict>
+        // <strict/>
         var names = name.split(/,\s*/);
         for (var i = 0, l = names.length; i < l; i++) {
             if (!this.events[names[i]]) {
@@ -14093,17 +13871,231 @@ RaptorPlugin.prototype.enable = function() {};
 
                 /* End of file: temp/default/src/components/plugin.js */
             
+                /* File: temp/default/src/components/layout/toolbar.js */
+                Raptor.registerLayout('toolbar', /** @lends Toolbar.prototype */ {
+    options: {
+        /**
+         * Each element of the uiOrder should be an array of UI which will be grouped.
+         */
+        uiOrder: null
+    },
+
+    /**
+     * Inititialise the toolbar layout.
+     * @constructs
+     */
+    init: function() {
+        // Load all UI components if not supplied
+        if (!this.options.uiOrder) {
+            this.options.uiOrder = [[]];
+            for (var name in Raptor.ui) {
+                this.options.uiOrder[0].push(name);
+            }
+        }
+
+        // <debug/>
+
+        var toolbar = this.toolbar = $('<div/>')
+            .addClass(this.options.baseClass + '-toolbar');
+        var toolbarWrapper = this.toolbarWrapper = $('<div/>')
+            .addClass(this.options.baseClass + '-toolbar-wrapper')
+            .addClass('ui-widget-content')
+            .mousedown(function(event) {
+                event.preventDefault();
+            })
+            .append(toolbar);
+        var path = this.path = $('<div/>')
+            .addClass(this.options.baseClass + '-path')
+            .addClass('ui-widget-header');
+        var wrapper = this.wrapper = $('<div/>')
+            .addClass(this.options.baseClass + '-wrapper')
+            .css('display', 'none')
+            .append(path)
+            .append(toolbarWrapper);
+
+        if ($.fn.draggable && this.options.draggable) {
+            // <debug/>
+
+            wrapper.draggable({
+                cancel: 'a, button',
+                cursor: 'move',
+                // @todo Cancel drag when docked
+                // @todo Move draggable into plugin
+                handle: '.ui-editor-path',
+                stop: $.proxy(function() {
+                    // Save the persistant position
+                    var pos = this.raptor.persist('position', [
+                        wrapper.css('top'),
+                        wrapper.css('left')
+                    ]);
+                    wrapper.css({
+                        top: Math.abs(pos[0]),
+                        left: Math.abs(pos[1])
+                    });
+
+                    // <debug/>
+                }, this)
+            });
+
+            // Remove the relative position
+            wrapper.css('position', '');
+
+            // Set the persistant position
+            var pos = this.raptor.persist('position') || this.options.dialogPosition;
+
+            if (!pos) {
+                pos = [10, 10];
+            }
+
+            // <debug/>
+
+            if (parseInt(pos[0], 10) + wrapper.outerHeight() > $(window).height()) {
+                pos[0] = $(window).height() - wrapper.outerHeight();
+            }
+            if (parseInt(pos[1], 10) + wrapper.outerWidth() > $(window).width()) {
+                pos[1] = $(window).width() - wrapper.outerWidth();
+            }
+
+            wrapper.css({
+                top: Math.abs(parseInt(pos[0], 10)),
+                left: Math.abs(parseInt(pos[1], 10))
+            });
+
+            // Load the message display widget
+            this.raptor.loadMessages();
+        }
+
+        // Loop the UI component order option
+        for (var i = 0, l = this.options.uiOrder.length; i < l; i++) {
+            var uiGroupContainer = $('<div/>')
+                .addClass(this.raptor.options.baseClass + '-layout-toolbar-group');
+
+            // Loop each UI in the group
+            var uiGroup = this.options.uiOrder[i];
+            for (var ii = 0, ll = uiGroup.length; ii < ll; ii++) {
+                // Check if the UI component has been explicitly disabled
+                if (!this.raptor.isUiEnabled(uiGroup[ii])) {
+                    continue;
+                }
+
+                // Check the UI has been registered
+                if (Raptor.ui[uiGroup[ii]]) {
+                    var uiOptions = this.raptor.options.plugins[uiGroup[ii]];
+                    if (uiOptions === false) {
+                        continue;
+                    }
+
+                    // Clone the UI object (which should be extended from the defaultUi object)
+                    var uiObject = $.extend({}, Raptor.ui[uiGroup[ii]]);
+
+                    // Get the UI components base class
+                    var baseClass = uiGroup[ii].replace(/([A-Z])/g, function(match) {
+                        return '-' + match.toLowerCase();
+                    });
+
+                    var options = $.extend(true, {}, this.raptor.options, {
+                        baseClass: this.raptor.options.baseClass + '-ui-' + baseClass
+                    }, uiObject.options, uiOptions);
+
+                    uiObject.raptor = this.raptor;
+                    uiObject.options = options;
+                    var ui = uiObject.init();
+
+                    if (typeIsElement(ui)) {
+                        // Fix corner classes
+                        ui.removeClass('ui-corner-all');
+
+                        // Append the UI object to the group
+                        uiGroupContainer.append(ui);
+                    }
+
+                    // Add the UI object to the editors list
+                    this.raptor.uiObjects[uiGroup[ii]] = uiObject;
+                }
+                // <strict/>
+            }
+
+            // Append the UI group to the editor toolbar
+            if (uiGroupContainer.children().length > 0) {
+                uiGroupContainer.appendTo(this.toolbar);
+            }
+        }
+        $('<div/>').css('clear', 'both').appendTo(this.toolbar);
+
+        // Fix corner classes
+        this.toolbar.find('.ui-button:first-child').addClass('ui-corner-left');
+        this.toolbar.find('.ui-button:last-child').addClass('ui-corner-right');
+
+        var layout = this;
+        $(function() {
+            wrapper.appendTo('body');
+            layout.raptor.fire('layoutReady');
+        });
+    },
+
+    /**
+     * Show the toolbar.
+     *
+     * @fires RaptorWidget#layoutShow
+     */
+    show: function() {
+        this.wrapper.css('display', '');
+        this.raptor.fire('layoutShow');
+    },
+
+    /**
+     * Hide the toolbar.
+     *
+     * @fires RaptorWidget#layoutHide
+     */
+    hide: function() {
+        this.wrapper.css('display', 'none');
+        this.raptor.fire('layoutHide');
+    },
+
+    enableDragging: function() {
+        if ($.fn.draggable && this.options.draggable) {
+            this.wrapper.draggable('enable');
+        }
+    },
+
+    disableDragging: function() {
+        if ($.fn.draggable && this.options.draggable) {
+            this.wrapper.draggable('disable').removeClass('ui-state-disabled');
+        }
+    },
+
+    /**
+     * @return {Element} The toolbar's wrapping element.
+     */
+    getElement: function() {
+        return this.wrapper;
+    },
+
+    /**
+     * Clean up.
+     */
+    destruct: function() {
+        if (this.wrapper) {
+            this.wrapper.remove();
+        }
+    }
+});
+
+                /* End of file: temp/default/src/components/layout/toolbar.js */
+            
                 /* File: temp/default/src/components/ui/button.js */
                 /**
  * @fileOverview Contains the core button class code.
+ *
  * @author  David Neilsen <david@panmedia.co.nz>
  * @author  Michael Robinson <michael@panmedia.co.nz>
- * @author Melissa Richards <melissa@panmedia.co.nz>
+ * @author  Melissa Richards <melissa@panmedia.co.nz>
  */
 
 /**
  * @class The core button class.
- * 
+ *
  * @param {Object} overrides Options hash.
  */
 function Button(overrides) {
@@ -14278,6 +14270,58 @@ PreviewButton.prototype.isPreviewing = function() {
 
                 /* End of file: temp/default/src/components/ui/preview-button.js */
             
+                /* File: temp/default/src/components/ui/toggle-button.js */
+                /**
+ * @fileOverview Contains the core button class code.
+ * @author  David Neilsen <david@panmedia.co.nz>
+ * @author  Michael Robinson <michael@panmedia.co.nz>
+ * @author Melissa Richards <melissa@panmedia.co.nz>
+ */
+
+/**
+ * @class The toggle button class.
+ * @constructor
+ * @augments Button
+ *
+ * @param {Object} options
+ * @returns {ToggleButton}
+ */
+function ToggleButton(options) {
+    this.disable = false;
+    Button.call(this, options);
+}
+
+ToggleButton.prototype = Object.create(Button.prototype);
+
+/**
+ * Initialize the toggle button.
+ *
+ * @returns {Element}
+ */
+ToggleButton.prototype.init = function() {
+    this.raptor.bind('selectionChange', this.selectionChange.bind(this));
+    return Button.prototype.init.apply(this, arguments);
+};
+
+/**
+ * Changes the state of the button depending on whether it is active or not.
+ */
+ToggleButton.prototype.selectionChange = function() {
+    if (this.selectionToggle()) {
+        aButtonActive(this.button);
+        if (this.disable) {
+            aButtonEnable(this.button);
+        }
+    } else {
+        aButtonInactive(this.button);
+        if (this.disable) {
+            aButtonDisable(this.button);
+        }
+    }
+};
+
+                /* End of file: temp/default/src/components/ui/toggle-button.js */
+            
                 /* File: temp/default/src/components/ui/preview-toggle-button.js */
                 /**
  * @fileOverview Contains the preview toggle button class code.
@@ -14325,73 +14369,22 @@ PreviewToggleButton.prototype.selectionChange = function() {
 
                 /* End of file: temp/default/src/components/ui/preview-toggle-button.js */
             
-                /* File: temp/default/src/components/ui/toggle-button.js */
-                /**
- * @fileOverview Contains the core button class code.
- * @author  David Neilsen <david@panmedia.co.nz>
- * @author  Michael Robinson <michael@panmedia.co.nz>
- * @author Melissa Richards <melissa@panmedia.co.nz>
- */
-
-/**
- * @class The toggle button class.
- * @constructor
- * @augments button
- *
- * @param {Object} options
- * @returns {ToggleButton}
- */
-function ToggleButton(options) {
-    this.disable = false;
-    Button.call(this, options);
-}
-
-ToggleButton.prototype = Object.create(Button.prototype);
-
-/**
- * Initialize the toggle button.
- *
- * @returns {Element}
- */
-ToggleButton.prototype.init = function() {
-    this.raptor.bind('selectionChange', this.selectionChange.bind(this));
-    return Button.prototype.init.apply(this, arguments);
-};
-
-/**
- * Changes the state of the button depending on whether it is active or not.
- */
-ToggleButton.prototype.selectionChange = function() {
-    if (this.selectionToggle()) {
-        aButtonActive(this.button);
-        if (this.disable) {
-            aButtonEnable(this.button);
-        }
-    } else {
-        aButtonInactive(this.button);
-        if (this.disable) {
-            aButtonDisable(this.button);
-        }
-    }
-};
-
-                /* End of file: temp/default/src/components/ui/toggle-button.js */
-            
                 /* File: temp/default/src/components/ui/filtered-preview-button.js */
                 /**
  * @fileOverview Contains the filtered preview button class code.
+ *
  * @author  David Neilsen <david@panmedia.co.nz>
  * @author  Michael Robinson <michael@panmedia.co.nz>
- * @author Melissa Richards <melissa@panmedia.co.nz>
+ * @author  Melissa Richards <melissa@panmedia.co.nz>
  */
 
 /**
  * @class the filtered preview button class.
  *
  * @constructor
- * @augments Button
+ * @augments PreviewButton
  *
- * @param {type} options
+ * @param {Object} options
  */
 function FilteredPreviewButton(options) {
     Button.call(this, options);
@@ -14411,7 +14404,7 @@ FilteredPreviewButton.prototype.init = function() {
 };
 
 /**
- * Enables or disables the button based.
+ * Toggles the button's disabled state.
  */
 FilteredPreviewButton.prototype.selectionChange = function() {
     if (this.isEnabled()) {
@@ -14421,20 +14414,28 @@ FilteredPreviewButton.prototype.selectionChange = function() {
     }
 };
 
+// <strict>
 /**
- * Checks if a button can enable a preview.
- *
- * @todo check please
- * @returns {Boolean} True if preview available and if the button is enabled
+ * Get the element according to the button's filtereing strategy.
+ * @throws {Error} If this function is not overridden.
+ * @param  {RangyRange} range
+ * @return {Element} The filtered element.
+ */
+FilteredPreviewButton.prototype.getElement = function(range) {
+    throw new Error('Expected child class to override FilteredPreviewButton.getElement');
+};
+// <strict>
+
+
+/**
+ * @returns {Boolean} True if preview available and if the button is enabled, false otherwise.
  */
 FilteredPreviewButton.prototype.canPreview = function() {
     return PreviewButton.prototype.canPreview.call(this) && this.isEnabled();
 };
 
 /**
- * Checks if the button is enabled.
- *
- * @returns {Boolean} True if button is enabled.
+ * @returns {Boolean} True if button is enabled, false otherwise.
  */
 FilteredPreviewButton.prototype.isEnabled = function() {
     var result = false;
@@ -14447,8 +14448,7 @@ FilteredPreviewButton.prototype.isEnabled = function() {
 };
 
 /**
- * @todo no clue what this one does
- * @returns {undefined}
+ * Perform the button's action.
  */
 FilteredPreviewButton.prototype.action = function() {
     selectionEachRange(function(range) {
@@ -14463,19 +14463,18 @@ FilteredPreviewButton.prototype.action = function() {
             
                 /* File: temp/default/src/components/ui/css-class-applier-button.js */
                 /**
- * @fileOverview Contains the css class applier button class code.
+ * @fileOverview Contains the CSS class applier button class code.
+ *
  * @author  David Neilsen <david@panmedia.co.nz>
  * @author  Michael Robinson <michael@panmedia.co.nz>
  * @author Melissa Richards <melissa@panmedia.co.nz>
  */
 
 /**
- * @class the css class applier button class.
+ * @class The CSS class applier button.
  *
  * @constructor
  * @augments PreviewToggleButton
- *
- * @todo param desc
  * @param {Object} options
  */
 function CSSClassApplierButton(options) {
@@ -14485,7 +14484,7 @@ function CSSClassApplierButton(options) {
 CSSClassApplierButton.prototype = Object.create(PreviewToggleButton.prototype);
 
 /**
- * Applies the css class from the button to a selection.
+ * Applies the class from the button to a selection.
  */
 CSSClassApplierButton.prototype.action = function() {
     selectionExpandToWord();
@@ -14499,10 +14498,9 @@ CSSClassApplierButton.prototype.action = function() {
 };
 
 /**
- * Checks if a class has been applied to a selection.
+ * Checks whether a class has been applied to a selection.
  *
- * @todo check please
- * @returns {Boolean} True if the css has been applied to the selection.
+ * @returns {Boolean} True if the css has been applied to the selection, false otherwise.
  */
 CSSClassApplierButton.prototype.selectionToggle = function() {
     for (var i = 0, l = this.classes.length; i < l; i++) {
@@ -14521,24 +14519,23 @@ CSSClassApplierButton.prototype.selectionToggle = function() {
                 /* File: temp/default/src/components/ui/dialog-button.js */
                 /**
  * @fileOverview Contains the dialog button class code.
+ *
  * @author  David Neilsen <david@panmedia.co.nz>
  * @author  Michael Robinson <michael@panmedia.co.nz>
- * @author Melissa Richards <melissa@panmedia.co.nz>
+ * @author  Melissa Richards <melissa@panmedia.co.nz>
  */
 
 /**
- * @todo desc??
- * @type Array
+ * @type {Object} Container for Raptor dialogs.
  */
 var dialogs = {};
 
 /**
- * @class the dialog button class.
+ * @class
  *
  * @constructor
- * @augments button
+ * @augments Button
  *
- * @todo return type check and desc
  * @param {Object} options
  * @returns {DialogButton}
  */
@@ -14550,8 +14547,8 @@ function DialogButton(options) {
 DialogButton.prototype = Object.create(Button.prototype);
 
 /**
- *
- * @returns {undefined}
+ * A dialog button's action is to open a dialog, no content is modified at this
+ * stage.
  */
 DialogButton.prototype.action = function() {
     this.state = this.raptor.stateSave();
@@ -14561,12 +14558,11 @@ DialogButton.prototype.action = function() {
 };
 
 // <strict>
-
 /**
  * Callback triggered when the user clicks the OK button on the dialog.
  *
  * @param {Object} dialog Dialog to get the ok button from.
- * @return {boolean} If true is returned, then the dialog is closed, otherwise if false is returned the dialog stays open.
+ * @throws {Error} If this function is not overridden.
  */
 DialogButton.prototype.applyAction = function(dialog) {
     throw new Error('Expected child class to override DialogButton.applyAction');
@@ -14575,8 +14571,7 @@ DialogButton.prototype.applyAction = function(dialog) {
 /**
  * Callback triggered when the user clicks on the dialog button.
  *
- * @todo desc for return
- * @return {Boolean}
+ * @throws {Error} If this function is not overridden.
  */
 DialogButton.prototype.getDialogTemplate = function() {
     throw new Error('Expected child class to override DialogButton.getDialogTemplate');
@@ -14587,7 +14582,7 @@ DialogButton.prototype.getDialogTemplate = function() {
  * Checks the validility of a dialog.
  *
  * @param {type} dialog
- * @returns {Boolean} True if dialof is valid
+ * @returns {Boolean} True if dialog is valid, false otherwise.
  */
 DialogButton.prototype.validateDialog = function(dialog) {
     return true;
@@ -14598,17 +14593,15 @@ DialogButton.prototype.validateDialog = function(dialog) {
  *
  * @param {Object} dialog The dialog to open.
  */
-DialogButton.prototype.openDialog = function(dialog) {
-};
+DialogButton.prototype.openDialog = function(dialog) { };
 
 /**
- * Prepare and return the dialogs ok button to be used in the Raptor UI.
+ * Prepare and return the dialog's OK button's initialisation object.
  *
- * @todo type for name
- * @param {type} name The name of the dialog to find the ok button of.
- * @returns {Element} The dialogs ok button.
+ * @param {String} name
+ * @returns {Object} The initiialisation object for this dialog's OK button.
  */
-DialogButton.prototype.getOkButton= function(name) {
+DialogButton.prototype.getOkButton = function(name) {
     return {
         text: _(name + 'DialogOKButton'),
         click: function(event) {
@@ -14629,11 +14622,10 @@ DialogButton.prototype.getOkButton= function(name) {
 };
 
 /**
- * Prepare and return the dialogs cancel button to be used in the Raptor UI.
+ * Prepare and return the dialog's cancel button's initialisation object.
  *
- * @todo type of name
- * @param {type} name The name of the dialog to find the cancel button of.
- * @returns {Element} The cancel button.
+ * @param {String} name
+ * @returns {Object} The initiialisation object for this dialog's cancel button.
  */
 DialogButton.prototype.getCancelButton = function(name) {
     return {
@@ -14650,9 +14642,8 @@ DialogButton.prototype.getCancelButton = function(name) {
 /**
  * Prepare and return the dialogs default options to be used in the Raptor UI.
  *
- * @todo type of name and return
- * @param {type} name The name of the dialog to have the default options applied to it.
- * @returns {type} the default options for the dialog.
+ * @param {String} name The name of the dialog to have the default options applied to it.
+ * @returns {Object} the default options for the dialog.
  */
 DialogButton.prototype.getDefaultDialogOptions = function(name) {
     var options = {
@@ -14683,7 +14674,7 @@ DialogButton.prototype.getDefaultDialogOptions = function(name) {
  * Prepare and return the dialog to be used in the Raptor UI.
  *
  * @todo the type and description for instance.
- * @param {type} instance
+ * @param {DialogButton} instance
  * @returns {Element} The dialog.
  */
 DialogButton.prototype.getDialog = function(instance) {
@@ -14704,20 +14695,20 @@ DialogButton.prototype.getDialog = function(instance) {
                 /* File: temp/default/src/components/ui/dialog-toggle-button.js */
                 /**
  * @fileOverview Contains the dialog toggle button class code.
+ *
  * @author  David Neilsen <david@panmedia.co.nz>
  * @author  Michael Robinson <michael@panmedia.co.nz>
- * @author Melissa Richards <melissa@panmedia.co.nz>
+ * @author  Melissa Richards <melissa@panmedia.co.nz>
  */
 
 /**
- * @class the dialog toggle button class.
+ * @class
  *
  * @constructor
- * @augments DialogButton, ToggleButton
+ * @augments DialogButton
+ * @augments ToggleButton
  *
- * @todo types and desc for options and is there a return?
  * @param {type} options
- * @returns {undefined}
  */
 function DialogToggleButton(options) {
     DialogButton.call(this, options);
@@ -14732,16 +14723,61 @@ DialogToggleButton.prototype.selectionChange = ToggleButton.prototype.selectionC
 
                 /* End of file: temp/default/src/components/ui/dialog-toggle-button.js */
             
-                /* File: temp/default/src/components/ui/menu.js */
+                /* File: temp/default/src/components/ui/menu-button.js */
                 /**
- * @fileOverview Contains the menu class code.
+ * @fileOverview Contains the menu button class code.
+ *
  * @author  David Neilsen <david@panmedia.co.nz>
  * @author  Michael Robinson <michael@panmedia.co.nz>
- * @author Melissa Richards <melissa@panmedia.co.nz>
+ * @author  Melissa Richards <melissa@panmedia.co.nz>
  */
 
 /**
- * @class The core menu class.
+ * @class
+ * @constructor
+ * @augments Button
+ *
+ * @param {Menu} menu The menu to create the menu button for.
+ * @param {Object} options
+ * @returns {MenuButton}
+ */
+function MenuButton(menu, options) {
+    this.menu = menu;
+    this.name = menu.name;
+    this.raptor = menu.raptor;
+    this.options = menu.options;
+    Button.call(this, options);
+}
+
+MenuButton.prototype = Object.create(Button.prototype);
+
+/**
+ * Shows the menu when button is clicked.
+ *
+ * @param {Event} event The click event.
+ */
+MenuButton.prototype.click = function(event) {
+    if (this.menu.getMenu().is(':visible')) {
+        $('.raptor-menu').hide();
+    } else {
+        this.menu.show();
+    }
+    event.preventDefault();
+};
+
+                /* End of file: temp/default/src/components/ui/menu-button.js */
+            
+                /* File: temp/default/src/components/ui/menu.js */
+                /**
+ * @fileOverview Contains the menu class code.
+ *
+ * @author  David Neilsen <david@panmedia.co.nz>
+ * @author  Michael Robinson <michael@panmedia.co.nz>
+ * @author  Melissa Richards <melissa@panmedia.co.nz>
+ */
+
+/**
+ * @class
  * @constructor
  *
  * @param {Object} options
@@ -14758,27 +14794,20 @@ function Menu(options) {
 
 /**
  * Initialize the menu.
- * @returns {Menu.prototype.init.button}
+ *
+ * @returns {MenuButton}
  */
 Menu.prototype.init = function() {
     this.setOptions();
-    this.bind();
     var button = this.getButton().init();
     button.addClass('raptor-menu-button');
     return button;
 };
 
 /**
- * Binds events to the menu.
- */
-Menu.prototype.bind = function() {
-    // Bind events
-};
-
-/**
  * Prepare and return the menu's button Element to be used in the Raptor UI.
  *
- * @returns {Element}
+ * @returns {MenuButton}
  */
 Menu.prototype.getButton = function() {
     if (!this.button) {
@@ -14788,9 +14817,7 @@ Menu.prototype.getButton = function() {
 };
 
 /**
- * Sets the options for the menu.
- *
- * @returns {undefined}
+ * Applies options to the menu.
  */
 Menu.prototype.setOptions = function() {
     this.options.title = _(this.name + 'Title');
@@ -14820,7 +14847,7 @@ Menu.prototype.getMenu = function() {
 };
 
 /**
- * Displays the open menu.
+ * Display menu.
  */
 Menu.prototype.show = function() {
     $('.raptor-menu').hide();
@@ -14829,8 +14856,8 @@ Menu.prototype.show = function() {
 
 /**
  * Click off close event.
- * @todo type for event.
- * @param {type} event The click event.
+ *
+ * @param {Event} event The click event.
  */
 $('html').click(function(event) {
     if (!$(event.target).hasClass('raptor-menu-button') &&
@@ -14841,48 +14868,43 @@ $('html').click(function(event) {
 
                 /* End of file: temp/default/src/components/ui/menu.js */
             
-                /* File: temp/default/src/components/ui/menu-button.js */
+                /* File: temp/default/src/components/ui/custom-menu.js */
                 /**
- * @fileOverview Contains the menu button class code.
+ * @fileOverview Contains the custom menu class code.
+ *
  * @author  David Neilsen <david@panmedia.co.nz>
  * @author  Michael Robinson <michael@panmedia.co.nz>
- * @author Melissa Richards <melissa@panmedia.co.nz>
+ * @author  Melissa Richards <melissa@panmedia.co.nz>
  */
 
 /**
- * @class The menu button class.
+ * @class The custom menu class.
+ *
  * @constructor
- * @augments button
+ * @augments menu class.
  *
- * @param {type} menu The menu to create the menu button for.
- * @param {Object} options Any extra options to refine the creation of the menu button.
- * @returns {MenuButton}
- */
-function MenuButton(menu, options) {
-    this.menu = menu;
-    this.name = menu.name;
-    this.raptor = menu.raptor;
-    this.options = menu.options;
-    Button.call(this, options);
-}
-
-MenuButton.prototype = Object.create(Button.prototype);
-
-/**
- * Shows the menu on a click event.
+ * Prepares and returns the custom menu Element to be used in the Raptor UI.
  *
- * @param {type} event The click event.
+ * @returns {Element}
  */
-MenuButton.prototype.click = function(event) {
-    if (this.menu.getMenu().is(':visible')) {
-        $('.raptor-menu').hide();
-    } else {
-        this.menu.show();
+Menu.prototype.getMenu = function() {
+    if (!this.menu) {
+        this.menu = $('<div>')
+            .addClass('ui-menu ui-widget ui-widget-content ui-corner-all ' + this.options.baseClass + '-menu ' + this.raptor.options.baseClass + '-menu')
+            .html(this.menuContent)
+            .css('position', 'fixed')
+            .hide()
+            .appendTo('body')
+            .mousedown(function(event) {
+                // Prevent losing the selection on the editor target
+                event.preventDefault();
+            });
     }
-    event.preventDefault();
+    return this.menu;
 };
 
-                /* End of file: temp/default/src/components/ui/menu-button.js */
+
+                /* End of file: temp/default/src/components/ui/custom-menu.js */
             
                 /* File: temp/default/src/components/ui/select-menu.js */
                 /**
@@ -14935,250 +14957,16 @@ SelectMenu.prototype.getMenu = function() {
 
                 /* End of file: temp/default/src/components/ui/select-menu.js */
             
-                /* File: temp/default/src/components/ui/custom-menu.js */
+                /* File: temp/default/src/presets/base.js */
                 /**
- * @fileOverview Contains the custom menu class code.
+ * @fileOverview Default options for Raptor.
+ * @namespace Default options for Raptor.
+ *
  * @author  David Neilsen <david@panmedia.co.nz>
  * @author  Michael Robinson <michael@panmedia.co.nz>
  * @author Melissa Richards <melissa@panmedia.co.nz>
  */
 
-/**
- * @class the custom menu class.
- *
- * @constructor
- * @augments menu class.
- *
- * Prepares and returns the custom menu Element to be used in the Raptor UI.
- *
- * @returns {Element}
- */
-Menu.prototype.getMenu = function() {
-    if (!this.menu) {
-        this.menu = $('<div>')
-            .addClass('ui-menu ui-widget ui-widget-content ui-corner-all ' + this.options.baseClass + '-menu ' + this.raptor.options.baseClass + '-menu')
-            .html(this.menuContent)
-            .css('position', 'fixed')
-            .hide()
-            .appendTo('body')
-            .mousedown(function(event) {
-                // Prevent losing the selection on the editor target
-                event.preventDefault();
-            });
-    }
-    return this.menu;
-};
-
-
-                /* End of file: temp/default/src/components/ui/custom-menu.js */
-            
-                /* File: temp/default/src/components/layout/toolbar.js */
-                Raptor.registerLayout('toolbar', /** @lends Toolbar.prototype */ {
-    options: {
-        /**
-         * Each element of the uiOrder should be an array of UI which will be grouped.
-         */
-        uiOrder: null
-    },
-
-    /**
-     * Inititialise the toolbar layout.
-     * @constructs
-     */
-    init: function() {
-        // Load all UI components if not supplied
-        if (!this.options.uiOrder) {
-            this.options.uiOrder = [[]];
-            for (var name in Raptor.ui) {
-                this.options.uiOrder[0].push(name);
-            }
-        }
-
-        // <debug/>
-
-        var toolbar = this.toolbar = $('<div/>')
-            .addClass(this.options.baseClass + '-toolbar');
-        var toolbarWrapper = this.toolbarWrapper = $('<div/>')
-            .addClass(this.options.baseClass + '-toolbar-wrapper')
-            .addClass('ui-widget-content')
-            .mousedown(function(event) {
-                event.preventDefault();
-            })
-            .append(toolbar);
-        var path = this.path = $('<div/>')
-            .addClass(this.options.baseClass + '-path')
-            .addClass('ui-widget-header');
-        var wrapper = this.wrapper = $('<div/>')
-            .addClass(this.options.baseClass + '-wrapper')
-            .css('display', 'none')
-            .append(path)
-            .append(toolbarWrapper);
-
-        if ($.fn.draggable && this.options.draggable) {
-            // <debug/>
-
-            wrapper.draggable({
-                cancel: 'a, button',
-                cursor: 'move',
-                // @todo Cancel drag when docked
-                // @todo Move draggable into plugin
-                handle: '.ui-editor-path',
-                stop: $.proxy(function() {
-                    // Save the persistant position
-                    var pos = this.raptor.persist('position', [
-                        wrapper.css('top'),
-                        wrapper.css('left')
-                    ]);
-                    wrapper.css({
-                        top: Math.abs(pos[0]),
-                        left: Math.abs(pos[1])
-                    });
-
-                    // <debug/>
-                }, this)
-            });
-
-            // Remove the relative position
-            wrapper.css('position', '');
-
-            // Set the persistant position
-            var pos = this.raptor.persist('position') || this.options.dialogPosition;
-
-            if (!pos) {
-                pos = [10, 10];
-            }
-
-            // <debug/>
-
-            if (parseInt(pos[0], 10) + wrapper.outerHeight() > $(window).height()) {
-                pos[0] = $(window).height() - wrapper.outerHeight();
-            }
-            if (parseInt(pos[1], 10) + wrapper.outerWidth() > $(window).width()) {
-                pos[1] = $(window).width() - wrapper.outerWidth();
-            }
-
-            wrapper.css({
-                top: Math.abs(parseInt(pos[0], 10)),
-                left: Math.abs(parseInt(pos[1], 10))
-            });
-
-            // Load the message display widget
-            this.raptor.loadMessages();
-        }
-
-        // Loop the UI component order option
-        for (var i = 0, l = this.options.uiOrder.length; i < l; i++) {
-            var uiGroupContainer = $('<div/>')
-                .addClass(this.raptor.options.baseClass + '-layout-toolbar-group');
-
-            // Loop each UI in the group
-            var uiGroup = this.options.uiOrder[i];
-            for (var ii = 0, ll = uiGroup.length; ii < ll; ii++) {
-                // Check if the UI component has been explicitly disabled
-                if (!this.raptor.isUiEnabled(uiGroup[ii])) {
-                    continue;
-                }
-
-                // Check the UI has been registered
-                if (Raptor.ui[uiGroup[ii]]) {
-                    // Clone the UI object (which should be extended from the defaultUi object)
-                    var uiObject = $.extend({}, Raptor.ui[uiGroup[ii]]);
-
-                    // Get the UI components base class
-                    var baseClass = uiGroup[ii].replace(/([A-Z])/g, function(match) {
-                        return '-' + match.toLowerCase();
-                    });
-
-                    var options = $.extend(true, {}, this.raptor.options, {
-                        baseClass: this.raptor.options.baseClass + '-ui-' + baseClass
-                    }, uiObject.options, this.raptor.options.plugins[uiGroup[ii]]);
-
-                    uiObject.raptor = this.raptor;
-                    uiObject.options = options;
-                    var ui = uiObject.init();
-
-                    if (typeIsElement(ui)) {
-                        // Fix corner classes
-                        ui.removeClass('ui-corner-all');
-
-                        // Append the UI object to the group
-                        uiGroupContainer.append(ui);
-                    }
-
-                    // Add the UI object to the editors list
-                    this.raptor.uiObjects[uiGroup[ii]] = uiObject;
-                }
-                // <strict>
-                else {
-                    handleError('UI identified by key "' + uiGroup[ii] + '" does not exist');
-                }
-                // </strict>
-            }
-
-            // Append the UI group to the editor toolbar
-            if (uiGroupContainer.children().length > 0) {
-                uiGroupContainer.appendTo(this.toolbar);
-            }
-        }
-        $('<div/>').css('clear', 'both').appendTo(this.toolbar);
-
-        // Fix corner classes
-        this.toolbar.find('.ui-button:first-child').addClass('ui-corner-left');
-        this.toolbar.find('.ui-button:last-child').addClass('ui-corner-right');
-
-        var layout = this;
-        $(function() {
-            wrapper.appendTo('body');
-            layout.raptor.fire('layoutReady');
-        });
-    },
-
-    /**
-     * Show the toolbar.
-     *
-     * @fires RaptorWidget#layoutShow
-     */
-    show: function() {
-        this.wrapper.css('display', '');
-        this.raptor.fire('layoutShow');
-    },
-
-    hide: function() {
-        this.wrapper.css('display', 'none');
-        this.raptor.fire('layoutHide');
-    },
-
-    enableDragging: function() {
-        if ($.fn.draggable && this.options.draggable) {
-            this.wrapper.draggable('enable');
-        }
-    },
-
-    disableDragging: function() {
-        if ($.fn.draggable && this.options.draggable) {
-            this.wrapper.draggable('disable').removeClass('ui-state-disabled');
-        }
-    },
-
-    getElement: function() {
-        return this.wrapper;
-    },
-
-    destruct: function() {
-        if (this.wrapper) {
-            this.wrapper.remove();
-        }
-    }
-});
-
-                /* End of file: temp/default/src/components/layout/toolbar.js */
-            
-                /* File: temp/default/src/presets/base.js */
-                /**
- * Default options for Raptor.
- *
- * @namespace Default options for Raptor.
- */
 var basePreset = {
     /**
      * @type Object Default layout to use.
@@ -15346,7 +15134,17 @@ var basePreset = {
                 /* End of file: temp/default/src/presets/base.js */
             
                 /* File: temp/default/src/presets/rails.js */
-                Raptor.defaults = $.extend(basePreset, {
+                /**
+ * @fileOverview Contains the rails default toolbar code?.
+ * @author  David Neilsen <david@panmedia.co.nz>
+ * @author  Michael Robinson <michael@panmedia.co.nz>
+ * @author  Melissa Richards <melissa@panmedia.co.nz>
+ */
+/**
+ * @todo not sure what to put for these?
+ * @type @exp;$@call;extend
+ */
+Raptor.defaults = $.extend(basePreset, {
     layout: {
         type: 'toolbar',
         options: {
@@ -15375,11 +15173,230 @@ var basePreset = {
 
                 /* End of file: temp/default/src/presets/rails.js */
             
+                /* File: temp/default/src/presets/base.js */
+                /**
+ * @fileOverview Default options for Raptor.
+ * @namespace Default options for Raptor.
+ *
+ * @author  David Neilsen <david@panmedia.co.nz>
+ * @author  Michael Robinson <michael@panmedia.co.nz>
+ * @author Melissa Richards <melissa@panmedia.co.nz>
+ */
+
+var basePreset = {
+    /**
+     * @type Object Default layout to use.
+     */
+    layout: null,
+
+    /**
+     * Plugins option overrides.
+     *
+     * @type Object
+     */
+    plugins: {},
+
+    /**
+     * UI option overrides.
+     *
+     * @type Object
+     */
+    ui: {},
+
+    /**
+     * Default events to bind.
+     *
+     * @type Object
+     */
+    bind: {},
+
+    /**
+     * Namespace used for persistence to prevent conflicting with other stored
+     * values.
+     *
+     * @type String
+     */
+    namespace: null,
+
+    /**
+     * Switch to indicated that some events should be automatically applied to
+     * all editors that are 'unified'
+     *
+     * @type boolean
+     */
+    unify: true,
+
+    /**
+     * Switch to indicate weather or not to stored persistent values, if set to
+     * false the persist function will always return null
+     *
+     * @type boolean
+     */
+    persistence: true,
+
+    /**
+     * The name to store persistent values under
+     * @type String
+     */
+    persistenceName: 'uiEditor',
+
+    /**
+     * Switch to indicate weather or not to a warning should pop up when the
+     * user navigates aways from the page and there are unsaved changes
+     *
+     * @type boolean
+     */
+    unloadWarning: true,
+
+    /**
+     * Switch to automatically enabled editing on the element
+     *
+     * @type boolean
+     */
+    autoEnable: false,
+
+    /**
+     * Only enable editing on certian parts of the element
+     *
+     * @type {jQuerySelector}
+     */
+    partialEdit: false,
+
+    /**
+     * Switch to specify if the editor should automatically enable all plugins,
+     * if set to false, only the plugins specified in the 'plugins' option
+     * object will be enabled
+     *
+     * @type boolean
+     */
+    enablePlugins: true,
+
+    /**
+     * An array of explicitly disabled plugins
+     * @type String[]
+     */
+    disabledPlugins: [],
+
+    /**
+     * And array of arrays denoting the order and grouping of UI elements in the
+     * toolbar
+     *
+     * @type String[]
+     */
+    uiOrder: null,
+
+    /**
+     * Switch to specify if the editor should automatically enable all UI, if
+     * set to false, only the UI specified in the {@link Raptor.defaults.ui}
+     * option object will be enabled
+     *
+     * @type boolean
+     */
+    enableUi: true,
+
+    /**
+     * An array of explicitly disabled UI elements
+     * @type String[]
+     */
+    disabledUi: [],
+
+    /**
+     * Default message options
+     * @type Object
+     */
+    message: {
+        delay: 5000
+    },
+
+    /**
+     * Switch to indicate that the element the editor is being applied to should
+     * be replaced with a div (useful for textareas), the value/html of the
+     * replaced element will be automatically updated when the editor element is
+     * changed
+     *
+     * @type boolean
+     */
+    replace: false,
+
+    /**
+     * A list of styles that will be copied from the replaced element and
+     * applied to the editor replacement element
+     *
+     * @type String[]
+     */
+    replaceStyle: [
+        'display', 'position', 'float', 'width',
+        'padding-left', 'padding-right', 'padding-top', 'padding-bottom',
+        'margin-left', 'margin-right', 'margin-top', 'margin-bottom'
+    ],
+
+    /**
+     *
+     * @type String
+     */
+    baseClass: 'raptor',
+
+    /**
+     * CSS class prefix that is prepended to inserted elements classes.
+     * E.g. "cms-bold"
+     *
+     * @type String
+     */
+    cssPrefix: 'cms-',
+
+    draggable: true
+};
+
+                /* End of file: temp/default/src/presets/base.js */
+            
+                /* File: temp/default/src/presets/mammoth.js */
+                /**
+ * @fileOverview Contains the mammoth default toolbar code?.
+ * @author  David Neilsen <david@panmedia.co.nz>
+ * @author  Michael Robinson <michael@panmedia.co.nz>
+ * @author  Melissa Richards <melissa@panmedia.co.nz>
+ */
+/**
+ * @todo not sure what to put for these?
+ * @type @exp;$@call;extend
+ */
+Raptor.defaults = $.extend(basePreset, {
+    layout: {
+        type: 'toolbar',
+        options: {
+            uiOrder: [
+                ['logo'],
+                ['save', 'cancel'],
+                ['dockToScreen', 'guides'],
+                ['viewSource'],
+                ['historyUndo', 'historyRedo'],
+                ['alignLeft', 'alignCenter', 'alignJustify', 'alignRight'],
+                ['textBold', 'textItalic', 'textUnderline', 'textStrike'],
+                ['textSuper', 'textSub'],
+                ['listUnordered', 'listOrdered'],
+                ['hrCreate', 'textBlockQuote'],
+                ['textSizeIncrease', 'textSizeDecrease'],
+                ['clearFormatting'],
+                ['linkCreate', 'linkRemove'],
+                ['embed', 'insertFile'],
+                ['floatLeft', 'floatNone', 'floatRight'],
+                ['colorMenuBasic'],
+                ['tagMenu'],
+                ['classMenu'],
+                ['snippetMenu'],
+                ['tableCreate', 'tableInsertRow', 'tableDeleteRow', 'tableInsertColumn', 'tableDeleteColumn', 'tableMergeCells', 'tableSplitCells']
+            ]
+        }
+    }
+});
+
+                /* End of file: temp/default/src/presets/mammoth.js */
+            
                 /* File: temp/default/src/plugins/cancel/cancel.js */
                 /**
  * @fileOverview Contains the cancel editing dialog code.
- * @author  David Neilsen <david@panmedia.co.nz>
- * @author  Michael Robinson <michael@panmedia.co.nz>
+ * @author David Neilsen <david@panmedia.co.nz>
+ * @author Michael Robinson <michael@panmedia.co.nz>
  * @author Melissa Richards <melissa@panmedia.co.nz>
  */
 
@@ -16110,7 +16127,7 @@ Raptor.registerUi(new DialogButton({
 
 /**
  * Creates an instance of a filtered preview button to float an image left.
- * 
+ *
  * @todo des and type for the param.
  * @param {type} param
  */
@@ -16352,8 +16369,19 @@ Raptor.registerUi(new PreviewButton({
  * @author Melissa Richards <melissa@panmedia.co.nz>
  */
 
+/**
+ * @type {Element} The shared image resize button.
+ */
 var imageResizeButton = false,
-    imageResizeButtonDialog = false
+
+    /**
+     * @type {Element} The shared image resize dialog.
+     */
+    imageResizeButtonDialog = false,
+
+    /**
+     * @type {Element} The image currently being resized.
+     */
     imageResizeButtonImage = null;
 
 /**
@@ -16361,8 +16389,7 @@ var imageResizeButton = false,
  * @constructor
  * @augments RaptorPlugin
  *
- * @todo name param details
- * @param {type} name
+ * @param {String} name
  * @param {Object} overrides Options hash.
  */
 function ImageResizeButtonPlugin(name, overrides) {
@@ -16383,7 +16410,7 @@ ImageResizeButtonPlugin.prototype.init = function() {
 /**
  * Prepare and return the image resize button Element to be used in the Raptor UI.
  *
- * @returns {imageResizeButton}
+ * @returns {Element}
  */
 ImageResizeButtonPlugin.prototype.getButton = function() {
     if (imageResizeButton === false) {
@@ -16402,42 +16429,54 @@ ImageResizeButtonPlugin.prototype.getButton = function() {
 /**
  * Gets the image resize button plugin dialog.
  *
- * @returns {imageResizeButtonDialog}
+ * @returns {Element}
  */
 ImageResizeButtonPlugin.prototype.getDialog = function() {
     if (imageResizeButtonDialog === false) {
         imageResizeButtonDialog = $(this.raptor.getTemplate('image-resize-button.dialog', this.options));
-        var widthInput = imageResizeButtonDialog.find('[name=width]'),
-            heightInput = imageResizeButtonDialog.find('[name=height]');
+
+        var originalWidth = imageResizeButtonImage.width,
+            originalHeight = imageResizeButtonImage.height;
+
+        var widthInput = imageResizeButtonDialog.find('[name=width]').val(originalWidth),
+            heightInput = imageResizeButtonDialog.find('[name=height]').val(originalHeight);
+
+        var inputHeight = function() {
+            var height = parseInt($(heightInput).val(), 10);
+            if (isNaN(height)) {
+                return 0;
+            }
+            return height;
+        };
+
+        var inputWidth = function() {
+            var width = parseInt($(widthInput).val(), 10);
+            if (isNaN(width)) {
+                return 0;
+            }
+            return width;
+        };
+
         widthInput.bind('keyup', function() {
-            var width = parseInt($(this).val());
-            if (!isNaN(width)) {
-                heightInput.val(Math.round(Math.abs(imageResizeButtonImage.height / imageResizeButtonImage.width * width)));
-            }
-        });
+            var width = inputWidth();
+            heightInput.val(Math.round(Math.abs(imageResizeButtonImage.height / imageResizeButtonImage.width * width)));
+            this.resizeImage(width, inputHeight());
+        }.bind(this));
+
         heightInput.bind('keyup', function() {
-            var height = parseInt($(this).val());
-            if (!isNaN(height)) {
-                heightInput.val(Math.round(Math.abs(imageResizeButtonImage.width / imageResizeButtonImage.height * height)));
-            }
-        });
+            var height = inputHeight();
+            widthInput.val(Math.round(Math.abs(imageResizeButtonImage.width / imageResizeButtonImage.height * height)));
+            this.resizeImage(inputWidth(), height);
+        }.bind(this));
+
         aDialog(imageResizeButtonDialog, {
             title: _('imageResizeButtonDialogTitle'),
             buttons: [
                 {
                     text: _('imageResizeButtonDialogOKButton'),
                     click: function() {
-                        var width = parseInt(widthInput.val()),
-                            height = parseInt(heightInput.val());
-                        if (!isNaN(width) && !isNaN(height)) {
-                            $(imageResizeButtonImage)
-                                .css({
-                                    width: width,
-                                    height: height
-                                })
-                                .attr('width', width)
-                                .attr('height', height);
-                        }
+                        this.resizeImage(inputWidth(), inputHeight());
+                        this.raptor.checkChange();
                         aDialogClose(imageResizeButtonDialog);
                     }.bind(this),
                     icons: {
@@ -16447,8 +16486,9 @@ ImageResizeButtonPlugin.prototype.getDialog = function() {
                 {
                     text: _('imageResizeButtonDialogCancelButton'),
                     click: function() {
+                        this.resizeImage(originalWidth, originalHeight);
                         aDialogClose(imageResizeButtonDialog);
-                    },
+                    }.bind(this),
                     icons: {
                         primary: 'ui-icon-circle-close'
                     }
@@ -16460,9 +16500,24 @@ ImageResizeButtonPlugin.prototype.getDialog = function() {
 };
 
 /**
- * Opens the image resize button plugin dialog.
+ * Perform the actual image resizing.
  *
- * @returns {undefined}
+ * @param  {Integer} width
+ * @param  {Integer} height
+ */
+ImageResizeButtonPlugin.prototype.resizeImage = function(width, height) {
+    // <strict/>
+    $(imageResizeButtonImage)
+        .css({
+            width: width,
+            height: height
+        })
+        .attr('width', width)
+        .attr('height', height);
+};
+
+/**
+ * Opens the image resize button plugin dialog.
  */
 ImageResizeButtonPlugin.prototype.openDialog = function() {
     aDialogOpen(this.getDialog());
@@ -16471,8 +16526,7 @@ ImageResizeButtonPlugin.prototype.openDialog = function() {
 /**
  * Displays the image resize tool.
  *
- * @todo event type?
- * @param {type} event Click event to trigger the appearance of the image resize tool.
+ * @param {Event} event Click event to trigger the appearance of the image resize tool.
  */
 ImageResizeButtonPlugin.prototype.show = function(event) {
     if (!this.raptor.isEditing()) {
@@ -16491,7 +16545,7 @@ ImageResizeButtonPlugin.prototype.show = function(event) {
 /**
  * Hides the image resize tool
  *
- * @param {type} event Click event to hide the image resize tool.
+ * @param {Event} event Click event to hide the image resize tool.
  */
 ImageResizeButtonPlugin.prototype.hide = function(event) {
     var button = this.getButton();
@@ -16523,7 +16577,7 @@ Raptor.registerPlugin(new ImageResizeButtonPlugin());
  */
 Raptor.registerUi(new Button({
     name: 'insertFile',
-
+    state: false,
     /** @type {string[]} Image extensions*/
     imageTypes: [
         'jpeg',
@@ -16541,7 +16595,7 @@ Raptor.registerUi(new Button({
         customAction: false
     },
     action: function() {
-        selectionSave();
+        this.state = this.raptor.stateSave();
         // If a customAction has been specified, use it instead of the default dialog.
         if (!this.options.customAction) {
             return this.showDialog();
@@ -16636,12 +16690,13 @@ Raptor.registerUi(new Button({
      * @param  {Object[]} files Array of files to be inserted.
      */
     insertFiles: function(files) {
+        this.raptor.stateRestore(this.state);
+        this.state = null;
 
         if (!files.length) {
             return;
         }
 
-        selectionRestore();
         var file;
         if (files.length === 1) {
             file = files.shift();
@@ -16737,6 +16792,146 @@ Raptor.registerUi(new Button({
 }));
 
                 /* End of file: temp/default/src/plugins/insert-file/insert-file.js */
+            
+                /* File: temp/default/src/plugins/link/link-create.js */
+                /**
+ * @fileOverview Contains the create link button code.
+ * @author  David Neilsen <david@panmedia.co.nz>
+ * @author  Michael Robinson <michael@panmedia.co.nz>
+ * @author Melissa Richards <melissa@panmedia.co.nz>
+ */
+
+var linkMenu,
+    linkTypes,
+    linkContent,
+    linkAttributes;
+
+/**
+ * Creates an instance of the dialog toggle button to create links.
+ *
+ * @todo param stuff?
+ * @param {type} param
+ */
+Raptor.registerUi(new DialogToggleButton({
+    name: 'linkCreate',
+
+    dialogOptions: {
+        width: 850
+    },
+
+    applyAction: function() {
+        this.raptor.actionApply(function() {
+            selectionExpandToWord();
+            var applier = rangy.createApplier({
+                tag: 'a',
+                attributes: linkAttributes
+            });
+            if (linkAttributes !== false && $.trim(linkAttributes.href) !== '') {
+                applier.applyToSelection();
+                cleanEmptyElements(this.raptor.getElement(), ['a']);
+            }
+        }.bind(this));
+    },
+
+    openDialog: function() {
+        var element = selectionGetElement();
+        if (element.is('a')) {
+            for (var i = 0, l = linkTypes.length; i < l; i++) {
+                var result = linkTypes[i].updateInputs(element, linkContent.children('div:eq(' + i + ')'));
+                if (result) {
+                    linkMenu.find(':radio:eq(' + i + ')').trigger('click');
+                }
+            }
+        }
+    },
+
+    validateDialog: function() {
+        var i = linkMenu.find(':radio:checked').val();
+        linkAttributes = linkTypes[i].getAttributes(linkContent.children('div:eq(' + i + ')'));
+        return linkAttributes !== false;
+    },
+
+    selectionToggle: function() {
+        var applier = rangy.createApplier({
+            tag: 'a'
+        });
+        return applier.isAppliedToSelection();
+    },
+
+    getDialogTemplate: function() {
+        var template = $(this.raptor.getTemplate('link.dialog', this.options));
+
+        linkMenu = template.find('[data-menu]');
+        linkContent = template.find('[data-content]');
+        linkTypes = [
+            new LinkTypeInternal(this.raptor),
+            new LinkTypeExternal(this.raptor),
+            new LinkTypeDocument(this.raptor),
+            new LinkTypeEmail(this.raptor)
+        ];
+
+        for (var i = 0, l = linkTypes.length; i < l; i++) {
+            $(this.raptor.getTemplate('link.label', linkTypes[i]))
+                .click(function() {
+                    linkContent.children('div').hide();
+                    linkContent.children('div:eq(' + $(this).index() + ')').show();
+                })
+                .find(':radio')
+                    .val(i)
+                .end()
+                .appendTo(linkMenu);
+            $('<div>')
+                .append(linkTypes[i].getContent())
+                .hide()
+                .appendTo(linkContent);
+        }
+        linkMenu.find(':radio:first').prop('checked', true);
+        linkContent.children('div:first').show();
+
+        return template;
+    }
+}));
+
+                /* End of file: temp/default/src/plugins/link/link-create.js */
+            
+                /* File: temp/default/src/plugins/link/link-remove.js */
+                /**
+ * @fileOverview Contains the remove link class code.
+ * @author  David Neilsen <david@panmedia.co.nz>
+ * @author  Michael Robinson <michael@panmedia.co.nz>
+ * @author Melissa Richards <melissa@panmedia.co.nz>
+ */
+
+/**
+ * Creates an instance of teh toggle button to remove links.
+ *
+ * @todo param details?
+ * @param {type} param
+ */
+Raptor.registerUi(new ToggleButton({
+    name: 'linkRemove',
+    disable: true,
+
+    action: function() {
+        this.raptor.actionApply(function() {
+            var applier = rangy.createApplier({
+                tag: 'a'
+            });
+            selectionExpandToWord();
+            applier.undoToSelection();
+            cleanEmptyElements(this.raptor.getElement(), ['a']);
+        }.bind(this));
+    },
+
+    selectionToggle: function() {
+        var applier = rangy.createApplier({
+            tag: 'a'
+        });
+        return applier.isAppliedToSelection();
+    }
+}));
+
+                /* End of file: temp/default/src/plugins/link/link-remove.js */
             
                 /* File: temp/default/src/plugins/link/link-type-document.js */
                 function LinkTypeDocument(raptor) {
@@ -16996,148 +17191,21 @@ LinkTypeInternal.prototype.updateInputs = function(link, panel) {
 
                 /* End of file: temp/default/src/plugins/link/link-type-internal.js */
             
-                /* File: temp/default/src/plugins/link/link-create.js */
+                /* File: temp/default/src/plugins/list/list-ordered.js */
                 /**
- * @fileOverview Contains the create link button code.
- * @author  David Neilsen <david@panmedia.co.nz>
- * @author  Michael Robinson <michael@panmedia.co.nz>
- * @author Melissa Richards <melissa@panmedia.co.nz>
- */
-
-var linkMenu,
-    linkTypes,
-    linkContent,
-    linkAttributes;
-
-/**
- * Creates an instance of the dialog toggle button to create links.
- *
- * @todo param stuff?
- * @param {type} param
- */
-Raptor.registerUi(new DialogToggleButton({
-    name: 'linkCreate',
-
-    dialogOptions: {
-        width: 850
-    },
-
-    applyAction: function() {
-        this.raptor.actionApply(function() {
-            selectionExpandToWord();
-            var applier = rangy.createApplier({
-                tag: 'a',
-                attributes: linkAttributes
-            });
-            if (linkAttributes !== false && $.trim(linkAttributes.href) !== '') {
-                applier.applyToSelection();
-                cleanEmptyElements(this.raptor.getElement(), ['a']);
-            }
-        }.bind(this));
-    },
-
-    openDialog: function() {
-        var element = selectionGetElement();
-        if (element.is('a')) {
-            for (var i = 0, l = linkTypes.length; i < l; i++) {
-                var result = linkTypes[i].updateInputs(element, linkContent.children('div:eq(' + i + ')'));
-                if (result) {
-                    linkMenu.find(':radio:eq(' + i + ')').trigger('click');
-                }
-            }
-        }
-    },
-
-    validateDialog: function() {
-        var i = linkMenu.find(':radio:checked').val();
-        linkAttributes = linkTypes[i].getAttributes(linkContent.children('div:eq(' + i + ')'));
-        return linkAttributes !== false;
-    },
-
-    selectionToggle: function() {
-        var applier = rangy.createApplier({
-            tag: 'a'
-        });
-        return applier.isAppliedToSelection();
-    },
-
-    getDialogTemplate: function() {
-        var template = $(this.raptor.getTemplate('link.dialog', this.options));
-
-        linkMenu = template.find('[data-menu]');
-        linkContent = template.find('[data-content]');
-        linkTypes = [
-            new LinkTypeInternal(this.raptor),
-            new LinkTypeExternal(this.raptor),
-            new LinkTypeDocument(this.raptor),
-            new LinkTypeEmail(this.raptor)
-        ];
-
-        for (var i = 0, l = linkTypes.length; i < l; i++) {
-            $(this.raptor.getTemplate('link.label', linkTypes[i]))
-                .click(function() {
-                    linkContent.children('div').hide();
-                    linkContent.children('div:eq(' + $(this).index() + ')').show();
-                })
-                .find(':radio')
-                    .val(i)
-                .end()
-                .appendTo(linkMenu);
-            $('<div>')
-                .append(linkTypes[i].getContent())
-                .hide()
-                .appendTo(linkContent);
-        }
-        linkMenu.find(':radio:first').prop('checked', true);
-        linkContent.children('div:first').show();
-
-        return template;
-    }
-}));
-
-                /* End of file: temp/default/src/plugins/link/link-create.js */
-            
-                /* File: temp/default/src/plugins/link/link-remove.js */
-                /**
- * @fileOverview Contains the remove link class code.
+ * @fileOverview Contains the ordered list button code.
  * @author  David Neilsen <david@panmedia.co.nz>
  * @author  Michael Robinson <michael@panmedia.co.nz>
  * @author Melissa Richards <melissa@panmedia.co.nz>
  */
 
 /**
- * Creates an instance of teh toggle button to remove links.
+ * Creates a new instance of the preview toggle button to create ordered lists.
  *
  * @todo param details?
  * @param {type} param
  */
-Raptor.registerUi(new ToggleButton({
-    name: 'linkRemove',
-    disable: true,
-
-    action: function() {
-        this.raptor.actionApply(function() {
-            var applier = rangy.createApplier({
-                tag: 'a'
-            });
-            selectionExpandToWord();
-            applier.undoToSelection();
-            cleanEmptyElements(this.raptor.getElement(), ['a']);
-        }.bind(this));
-    },
-
-    selectionToggle: function() {
-        var applier = rangy.createApplier({
-            tag: 'a'
-        });
-        return applier.isAppliedToSelection();
-    }
-}));
-
-                /* End of file: temp/default/src/plugins/link/link-remove.js */
-            
-                /* File: temp/default/src/plugins/list/list-ordered.js */
-                Raptor.registerUi(new PreviewToggleButton({
+Raptor.registerUi(new PreviewToggleButton({
     name: 'listOrdered',
     init: function() {
         var result = PreviewToggleButton.prototype.init.apply(this, arguments);
@@ -17159,7 +17227,20 @@ Raptor.registerUi(new ToggleButton({
                 /* End of file: temp/default/src/plugins/list/list-ordered.js */
             
                 /* File: temp/default/src/plugins/list/list-unordered.js */
-                Raptor.registerUi(new PreviewToggleButton({
+                /**
+ * @fileOverview Contains the unordered list button code.
+ * @author  David Neilsen <david@panmedia.co.nz>
+ * @author  Michael Robinson <michael@panmedia.co.nz>
+ * @author Melissa Richards <melissa@panmedia.co.nz>
+ */
+
+/**
+ * Creates a new instance of the preview toggle button to create unordered lists.
+ *
+ * @todo param details?
+ * @param {type} param
+ */
+Raptor.registerUi(new PreviewToggleButton({
     name: 'listUnordered',
     init: function() {
         var result = PreviewToggleButton.prototype.init.apply(this, arguments);
@@ -17181,18 +17262,32 @@ Raptor.registerUi(new ToggleButton({
                 /* End of file: temp/default/src/plugins/list/list-unordered.js */
             
                 /* File: temp/default/src/plugins/logo/logo.js */
-                Raptor.registerUi(new Button({
+                /**
+ * @fileOverview Contains the logo button code.
+ * @author  David Neilsen <david@panmedia.co.nz>
+ * @author  Michael Robinson <michael@panmedia.co.nz>
+ * @author Melissa Richards <melissa@panmedia.co.nz>
+ */
+
+/**
+ * Creates a new instance of the button class to display the raptor logo and
+ * link to the raptor version page.
+ *
+ * @todo param details?
+ * @param {type} param
+ */
+Raptor.registerUi(new Button({
     name: 'logo',
+    // <usage-statistics>
     init: function() {
         var button = Button.prototype.init.apply(this, arguments);
-
         button.find('.ui-button-icon-primary').css({
             'background-image': 'url(http://www.raptor-editor.com/logo/0.5.11?json=' +
                 encodeURIComponent(JSON.stringify(this.raptor.options)) + ')'
         });
-
         return button;
     },
+    // </usage-statistics>
     action: function() {
         window.open('http://www.raptor-editor.com/about/0.5.11', '_blank');
     }
@@ -17201,10 +17296,27 @@ Raptor.registerUi(new ToggleButton({
                 /* End of file: temp/default/src/plugins/logo/logo.js */
             
                 /* File: temp/default/src/plugins/paste/paste.js */
-                var pasteInProgress = false,
+                /**
+ * @fileOverview Contains the paste plugin class code.
+ * @author  David Neilsen <david@panmedia.co.nz>
+ * @author  Michael Robinson <michael@panmedia.co.nz>
+ * @author Melissa Richards <melissa@panmedia.co.nz>
+ */
+
+var pasteInProgress = false,
     pasteDialog = null,
     pasteInstance = null;
 
+/**
+ * @class The paste plugin class.
+ * @constructor
+ * @augments RaptorPlugin.
+ *
+ * @todo type and desc for name
+ * @param {type} name
+ * @param {Object} overrides Options hash.
+ * @returns {Element}
+ */
 function PastePlugin(name, overrides) {
     this.options = {
         /**
@@ -17230,10 +17342,18 @@ function PastePlugin(name, overrides) {
 
 PastePlugin.prototype = Object.create(RaptorPlugin.prototype);
 
+/**
+ * Enables pasting.
+ */
 PastePlugin.prototype.enable = function() {
     this.raptor.getElement().bind('paste.' + this.raptor.widgetName, this.caputrePaste.bind(this));
 };
 
+/**
+ * Captures the html to be pasted.
+ *
+ * @returns {Boolean} True if paste capture is successful.
+ */
 PastePlugin.prototype.caputrePaste = function() {
     if (pasteInProgress) {
         return false;
@@ -17253,10 +17373,18 @@ PastePlugin.prototype.caputrePaste = function() {
     return true;
 };
 
+/**
+ * Opens the paste dialog.
+ */
 PastePlugin.prototype.showPasteDialog = function() {
     aDialogOpen(this.getDialog(this));
 };
 
+/**
+ * Inserts the pasted content into the selection.
+ *
+ * @param {HTML} html The html to be pasted into the selection.
+ */
 PastePlugin.prototype.pasteContent = function(html) {
 //    console.log(this.state);
     this.raptor.stateRestore(this.state);
@@ -17269,6 +17397,13 @@ PastePlugin.prototype.pasteContent = function(html) {
     }.bind(this));
 };
 
+/**
+ * Gets the paste dialog.
+ *
+ * @todo type for instance
+ * @param {type} instance The paste instance
+ * @returns {Object} The paste dialog.
+ */
 PastePlugin.prototype.getDialog = function(instance) {
     pasteInstance = instance;
     if (!pasteDialog) {
@@ -17456,9 +17591,7 @@ PastePlugin.prototype.stripEmpty = function(content) {
 };
 
 /**
- * Update text input content
- * @param  {Element} target The input being edited
- * @param  {Element} dialog The paste dialog
+ * Update text input content.
  */
 PastePlugin.prototype.updateAreas = function() {
     var markup = $('.raptorPasteBin').html();
@@ -17482,67 +17615,96 @@ Raptor.registerPlugin(new PastePlugin());
 
                 /* End of file: temp/default/src/plugins/paste/paste.js */
             
-                /* File: temp/default/src/plugins/save/save.js */
-                Raptor.registerUi(new Button({
-    name: 'save',
+                /* File: temp/default/src/plugins/save/save-json.js */
+                function SaveJsonPlugin(name, overrides) {
+    RaptorPlugin.call(this, name || 'saveJson', overrides);
+}
 
-    action: function() {
-        this.getPlugin().save();
-    },
+SaveJsonPlugin.prototype = Object.create(RaptorPlugin.prototype);
 
-    init: function() {
-        if (this.options.plugin === null) {
-            return;
+Raptor.registerPlugin(new SaveJsonPlugin());
+
+// <strict/>
+
+SaveJsonPlugin.prototype.save = function() {
+    var data = {};
+    this.raptor.unify(function(raptor) {
+        if (raptor.isDirty()) {
+            var plugin = raptor.getPlugin('saveJson');
+            var id = plugin.options.id.call(this);
+            var html = this.raptor.getHtml();
+            data[id] = html;
         }
+    }.bind(this));
+    var post = {};
+    post[this.options.postName] = JSON.stringify(data);
+    $.ajax({
+            type: this.options.type || 'post',
+            dataType: this.options.dataType || 'json',
+            url: this.options.url,
+            data: post
+        })
+        .done(this.done.bind(this))
+        .fail(this.fail.bind(this));
+};
 
-        var result = Button.prototype.init.apply(this, arguments);
-
-        // <strict>
-        if (!this.getPlugin()) {
-            handleError('Cannot find save plugin for UI.');
-        }
-        // </strict>
-
-        this.raptor.bind('dirty', this.dirty.bind(this));
-        this.raptor.bind('cleaned', this.clean.bind(this));
-        this.clean();
-        return result;
-    },
-
-    getPlugin: function() {
-        return this.raptor.getPlugin(this.options.plugin);
-    },
-
-    dirty: function() {
-        aButtonEnable(this.button);
-    },
-
-    clean: function() {
-        aButtonDisable(this.button);
+SaveJsonPlugin.prototype.done = function(data, status, xhr) {
+    this.raptor.saved();
+    var message = _('saveJsonSaved');
+    if ($.isFunction(this.options.formatResponse)) {
+        message = this.options.formatResponse(data);
     }
-}));
+    this.raptor.showConfirm(message, {
+        delay: 1000,
+        hide: function() {
+            this.raptor.unify(function(raptor) {
+                raptor.disableEditing();
+                raptor.hideLayout();
+            });
+        }.bind(this)
+    });
+};
 
-                /* End of file: temp/default/src/plugins/save/save.js */
+SaveJsonPlugin.prototype.fail = function(xhr) {
+    this.raptor.showError(_('saveJsonFail'));
+};
+
+                /* End of file: temp/default/src/plugins/save/save-json.js */
             
                 /* File: temp/default/src/plugins/save/save-rest.js */
-                function SaveRestPlugin(name, overrides) {
+                /**
+ * @fileOverview Contains the save rest class code.
+ * @author  David Neilsen <david@panmedia.co.nz>
+ * @author  Michael Robinson <michael@panmedia.co.nz>
+ * @author Melissa Richards <melissa@panmedia.co.nz>
+ */
+
+/**
+ * @class Thes save rest class.
+ * @constructor
+ * @augments RaptorPlugin
+ *
+ * @param {type} name
+ * @param {type} overrides Options hash.
+ * @returns {SaveRestPlugin}
+ */
+function SaveRestPlugin(name, overrides) {
     this.method = 'put';
     RaptorPlugin.call(this, name || 'saveRest', overrides);
 }
 
 SaveRestPlugin.prototype = Object.create(RaptorPlugin.prototype);
 
-// <strict>
-SaveRestPlugin.prototype.init = function() {
-    if (typeof this.options.url !== 'string' && !$.isFunction(this.options.url)) {
-        handleError('Expected save REST URL option to be a string or a function.');
-    }
-    if (!$.isFunction(this.options.data)) {
-        handleError('Expected save REST data option to be a function.');
-    }
-};
-// </strict>
+/**
+ * Initializes the save rest plugin.
+ *
+ * @returns {Element}
+ */
+// <strict/>
 
+/**
+ * Saves the selection.
+ */
 SaveRestPlugin.prototype.save = function() {
     this.requests = 0;
     this.errors = [];
@@ -17560,15 +17722,30 @@ SaveRestPlugin.prototype.save = function() {
     }.bind(this));
 };
 
+/**
+ * @todo this confuses me greatly, could you please do it?
+ * @param {type} data
+ * @param {type} status
+ * @param {type} xhr
+ */
 SaveRestPlugin.prototype.done = function(data, status, xhr) {
     xhr.raptor.saved();
     this.messages.push(data);
 };
 
+/**
+ * @todo same with this one
+ * @param {type} xhr
+ * @returns {undefined}
+ */
 SaveRestPlugin.prototype.fail = function(xhr) {
     this.errors.push(xhr.responseText);
 };
 
+/**
+ * @todo and this one
+ * @returns {undefined}
+ */
 SaveRestPlugin.prototype.always = function() {
     this.requests--;
     if (this.requests === 0) {
@@ -17597,6 +17774,10 @@ SaveRestPlugin.prototype.always = function() {
     }
 };
 
+/**
+ * @todo and this one
+ * @returns {unresolved}
+ */
 SaveRestPlugin.prototype.sendRequest = function() {
     var headers = this.raptor.getPlugin('saveRest').getHeaders(),
         data = this.raptor.getPlugin('saveRest').getData(),
@@ -17610,6 +17791,10 @@ SaveRestPlugin.prototype.sendRequest = function() {
     });
 };
 
+/**
+ * @todo and this one
+ * @returns {SaveRestPlugin.prototype.getHeaders.Anonym$5}
+ */
 SaveRestPlugin.prototype.getHeaders = function() {
     if (this.options.headers) {
         return this.options.headers.call(this);
@@ -17617,6 +17802,10 @@ SaveRestPlugin.prototype.getHeaders = function() {
     return {};
 };
 
+/**
+ * @todo and this one
+ * @returns {SaveRestPlugin.prototype.getData.data}
+ */
 SaveRestPlugin.prototype.getData = function() {
     // Get the data to send to the server
     var content = this.raptor.getHtml(),
@@ -17625,6 +17814,10 @@ SaveRestPlugin.prototype.getData = function() {
     return data;
 };
 
+/**
+ * @todo and this one 
+ * @returns {unresolved}
+ */
 SaveRestPlugin.prototype.getURL = function() {
     if (typeof this.options.url === 'string') {
         return this.options.url;
@@ -17635,6 +17828,57 @@ SaveRestPlugin.prototype.getURL = function() {
 Raptor.registerPlugin(new SaveRestPlugin());
 
                 /* End of file: temp/default/src/plugins/save/save-rest.js */
+            
+                /* File: temp/default/src/plugins/save/save.js */
+                /**
+ * @fileOverview Contains the save class code.
+ * @author  David Neilsen <david@panmedia.co.nz>
+ * @author  Michael Robinson <michael@panmedia.co.nz>
+ * @author Melissa Richards <melissa@panmedia.co.nz>
+ */
+
+/**
+ * Creates an instance of the button class to save any changes.
+ *
+ * @todo param details?
+ * @param {type} param
+ */
+Raptor.registerUi(new Button({
+    name: 'save',
+
+    action: function() {
+        this.getPlugin().save();
+    },
+
+    init: function() {
+        if (this.options.plugin === null) {
+            return;
+        }
+
+        var result = Button.prototype.init.apply(this, arguments);
+
+        // <strict/>
+
+        this.raptor.bind('dirty', this.dirty.bind(this));
+        this.raptor.bind('cleaned', this.clean.bind(this));
+        this.clean();
+        return result;
+    },
+
+    getPlugin: function() {
+        return this.raptor.getPlugin(this.options.plugin);
+    },
+
+    dirty: function() {
+        aButtonEnable(this.button);
+    },
+
+    clean: function() {
+        aButtonDisable(this.button);
+    }
+}));
+
+                /* End of file: temp/default/src/plugins/save/save.js */
             
                 /* File: temp/default/src/plugins/snippet-menu/snippet-menu.js */
                 /**
@@ -17735,522 +17979,6 @@ Raptor.registerUi(new SnippetMenu());
 
                 /* End of file: temp/default/src/plugins/snippet-menu/snippet-menu.js */
             
-                /* File: temp/default/src/plugins/statistics/statistics.js */
-                /**
- * @fileOverview Contains the statistics code.
- * @author  David Neilsen <david@panmedia.co.nz>
- * @author  Michael Robinson <michael@panmedia.co.nz>
- * @author Melissa Richards <melissa@panmedia.co.nz>
- */
-
-var statisticsDialog = null;
-
-/**
- * Creates an instance of a dialog button to display the pages statistics.
- *
- * @todo param details?
- * @param {type} param
- */
-Raptor.registerUi(new DialogButton({
-    name: 'statistics',
-    options: {
-        maximum: 100,
-        showCountInButton: true
-    },
-    dialogOptions: {
-        width: 350
-    },
-
-    init: function() {
-        if (this.options.showCountInButton) {
-            this.raptor.bind('change', this.updateButton.bind(this));
-        }
-        return DialogButton.prototype.init.apply(this, arguments);
-    },
-
-    applyAction: function() {
-    },
-
-    getCancelButton: function() {
-    },
-
-    getCharacters: function() {
-        return $('<div>').html(this.raptor.getHtml()).text().length;
-    },
-
-    updateButton: function() {
-        var charactersRemaining = null,
-            label = null,
-            characters = this.getCharacters();
-
-        // Cases where maximum has been provided
-        if (this.options.maximum) {
-            charactersRemaining = this.options.maximum - characters;
-            if (charactersRemaining >= 0) {
-                label = _('statisticsButtonCharacterRemaining', {
-                    charactersRemaining: charactersRemaining
-                });
-            } else {
-                label = _('statisticsButtonCharacterOverLimit', {
-                    charactersRemaining: charactersRemaining * -1
-                });
-            }
-        } else {
-            label = _('statisticsButtonCharacters', {
-                characters: characters
-            });
-        }
-
-        aButtonSetLabel(this.button, label);
-
-        if (!this.options.maximum) {
-            return;
-        }
-
-        // Add the error state to the button's text element if appropriate
-        if (charactersRemaining < 0) {
-            this.button.addClass('ui-state-error').removeClass('ui-state-default');
-        } else{
-            // Add the highlight class if the remaining characters are in the "sweet zone"
-            if (charactersRemaining >= 0 && charactersRemaining <= 15) {
-                this.button.addClass('ui-state-highlight').removeClass('ui-state-error ui-state-default');
-            } else {
-                this.button.removeClass('ui-state-highlight ui-state-error').addClass('ui-state-default');
-            }
-        }
-    },
-
-    getButton: function() {
-        if (!this.button) {
-            Button.prototype.getButton.call(this);
-            aButton(this.button, {
-                text: true
-            });
-            if (this.options.showCountInButton) {
-                this.updateButton();
-            }
-        }
-        return this.button;
-    },
-
-    getDialogTemplate: function() {
-        return $(this.raptor.getTemplate('statistics.dialog', this.options));
-    },
-
-    /**
-     * Process and return the statistics dialog template.
-     *
-     * @return {jQuery} The processed statistics dialog template
-     */
-    openDialog: function(dialog) {
-        var content = $('<div/>').html(this.raptor.getHtml()).text();
-
-        // If maximum has not been set, use infinity
-        var charactersRemaining = this.options.maximum ? this.options.maximum - content.length : '&infin;';
-        if (typeIsNumber(charactersRemaining) && charactersRemaining < 0) {
-            dialog.find('[data-name=truncation]').html(_('statisticsDialogTruncated', {
-                'limit': this.options.maximum
-            }));
-        } else {
-            dialog.find('[data-name=truncation]').html(_('statisticsDialogNotTruncated'));
-        }
-
-        var totalWords = content.split(' ').length;
-        if (totalWords === 1) {
-            dialog.find('[data-name=words]').html(_('statisticsDialogWord', {
-                words: totalWords
-            }));
-        } else {
-            dialog.find('[data-name=words]').html(_('statisticsDialogWords', {
-                words: totalWords
-            }));
-        }
-
-        var totalSentences = content.split('. ').length;
-        if (totalSentences === 1) {
-            dialog.find('[data-name=sentences]').html(_('statisticsDialogSentence', {
-                sentences: totalSentences
-            }));
-        } else {
-            dialog.find('[data-name=sentences]').html(_('statisticsDialogSentences', {
-                sentences: totalSentences
-            }));
-        }
-
-        var characters = null;
-        if (charactersRemaining >= 0 || !typeIsNumber(charactersRemaining)) {
-            dialog.find('[data-name=characters]').html(_('statisticsDialogCharactersRemaining', {
-                characters: content.length,
-                charactersRemaining: charactersRemaining
-            }));
-        } else {
-            dialog.find('[data-name=characters]').html(_('statisticsDialogCharactersOverLimit', {
-                characters: content.length,
-                charactersRemaining: charactersRemaining * -1
-            }));
-        }
-    }
-}));
-
-                /* End of file: temp/default/src/plugins/statistics/statistics.js */
-            
-                /* File: temp/default/src/plugins/table/table-cell-button.js */
-                function TableCellButton(options) {
-    FilteredPreviewButton.call(this, options);
-}
-
-TableCellButton.prototype = Object.create(FilteredPreviewButton.prototype);
-
-TableCellButton.prototype.getElement = function(range) {
-    var cell = range.commonAncestorContainer.parentNode;
-    if (cell.tagName === 'TD' ||
-            cell.tagName === 'TH') {
-        return cell;
-    }
-    return null;
-};
-
-                /* End of file: temp/default/src/plugins/table/table-cell-button.js */
-            
-                /* File: temp/default/src/plugins/table/table-create.js */
-                function TableMenu(options) {
-    Menu.call(this, {
-        name: 'tableCreate'
-    });
-}
-
-TableMenu.prototype = Object.create(Menu.prototype);
-
-TableMenu.prototype.createTable = function(event) {
-    this.raptor.actionApply(function() {
-        selectionReplace(elementOuterHtml($(tableCreate(event.target.cellIndex + 1, event.target.parentNode.rowIndex + 1, {
-            placeHolder: '&nbsp;'
-        }))));
-    });
-};
-
-TableMenu.prototype.highlight = function(event) {
-    var cells = tableCellsInRange(this.menuTable.get(0), {
-            x: 0,
-            y: 0
-        }, {
-            x: event.target.cellIndex,
-            y: event.target.parentNode.rowIndex
-        });
-
-    // highlight cells in menu
-    this.highlightRemove(event);
-    $(cells).addClass(this.options.baseClass + '-menu-hover');
-
-    // Preview create
-    this.raptor.actionPreview(function() {
-        selectionReplace(elementOuterHtml($(tableCreate(event.target.cellIndex + 1, event.target.parentNode.rowIndex + 1, {
-            placeHolder: '&nbsp;'
-        }))));
-    });
-};
-
-TableMenu.prototype.highlightRemove = function(event) {
-    this.menuTable
-        .find('.' + this.options.baseClass + '-menu-hover')
-        .removeClass(this.options.baseClass + '-menu-hover');
-    this.raptor.actionPreviewRestore();
-};
-
-TableMenu.prototype.getMenu = function() {
-    if (!this.menu) {
-        this.menuContent = this.raptor.getTemplate('table.create-menu', this.options);
-        Menu.prototype.getMenu.call(this)
-            .on('click', 'td', this.createTable.bind(this))
-            .on('mouseenter', 'td', this.highlight.bind(this))
-            .mouseleave(this.highlightRemove.bind(this));
-        this.menuTable = this.menu.find('table:eq(0)');
-    }
-    return this.menu;
-}
-
-Raptor.registerUi(new TableMenu());
-
-                /* End of file: temp/default/src/plugins/table/table-create.js */
-            
-                /* File: temp/default/src/plugins/table/table-delete-column.js */
-                Raptor.registerUi(new TableCellButton({
-    name: 'tableDeleteColumn',
-    applyToElement: function(cell) {
-        tableDeleteColumn(cell.parentNode.parentNode.parentNode, tableGetCellIndex(cell).x);
-    }
-}));
-
-                /* End of file: temp/default/src/plugins/table/table-delete-column.js */
-            
-                /* File: temp/default/src/plugins/table/table-delete-row.js */
-                Raptor.registerUi(new TableCellButton({
-    name: 'tableDeleteRow',
-    applyToElement: function(cell) {
-        tableDeleteRow(cell.parentNode.parentNode.parentNode, tableGetCellIndex(cell).x);
-    }
-}));
-
-                /* End of file: temp/default/src/plugins/table/table-delete-row.js */
-            
-                /* File: temp/default/src/plugins/table/table-insert-column.js */
-                Raptor.registerUi(new TableCellButton({
-    name: 'tableInsertColumn',
-    applyToElement: function(cell) {
-        tableInsertColumn(cell.parentNode.parentNode.parentNode, tableGetCellIndex(cell).x + 1, {
-            placeHolder: '&nbsp;'
-        });
-    }
-}));
-
-                /* End of file: temp/default/src/plugins/table/table-insert-column.js */
-            
-                /* File: temp/default/src/plugins/table/table-insert-row.js */
-                Raptor.registerUi(new TableCellButton({
-    name: 'tableInsertRow',
-    applyToElement: function(cell) {
-        tableInsertRow(cell.parentNode.parentNode.parentNode, tableGetCellIndex(cell).y + 1, {
-            placeHolder: '&nbsp;'
-        });
-    }
-}));
-
-                /* End of file: temp/default/src/plugins/table/table-insert-row.js */
-            
-                /* File: temp/default/src/plugins/table/table-support.js */
-                var tableSupportDragging = false,
-    tableSupportStartCell = null;
-
-function TableSupport(name, overrides) {
-    RaptorPlugin.call(this, name || 'tableSupport', overrides);
-}
-
-TableSupport.prototype = Object.create(RaptorPlugin.prototype);
-
-TableSupport.prototype.init = function() {
-    this.raptor.bind('selectionCustomise', this.selectionCustomise.bind(this));
-    this.raptor.getElement()
-        .on('mousedown', 'tbody td', this.cellMouseDown.bind(this))
-        .on('mouseover', 'tbody td', this.cellMouseOver.bind(this))
-        .mouseup(this.cellMouseUp.bind(this));
-};
-
-TableSupport.prototype.selectionCustomise = function() {
-    var ranges = [],
-        range;
-    $('.' + this.options.baseClass + '-cell-selected').each(function() {
-        range = rangy.createRange();
-        range.selectNodeContents(this);
-        ranges.push(range);
-    });
-    return ranges;
-};
-
-TableSupport.prototype.cellMouseDown = function(event) {
-    if (this.raptor.isEditing()) {
-        tableSupportStartCell = tableGetCellIndex(event.target);
-        if (tableSupportStartCell !== null) {
-            tableSupportDragging = true;
-            $(event.target).closest('table').addClass(this.options.baseClass + '-selected');
-        }
-    }
-};
-
-TableSupport.prototype.cellMouseUp = function(event) {
-    tableSupportDragging = false;
-    var cell = $(event.target).closest('td'),
-        deselect = false;
-    if (cell.length > 0) {
-        var index = tableGetCellIndex(cell.get(0));
-        if (index === null ||
-                (index.x == tableSupportStartCell.x &&
-                index.y == tableSupportStartCell.y)) {
-            deselect = true;
-        }
-    } else {
-        deselect = true;
-    }
-    if (deselect) {
-        $('.' + this.options.baseClass + '-selected').removeClass(this.options.baseClass + '-selected');
-        $('.' + this.options.baseClass + '-cell-selected').removeClass(this.options.baseClass + '-cell-selected');
-    }
-};
-
-TableSupport.prototype.cellMouseOver = function(event) {
-    if (tableSupportDragging) {
-        var cells = tableCellsInRange($(event.target).closest('table').get(0), tableSupportStartCell, tableGetCellIndex(event.target));
-        $('.' + this.options.baseClass + '-cell-selected').removeClass(this.options.baseClass + '-cell-selected');
-        $(cells).addClass(this.options.baseClass + '-cell-selected');
-        rangy.getSelection().removeAllRanges();
-    }
-};
-
-Raptor.registerPlugin(new TableSupport());
-
-                /* End of file: temp/default/src/plugins/table/table-support.js */
-            
-                /* File: temp/default/src/plugins/tag-menu/tag-menu.js */
-                function TagMenu(options) {
-    SelectMenu.call(this, {
-        name: 'tagMenu'
-    });
-}
-
-TagMenu.prototype = Object.create(SelectMenu.prototype);
-
-TagMenu.prototype.init = function() {
-    this.raptor.bind('selectionChange', this.updateButton.bind(this));
-    return SelectMenu.prototype.init.apply(this, arguments);
-};
-
-TagMenu.prototype.changeTag = function(tag) {
-    // Prevent injection of illegal tags
-    if (typeof tag === 'undefined' || tag === 'na') {
-        return;
-    }
-
-    var selectedElement = selectionGetElement(),
-        limitElement = selectedElement.closest('td, li');
-    if (limitElement.length === 0) {
-        limitElement = this.raptor.getElement();
-    }
-
-    selectionChangeTags(tag, [
-        'h1', 'h2', 'h3', 'h4', 'h5', 'h6',
-        'p', 'div', 'pre', 'address'
-    ], limitElement);
-};
-
-TagMenu.prototype.apply = function(event) {
-    this.raptor.actionApply(function() {
-        this.changeTag($(event.currentTarget).data('value'));
-    }.bind(this));
-};
-
-TagMenu.prototype.preview = function(event) {
-    if (this.preview) {
-        this.raptor.actionPreview(function() {
-            this.changeTag($(event.currentTarget).data('value'));
-        }.bind(this));
-    }
-};
-
-TagMenu.prototype.previewRestore = function(event) {
-    if (this.preview) {
-        this.raptor.actionPreviewRestore();
-    }
-};
-
-TagMenu.prototype.updateButton = function() {
-    var tag = selectionGetElements()[0],
-        button = this.getButton().getButton();
-    if (!tag) {
-        return;
-    }
-    var tagName = tag.tagName.toLowerCase(),
-        option = this.getMenu().find('[data-value=' + tagName + ']');
-    if (option.length) {
-        aButtonSetLabel(button, option.html());
-    } else {
-        aButtonSetLabel(button, _('tagMenuTagNA'));
-    }
-//    if (this.raptor.getElement()[0] === tag) {
-//        aButtonDisable(button);
-//    } else {
-//        aButtonEnable(button);
-//    }
-};
-
-//TagMenu.prototype.getButton = function() {
-//    if (!this.button) {
-//        this.button = new Button({
-//            name: this.name,
-//            action: this.show.bind(this),
-//            preview: false,
-//            options: this.options,
-//            icon: false,
-//            raptor: this.raptor
-//        });
-//    }
-//    return this.button;
-//};
-
-TagMenu.prototype.getMenuItems = function() {
-    return $(this.raptor.getTemplate('tag-menu.menu', this.options))
-        .click(this.apply.bind(this))
-        .mouseenter(this.preview.bind(this))
-        .mouseleave(this.previewRestore.bind(this));
-};
-
-Raptor.registerUi(new TagMenu());
-
-                /* End of file: temp/default/src/plugins/tag-menu/tag-menu.js */
-            
-                /* File: temp/default/src/plugins/text-align/text-align-button.js */
-                function TextAlignButton(options) {
-    PreviewToggleButton.call(this, $.extend({
-        action: function() {
-            selectionToggleBlockClasses([
-                this.getClass()
-            ], [
-                this.options.cssPrefix + 'center',
-                this.options.cssPrefix + 'left',
-                this.options.cssPrefix + 'right',
-                this.options.cssPrefix + 'justify'
-            ], this.raptor.getElement());
-            this.selectionChange();
-        },
-        selectionToggle: function() {
-            return rangy.getSelection().getAllRanges().length > 0 &&
-                selectionContains('.' + this.getClass(), this.raptor.getElement());
-        }
-    }, options));
-}
-
-TextAlignButton.prototype = Object.create(PreviewToggleButton.prototype);
-
-                /* End of file: temp/default/src/plugins/text-align/text-align-button.js */
-            
-                /* File: temp/default/src/plugins/text-align/center.js */
-                Raptor.registerUi(new TextAlignButton({
-    name: 'alignCenter',
-    getClass: function() {
-        return this.options.cssPrefix + 'center'
-    }
-}));
-
-                /* End of file: temp/default/src/plugins/text-align/center.js */
-            
-                /* File: temp/default/src/plugins/text-align/justify.js */
-                Raptor.registerUi(new TextAlignButton({
-    name: 'alignJustify',
-    getClass: function() {
-        return this.options.cssPrefix + 'justify'
-    }
-}));
-
-                /* End of file: temp/default/src/plugins/text-align/justify.js */
-            
-                /* File: temp/default/src/plugins/text-align/left.js */
-                Raptor.registerUi(new TextAlignButton({
-    name: 'alignLeft',
-    getClass: function() {
-        return this.options.cssPrefix + 'left'
-    }
-}));
-
-                /* End of file: temp/default/src/plugins/text-align/left.js */
-            
-                /* File: temp/default/src/plugins/text-align/right.js */
-                Raptor.registerUi(new TextAlignButton({
-    name: 'alignRight',
-    getClass: function() {
-        return this.options.cssPrefix + 'right'
-    }
-}));
-
-                /* End of file: temp/default/src/plugins/text-align/right.js */
-            
                 /* File: temp/default/src/plugins/special-characters/special-characters.js */
                 /**
  * @fileOverview Contains the special characters button code.
@@ -18259,7 +17987,7 @@ TextAlignButton.prototype = Object.create(PreviewToggleButton.prototype);
  * @author Melissa Richards <melissa@panmedia.co.nz>
  */
 
-var specialCharactersDialog = null;
+var insertCharacter = false;
 
 /**
  * Creates an instance of the button class to insert special characters.
@@ -18267,9 +17995,12 @@ var specialCharactersDialog = null;
  * @todo param details?
  * @param {type} param
  */
-Raptor.registerUi(new Button({
+Raptor.registerUi(new DialogButton({
     name: 'specialCharacters',
     options: {
+        dialogOptions: {
+            width: 500
+        },
         setOrder: [
             'symbols',
             'mathematics',
@@ -18472,16 +18203,21 @@ Raptor.registerUi(new Button({
         }
     },
 
-    action: function() {
-        selectionSave();
-        aDialogOpen(this.getDialog());
+    applyAction: function(dialog) {
+        this.raptor.actionApply(function() {
+            if (insertCharacter) {
+                selectionReplace(insertCharacter);
+            }
+            insertCharacter = false;
+        });
     },
 
     /**
      * Prepare tabs and add buttons to tab content.
-     * @return {jQuery}
+     *
+     * @return {Element}
      */
-    prepareDialogHtml: function() {
+    getDialogTemplate: function() {
         var html = $(this.raptor.getTemplate('special-characters.dialog')).appendTo('body').hide();
         var setKey, tabContent, character, characterButton;
         for (var setOrderIndex = 0; setOrderIndex < this.options.setOrder.length; setOrderIndex++) {
@@ -18497,67 +18233,836 @@ Raptor.registerUi(new Button({
                 baseClass: this.options.baseClass,
                 key: setKey
             }));
-
+            var tabCharacters = [];
             for (var charactersIndex = 0; charactersIndex < this.options.characterSets[setKey].characters.length; charactersIndex++) {
                 character = this.options.characterSets[setKey].characters[charactersIndex];
-                characterButton = $(this.raptor.getTemplate('special-characters.tab-button', {
+                characterButton = this.raptor.getTemplate('special-characters.tab-button', {
                     htmlEntity: character[0],
                     description: character[1],
                     setKey: setKey,
                     charactersIndex: charactersIndex
-                }));
-                tabContent.append(characterButton);
+                });
+                tabCharacters.push(characterButton);
             }
+            tabContent.append(tabCharacters.join(''));
             html.find('ul').after(tabContent);
         }
         html.show();
 
-        var ui = this;
+        var _this = this;
         html.find('button').each(function() {
             aButton(this);
         }).click(function() {
             var setKey = $(this).attr('data-setKey');
             var charactersIndex = $(this).attr('data-charactersIndex');
-            selectionRestore();
-            var htmlEntity = ui.options.characterSets[setKey].characters[charactersIndex][0];
-            selectionReplace(htmlEntity);
-            selectionSave();
+            insertCharacter = _this.options.characterSets[setKey].characters[charactersIndex][0];
+            _this.getOkButton(_this.name).click.call(this);
         });
         aTabs(html);
         return html;
     },
 
-    getDialog: function() {
-        if (!specialCharactersDialog) {
-            specialCharactersDialog = this.prepareDialogHtml();
-            aDialog(specialCharactersDialog, {
-                resizable: false,
-                autoOpen: false,
-                width: 500,
-                title: _('specialCharactersDialogTitle'),
-                dialogClass: this.options.dialogClass,
-                buttons: [
-                    {
-                        text: _('specialCharactersDialogOKButton'),
-                        click: function() {
-                            selectionRestore();
-                            aDialogClose(specialCharactersDialog);
-                        }.bind(this),
-                        icons: {
-                            primary: 'ui-icon-circle-check'
-                        }
-                    }
-                ]
-            });
-        }
-        return specialCharactersDialog;
+    getCancelButton: function() {
+        return;
     }
 }));
 
                 /* End of file: temp/default/src/plugins/special-characters/special-characters.js */
             
+                /* File: temp/default/src/plugins/statistics/statistics.js */
+                /**
+ * @fileOverview Contains the statistics code.
+ * @author  David Neilsen <david@panmedia.co.nz>
+ * @author  Michael Robinson <michael@panmedia.co.nz>
+ * @author Melissa Richards <melissa@panmedia.co.nz>
+ */
+
+var statisticsDialog = null;
+
+/**
+ * Creates an instance of a dialog button to display the pages statistics.
+ *
+ * @todo param details?
+ * @param {type} param
+ */
+Raptor.registerUi(new DialogButton({
+    name: 'statistics',
+    options: {
+        maximum: 100,
+        showCountInButton: true
+    },
+    dialogOptions: {
+        width: 350
+    },
+
+    init: function() {
+        if (this.options.showCountInButton) {
+            this.raptor.bind('change', this.updateButton.bind(this));
+        }
+        return DialogButton.prototype.init.apply(this, arguments);
+    },
+
+    applyAction: function() {
+    },
+
+    getCancelButton: function() {
+    },
+
+    getCharacterCount: function() {
+        return $('<div>').html(this.raptor.getHtml()).text().trim().length;
+    },
+
+    getContent: function() {
+        return $('<div>').html(this.raptor.getHtml()).text().trim();
+    },
+
+    updateButton: function() {
+        var charactersRemaining = null,
+            label = null,
+            characterCount = this.getCharacterCount();
+
+        // Cases where maximum has been provided
+        if (this.options.maximum) {
+            charactersRemaining = this.options.maximum - characterCount;
+            if (charactersRemaining >= 0) {
+                label = _('statisticsButtonCharacterRemaining', {
+                    charactersRemaining: charactersRemaining
+                });
+            } else {
+                label = _('statisticsButtonCharacterOverLimit', {
+                    charactersRemaining: charactersRemaining * -1
+                });
+            }
+        } else {
+            label = _('statisticsButtonCharacters', {
+                characters: characterCount
+            });
+        }
+
+        aButtonSetLabel(this.button, label);
+
+        if (!this.options.maximum) {
+            return;
+        }
+
+        // Add the error state to the button's text element if appropriate
+        if (charactersRemaining < 0) {
+            this.button.addClass('ui-state-error').removeClass('ui-state-default');
+        } else{
+            // Add the highlight class if the remaining characters are in the "sweet zone"
+            if (charactersRemaining >= 0 && charactersRemaining <= 15) {
+                this.button.addClass('ui-state-highlight').removeClass('ui-state-error ui-state-default');
+            } else {
+                this.button.removeClass('ui-state-highlight ui-state-error').addClass('ui-state-default');
+            }
+        }
+    },
+
+    getButton: function() {
+        if (!this.button) {
+            Button.prototype.getButton.call(this);
+            aButton(this.button, {
+                text: true
+            });
+            if (this.options.showCountInButton) {
+                this.updateButton();
+            }
+        }
+        return this.button;
+    },
+
+    getDialogTemplate: function() {
+        return $(this.raptor.getTemplate('statistics.dialog', this.options));
+    },
+
+    /**
+     * Process and return the statistics dialog template.
+     *
+     * @return {jQuery} The processed statistics dialog template
+     */
+    openDialog: function(dialog) {
+        var content = this.getContent();
+
+        // If maximum has not been set, use infinity
+        var charactersRemaining = this.options.maximum ? this.options.maximum - content.length : '&infin;';
+        if (typeIsNumber(charactersRemaining) && charactersRemaining < 0) {
+            dialog.find('[data-name=truncation]').html(_('statisticsDialogTruncated', {
+                'limit': this.options.maximum
+            }));
+        } else {
+            dialog.find('[data-name=truncation]').html(_('statisticsDialogNotTruncated'));
+        }
+
+        var totalWords = content.split(' ').length;
+        if (totalWords === 1) {
+            dialog.find('[data-name=words]').html(_('statisticsDialogWord', {
+                words: totalWords
+            }));
+        } else {
+            dialog.find('[data-name=words]').html(_('statisticsDialogWords', {
+                words: totalWords
+            }));
+        }
+
+        var totalSentences = content.split('. ').length;
+        if (totalSentences === 1) {
+            dialog.find('[data-name=sentences]').html(_('statisticsDialogSentence', {
+                sentences: totalSentences
+            }));
+        } else {
+            dialog.find('[data-name=sentences]').html(_('statisticsDialogSentences', {
+                sentences: totalSentences
+            }));
+        }
+
+        var characters = null;
+        if (charactersRemaining >= 0 || !typeIsNumber(charactersRemaining)) {
+            dialog.find('[data-name=characters]').html(_('statisticsDialogCharactersRemaining', {
+                characters: content.length,
+                charactersRemaining: charactersRemaining
+            }));
+        } else {
+            dialog.find('[data-name=characters]').html(_('statisticsDialogCharactersOverLimit', {
+                characters: content.length,
+                charactersRemaining: charactersRemaining * -1
+            }));
+        }
+    }
+}));
+
+                /* End of file: temp/default/src/plugins/statistics/statistics.js */
+            
+                /* File: temp/default/src/plugins/table/table-cell-button.js */
+                /**
+ * @fileOverview Contains the table cell button class code.
+ * @author  David Neilsen <david@panmedia.co.nz>
+ * @author  Michael Robinson <michael@panmedia.co.nz>
+ * @author Melissa Richards <melissa@panmedia.co.nz>
+ */
+
+/**
+ * @class The table cell button class.
+ * @constructor
+ * @augments FilteredPreviewButton
+ *
+ * @param {Object} options Options hash.
+ * @returns {Element}
+ */
+function TableCellButton(options) {
+    FilteredPreviewButton.call(this, options);
+}
+
+TableCellButton.prototype = Object.create(FilteredPreviewButton.prototype);
+
+/**
+ * @todo
+ *
+ * @param {RangySelection} range The selection to get the cell from.
+ * @returns {Element|null}
+ */
+TableCellButton.prototype.getElement = function(range) {
+    var cell = range.commonAncestorContainer.parentNode;
+    if (cell.tagName === 'TD' ||
+            cell.tagName === 'TH') {
+        return cell;
+    }
+    return null;
+};
+
+                /* End of file: temp/default/src/plugins/table/table-cell-button.js */
+            
+                /* File: temp/default/src/plugins/table/table-create.js */
+                /**
+ * @fileOverview Contains the table menu class code.
+ * @author  David Neilsen <david@panmedia.co.nz>
+ * @author  Michael Robinson <michael@panmedia.co.nz>
+ * @author Melissa Richards <melissa@panmedia.co.nz>
+ */
+
+/**
+ * @class The table menu class.
+ * @constructor
+ * @augments Menu
+ *
+ * @param {Object} options Options hash.
+ * @returns {Element}
+ */
+function TableMenu(options) {
+    Menu.call(this, {
+        name: 'tableCreate'
+    });
+}
+
+TableMenu.prototype = Object.create(Menu.prototype);
+
+/**
+ * Creates the menu table.
+ *
+ * @param event The mouse event to create the table.
+ */
+TableMenu.prototype.createTable = function(event) {
+    this.raptor.actionApply(function() {
+        selectionReplace(elementOuterHtml($(tableCreate(event.target.cellIndex + 1, event.target.parentNode.rowIndex + 1, {
+            placeHolder: '&nbsp;'
+        }))));
+    });
+};
+
+/**
+ * Highlights the cells inside the table menu.
+ *
+ * @param event The mouse event to trigger the function.
+ */
+TableMenu.prototype.highlight = function(event) {
+    var cells = tableCellsInRange(this.menuTable.get(0), {
+            x: 0,
+            y: 0
+        }, {
+            x: event.target.cellIndex,
+            y: event.target.parentNode.rowIndex
+        });
+
+    // highlight cells in menu
+    this.highlightRemove(event);
+    $(cells).addClass(this.options.baseClass + '-menu-hover');
+
+    // Preview create
+    this.raptor.actionPreview(function() {
+        selectionReplace(elementOuterHtml($(tableCreate(event.target.cellIndex + 1, event.target.parentNode.rowIndex + 1, {
+            placeHolder: '&nbsp;'
+        }))));
+    });
+};
+
+/**
+ * Removes the highlight from the table menu.
+ *
+ * @param event The mouse event to trigger the function.
+ */
+TableMenu.prototype.highlightRemove = function(event) {
+    this.menuTable
+        .find('.' + this.options.baseClass + '-menu-hover')
+        .removeClass(this.options.baseClass + '-menu-hover');
+    this.raptor.actionPreviewRestore();
+};
+
+/**
+ * Prepares and returns the menu for use in the Raptor UI.
+ * @returns {Element}
+ */
+TableMenu.prototype.getMenu = function() {
+    if (!this.menu) {
+        this.menuContent = this.raptor.getTemplate('table.create-menu', this.options);
+        Menu.prototype.getMenu.call(this)
+            .on('click', 'td', this.createTable.bind(this))
+            .on('mouseenter', 'td', this.highlight.bind(this))
+            .mouseleave(this.highlightRemove.bind(this));
+        this.menuTable = this.menu.find('table:eq(0)');
+    }
+    return this.menu;
+};
+
+Raptor.registerUi(new TableMenu());
+
+                /* End of file: temp/default/src/plugins/table/table-create.js */
+            
+                /* File: temp/default/src/plugins/table/table-delete-column.js */
+                /**
+ * @fileOverview Contains the delete column button code.
+ * @author  David Neilsen <david@panmedia.co.nz>
+ * @author  Michael Robinson <michael@panmedia.co.nz>
+ * @author Melissa Richards <melissa@panmedia.co.nz>
+ */
+
+/**
+ * Creates a table cell button to delete a column from a table.
+ *
+ * @todo
+ * @param {type} param
+ */
+
+Raptor.registerUi(new TableCellButton({
+    name: 'tableDeleteColumn',
+    applyToElement: function(cell) {
+        tableDeleteColumn(cell.parentNode.parentNode.parentNode, tableGetCellIndex(cell).x);
+    }
+}));
+
+                /* End of file: temp/default/src/plugins/table/table-delete-column.js */
+            
+                /* File: temp/default/src/plugins/table/table-delete-row.js */
+                /**
+ * @fileOverview Contains the delete column button code.
+ * @author  David Neilsen <david@panmedia.co.nz>
+ * @author  Michael Robinson <michael@panmedia.co.nz>
+ * @author Melissa Richards <melissa@panmedia.co.nz>
+ */
+
+/**
+ * Creates a table cell button to delete a row from a table.
+ *
+ * @todo
+ * @param {type} param
+ */
+Raptor.registerUi(new TableCellButton({
+    name: 'tableDeleteRow',
+    applyToElement: function(cell) {
+        tableDeleteRow(cell.parentNode.parentNode.parentNode, tableGetCellIndex(cell).x);
+    }
+}));
+
+                /* End of file: temp/default/src/plugins/table/table-delete-row.js */
+            
+                /* File: temp/default/src/plugins/table/table-insert-column.js */
+                /**
+ * @fileOverview Contains the insert column button code.
+ * @author  David Neilsen <david@panmedia.co.nz>
+ * @author  Michael Robinson <michael@panmedia.co.nz>
+ * @author Melissa Richards <melissa@panmedia.co.nz>
+ */
+
+/**
+ * Creates a table cell button to insert a column into a table.
+ *
+ * @todo
+ * @param {type} param
+ */
+Raptor.registerUi(new TableCellButton({
+    name: 'tableInsertColumn',
+    applyToElement: function(cell) {
+        tableInsertColumn(cell.parentNode.parentNode.parentNode, tableGetCellIndex(cell).x + 1, {
+            placeHolder: '&nbsp;'
+        });
+    }
+}));
+
+                /* End of file: temp/default/src/plugins/table/table-insert-column.js */
+            
+                /* File: temp/default/src/plugins/table/table-insert-row.js */
+                /**
+ * @fileOverview Contains the insert row button code.
+ * @author  David Neilsen <david@panmedia.co.nz>
+ * @author  Michael Robinson <michael@panmedia.co.nz>
+ * @author Melissa Richards <melissa@panmedia.co.nz>
+ */
+
+/**
+ * Creates a table cell button to insert a row into a table.
+ *
+ * @todo
+ * @param {type} param
+ */
+Raptor.registerUi(new TableCellButton({
+    name: 'tableInsertRow',
+    applyToElement: function(cell) {
+        tableInsertRow(cell.parentNode.parentNode.parentNode, tableGetCellIndex(cell).y + 1, {
+            placeHolder: '&nbsp;'
+        });
+    }
+}));
+
+                /* End of file: temp/default/src/plugins/table/table-insert-row.js */
+            
+                /* File: temp/default/src/plugins/table/table-support.js */
+                /**
+ * @fileOverview Contains the table helper functions.
+ * @author  David Neilsen <david@panmedia.co.nz>
+ * @author  Michael Robinson <michael@panmedia.co.nz>
+ * @author Melissa Richards <melissa@panmedia.co.nz>
+ */
+
+var tableSupportDragging = false,
+    tableSupportStartCell = null;
+
+/**
+ * @class The supporting table class.
+ * @constructor
+ * @augments RaptorPlugin
+ *
+ * @todo type and desc for name
+ * @param {type} name
+ * @param {Object} overrides Options hash.
+ */
+function TableSupport(name, overrides) {
+    RaptorPlugin.call(this, name || 'tableSupport', overrides);
+}
+
+TableSupport.prototype = Object.create(RaptorPlugin.prototype);
+
+/**
+ * Initialize the table support class.
+ */
+TableSupport.prototype.init = function() {
+    this.raptor.bind('selectionCustomise', this.selectionCustomise.bind(this));
+    this.raptor.getElement()
+        .on('mousedown', 'tbody td', this.cellMouseDown.bind(this))
+        .on('mouseover', 'tbody td', this.cellMouseOver.bind(this))
+        .mouseup(this.cellMouseUp.bind(this));
+};
+
+/**
+ * @todo i think this has something to do with the cell selection but i'm not sure
+ * @returns {Array}
+ */
+TableSupport.prototype.selectionCustomise = function() {
+    var ranges = [],
+        range;
+    $('.' + this.options.baseClass + '-cell-selected').each(function() {
+        range = rangy.createRange();
+        range.selectNodeContents(this);
+        ranges.push(range);
+    });
+    return ranges;
+};
+
+/**
+ * Event handler for mouse down.
+ *
+ * @param event The mouse event to trigger the function.
+ */
+TableSupport.prototype.cellMouseDown = function(event) {
+    if (this.raptor.isEditing()) {
+        tableSupportStartCell = tableGetCellIndex(event.target);
+        if (tableSupportStartCell !== null) {
+            tableSupportDragging = true;
+            $(event.target).closest('table').addClass(this.options.baseClass + '-selected');
+        }
+    }
+};
+
+/**
+ * Event handler for mouse up.
+ *
+ * @param event The mouse event to trigger the function.
+ */
+TableSupport.prototype.cellMouseUp = function(event) {
+    tableSupportDragging = false;
+    var cell = $(event.target).closest('td'),
+        deselect = false;
+    if (cell.length > 0) {
+        var index = tableGetCellIndex(cell.get(0));
+        if (index === null ||
+                (index.x == tableSupportStartCell.x &&
+                index.y == tableSupportStartCell.y)) {
+            deselect = true;
+        }
+    } else {
+        deselect = true;
+    }
+    if (deselect) {
+        $('.' + this.options.baseClass + '-selected').removeClass(this.options.baseClass + '-selected');
+        $('.' + this.options.baseClass + '-cell-selected').removeClass(this.options.baseClass + '-cell-selected');
+    }
+};
+
+/**
+ * Event handler for mouse hover.
+ *
+ * @param event The mouse event to trigger the function.
+ */
+TableSupport.prototype.cellMouseOver = function(event) {
+    if (tableSupportDragging) {
+        var cells = tableCellsInRange($(event.target).closest('table').get(0), tableSupportStartCell, tableGetCellIndex(event.target));
+        $('.' + this.options.baseClass + '-cell-selected').removeClass(this.options.baseClass + '-cell-selected');
+        $(cells).addClass(this.options.baseClass + '-cell-selected');
+        rangy.getSelection().removeAllRanges();
+    }
+};
+
+Raptor.registerPlugin(new TableSupport());
+
+                /* End of file: temp/default/src/plugins/table/table-support.js */
+            
+                /* File: temp/default/src/plugins/tag-menu/tag-menu.js */
+                /**
+ * @fileOverview Contains the left align button code.
+ * @author  David Neilsen <david@panmedia.co.nz>
+ * @author  Michael Robinson <michael@panmedia.co.nz>
+ * @author Melissa Richards <melissa@panmedia.co.nz>
+ */
+
+/**
+ * @class The tag menu class.
+ * @constructor
+ * @augments SelectMenu
+ *
+ * @param {Object} options Options hash.
+ */
+function TagMenu(options) {
+    SelectMenu.call(this, {
+        name: 'tagMenu'
+    });
+}
+
+TagMenu.prototype = Object.create(SelectMenu.prototype);
+
+/**
+ * Initializes the tag menu.
+ */
+TagMenu.prototype.init = function() {
+    this.raptor.bind('selectionChange', this.updateButton.bind(this));
+    return SelectMenu.prototype.init.apply(this, arguments);
+};
+
+/**
+ * Changes the tags on the selected element(s).
+ *
+ * @param {HTML} tag The new tag.
+ */
+TagMenu.prototype.changeTag = function(tag) {
+    // Prevent injection of illegal tags
+    if (typeof tag === 'undefined' || tag === 'na') {
+        return;
+    }
+
+    var selectedElement = selectionGetElement(),
+        limitElement = selectedElement.closest('td, li');
+    if (limitElement.length === 0) {
+        limitElement = this.raptor.getElement();
+    }
+
+    selectionChangeTags(tag, [
+        'h1', 'h2', 'h3', 'h4', 'h5', 'h6',
+        'p', 'div', 'pre', 'address'
+    ], limitElement);
+};
+
+/**
+ * Applies the tag change.
+ *
+ * @param event The mouse event to trigger the function.
+ */
+TagMenu.prototype.apply = function(event) {
+    this.raptor.actionApply(function() {
+        this.changeTag($(event.currentTarget).data('value'));
+    }.bind(this));
+};
+
+/**
+ * Generates a preview state for a change of tag.
+ *
+ * @param event The mouse event to trigger the preview.
+ */
+TagMenu.prototype.preview = function(event) {
+    if (this.preview) {
+        this.raptor.actionPreview(function() {
+            this.changeTag($(event.currentTarget).data('value'));
+        }.bind(this));
+    }
+};
+
+/**
+ * Restores the tag menu from it's preview state.
+ *
+ * @param event The mouse event to trigger the restoration of the tag menu.
+ */
+TagMenu.prototype.previewRestore = function(event) {
+    if (this.preview) {
+        this.raptor.actionPreviewRestore();
+    }
+};
+
+/**
+ * Updates the display of the tag menu button.
+ */
+TagMenu.prototype.updateButton = function() {
+    var tag = selectionGetElements()[0],
+        button = this.getButton().getButton();
+    if (!tag) {
+        return;
+    }
+    var tagName = tag.tagName.toLowerCase(),
+        option = this.getMenu().find('[data-value=' + tagName + ']');
+    if (option.length) {
+        aButtonSetLabel(button, option.html());
+    } else {
+        aButtonSetLabel(button, _('tagMenuTagNA'));
+    }
+//    if (this.raptor.getElement()[0] === tag) {
+//        aButtonDisable(button);
+//    } else {
+//        aButtonEnable(button);
+//    }
+};
+
+//TagMenu.prototype.getButton = function() {
+//    if (!this.button) {
+//        this.button = new Button({
+//            name: this.name,
+//            action: this.show.bind(this),
+//            preview: false,
+//            options: this.options,
+//            icon: false,
+//            raptor: this.raptor
+//        });
+//    }
+//    return this.button;
+//};
+
+/**
+ * Prepares and returns the menu items for use in the raptor UI.
+ * @returns {Element}
+ */
+TagMenu.prototype.getMenuItems = function() {
+    return $(this.raptor.getTemplate('tag-menu.menu', this.options))
+        .click(this.apply.bind(this))
+        .mouseenter(this.preview.bind(this))
+        .mouseleave(this.previewRestore.bind(this));
+};
+
+Raptor.registerUi(new TagMenu());
+
+                /* End of file: temp/default/src/plugins/tag-menu/tag-menu.js */
+            
+                /* File: temp/default/src/plugins/text-align/text-align-button.js */
+                /**
+ * @fileOverview Contains the text align button class code.
+ * @author  David Neilsen <david@panmedia.co.nz>
+ * @author  Michael Robinson <michael@panmedia.co.nz>
+ * @author Melissa Richards <melissa@panmedia.co.nz>
+ */
+
+/**
+ * @class The text align button class.
+ * @constructor
+ * @augments PreviewToggleButton
+ *
+ * @param {Object} options Options hash.
+ * @returns {Element}
+ */
+function TextAlignButton(options) {
+    PreviewToggleButton.call(this, $.extend({
+        action: function() {
+            selectionToggleBlockClasses([
+                this.getClass()
+            ], [
+                this.options.cssPrefix + 'center',
+                this.options.cssPrefix + 'left',
+                this.options.cssPrefix + 'right',
+                this.options.cssPrefix + 'justify'
+            ], this.raptor.getElement());
+            this.selectionChange();
+        },
+        selectionToggle: function() {
+            return rangy.getSelection().getAllRanges().length > 0 &&
+                selectionContains('.' + this.getClass(), this.raptor.getElement());
+        }
+    }, options));
+}
+
+TextAlignButton.prototype = Object.create(PreviewToggleButton.prototype);
+
+                /* End of file: temp/default/src/plugins/text-align/text-align-button.js */
+            
+                /* File: temp/default/src/plugins/text-align/center.js */
+                /**
+ * @fileOverview Contains the center align button code.
+ * @author  David Neilsen <david@panmedia.co.nz>
+ * @author  Michael Robinson <michael@panmedia.co.nz>
+ * @author Melissa Richards <melissa@panmedia.co.nz>
+ */
+
+/**
+ * Creates a text align button to align text center.
+ *
+ * @todo param details?
+ * @param {type} param.
+ */
+Raptor.registerUi(new TextAlignButton({
+    name: 'alignCenter',
+    getClass: function() {
+        return this.options.cssPrefix + 'center';
+    }
+}));
+
+                /* End of file: temp/default/src/plugins/text-align/center.js */
+            
+                /* File: temp/default/src/plugins/text-align/justify.js */
+                /**
+ * @fileOverview Contains the justify text button code.
+ * @author  David Neilsen <david@panmedia.co.nz>
+ * @author  Michael Robinson <michael@panmedia.co.nz>
+ * @author Melissa Richards <melissa@panmedia.co.nz>
+ */
+
+/**
+ * Creates a text align button to justify text.
+ *
+ * @todo param details?
+ * @param {type} param.
+ */
+
+Raptor.registerUi(new TextAlignButton({
+    name: 'alignJustify',
+    getClass: function() {
+        return this.options.cssPrefix + 'justify';
+    }
+}));
+
+                /* End of file: temp/default/src/plugins/text-align/justify.js */
+            
+                /* File: temp/default/src/plugins/text-align/left.js */
+                /**
+ * @fileOverview Contains the left align button code.
+ * @author  David Neilsen <david@panmedia.co.nz>
+ * @author  Michael Robinson <michael@panmedia.co.nz>
+ * @author Melissa Richards <melissa@panmedia.co.nz>
+ */
+
+/**
+ * Creates a text align button to align text left.
+ *
+ * @todo param details?
+ * @param {type} param.
+ */
+Raptor.registerUi(new TextAlignButton({
+    name: 'alignLeft',
+    getClass: function() {
+        return this.options.cssPrefix + 'left';
+    }
+}));
+
+                /* End of file: temp/default/src/plugins/text-align/left.js */
+            
+                /* File: temp/default/src/plugins/text-align/right.js */
+                /**
+ * @fileOverview Contains the right align button code.
+ * @author  David Neilsen <david@panmedia.co.nz>
+ * @author  Michael Robinson <michael@panmedia.co.nz>
+ * @author Melissa Richards <melissa@panmedia.co.nz>
+ */
+
+/**
+ * Creates a text align button to align text right.
+ *
+ * @todo param details?
+ * @param {type} param.
+ */
+
+Raptor.registerUi(new TextAlignButton({
+    name: 'alignRight',
+    getClass: function() {
+        return this.options.cssPrefix + 'right';
+    }
+}));
+
+                /* End of file: temp/default/src/plugins/text-align/right.js */
+            
                 /* File: temp/default/src/plugins/text-style/block-quote.js */
-                Raptor.registerUi(new PreviewToggleButton({
+                /**
+ * @fileOverview Contains the block quote button code.
+ * @author  David Neilsen <david@panmedia.co.nz>
+ * @author  Michael Robinson <michael@panmedia.co.nz>
+ * @author Melissa Richards <melissa@panmedia.co.nz>
+ */
+
+/**
+ * Creates an instance of the preview toggle button to insert a block quote.
+ *
+ * @todo param stuffs?
+ * @param {type} param
+ */
+Raptor.registerUi(new PreviewToggleButton({
     name: 'textBlockQuote',
     action: function() {
         listToggle('blockquote', 'p', this.raptor.getElement());
@@ -18572,7 +19077,20 @@ Raptor.registerUi(new Button({
                 /* End of file: temp/default/src/plugins/text-style/block-quote.js */
             
                 /* File: temp/default/src/plugins/text-style/bold.js */
-                Raptor.registerUi(new CSSClassApplierButton({
+                /**
+ * @fileOverview Contains the bold button code.
+ * @author  David Neilsen <david@panmedia.co.nz>
+ * @author  Michael Robinson <michael@panmedia.co.nz>
+ * @author Melissa Richards <melissa@panmedia.co.nz>
+ */
+
+/**
+ * Creates an instance of the CSS applier button to apply the bold class to a selection.
+ *
+ * @todo param stuffs?
+ * @param {type} param
+ */
+Raptor.registerUi(new CSSClassApplierButton({
     name: 'textBold',
     hotkey: 'ctrl+b',
     tag: 'strong',
@@ -18582,7 +19100,20 @@ Raptor.registerUi(new Button({
                 /* End of file: temp/default/src/plugins/text-style/bold.js */
             
                 /* File: temp/default/src/plugins/text-style/italic.js */
-                Raptor.registerUi(new CSSClassApplierButton({
+                /**
+ * @fileOverview Contains the italic button code.
+ * @author  David Neilsen <david@panmedia.co.nz>
+ * @author  Michael Robinson <michael@panmedia.co.nz>
+ * @author Melissa Richards <melissa@panmedia.co.nz>
+ */
+
+/**
+ * Creates an instance of the CSS applier button to apply the italic class to a selection.
+ *
+ * @todo param stuffs?
+ * @param {type} param
+ */
+Raptor.registerUi(new CSSClassApplierButton({
     name: 'textItalic',
     hotkey: 'ctrl+i',
     tag: 'em',
@@ -18592,7 +19123,20 @@ Raptor.registerUi(new Button({
                 /* End of file: temp/default/src/plugins/text-style/italic.js */
             
                 /* File: temp/default/src/plugins/text-style/size-decrease.js */
-                Raptor.registerUi(new PreviewButton({
+                /**
+ * @fileOverview Contains the text size decrease button code.
+ * @author  David Neilsen <david@panmedia.co.nz>
+ * @author  Michael Robinson <michael@panmedia.co.nz>
+ * @author Melissa Richards <melissa@panmedia.co.nz>
+ */
+
+/**
+ * Creates an instance of the preview button to apply the text size decrease class to a selection.
+ *
+ * @todo param stuffs?
+ * @param {type} param
+ */
+Raptor.registerUi(new PreviewButton({
     name: 'textSizeDecrease',
     action: function() {
         selectionExpandToWord();
@@ -18604,7 +19148,20 @@ Raptor.registerUi(new Button({
                 /* End of file: temp/default/src/plugins/text-style/size-decrease.js */
             
                 /* File: temp/default/src/plugins/text-style/size-increase.js */
-                Raptor.registerUi(new PreviewButton({
+                /**
+ * @fileOverview Contains the text size increase button code.
+ * @author  David Neilsen <david@panmedia.co.nz>
+ * @author  Michael Robinson <michael@panmedia.co.nz>
+ * @author Melissa Richards <melissa@panmedia.co.nz>
+ */
+
+/**
+ * Creates an instance of the preview button to apply the text size increase class to a selection.
+ *
+ * @todo param stuffs?
+ * @param {type} param
+ */
+Raptor.registerUi(new PreviewButton({
     name: 'textSizeIncrease',
     action: function() {
         selectionExpandToWord();
@@ -18616,7 +19173,20 @@ Raptor.registerUi(new Button({
                 /* End of file: temp/default/src/plugins/text-style/size-increase.js */
             
                 /* File: temp/default/src/plugins/text-style/strike.js */
-                Raptor.registerUi(new CSSClassApplierButton({
+                /**
+ * @fileOverview Contains the strike button code.
+ * @author  David Neilsen <david@panmedia.co.nz>
+ * @author  Michael Robinson <michael@panmedia.co.nz>
+ * @author Melissa Richards <melissa@panmedia.co.nz>
+ */
+
+/**
+ * Creates an instance of the CSS applier button to apply the strike class to a selection.
+ *
+ * @todo param stuffs?
+ * @param {type} param
+ */
+Raptor.registerUi(new CSSClassApplierButton({
     name: 'textStrike',
     tag: 'del',
     classes: ['strike']
@@ -18625,7 +19195,20 @@ Raptor.registerUi(new Button({
                 /* End of file: temp/default/src/plugins/text-style/strike.js */
             
                 /* File: temp/default/src/plugins/text-style/sub.js */
-                Raptor.registerUi(new CSSClassApplierButton({
+                /**
+ * @fileOverview Contains the subscript button code.
+ * @author  David Neilsen <david@panmedia.co.nz>
+ * @author  Michael Robinson <michael@panmedia.co.nz>
+ * @author Melissa Richards <melissa@panmedia.co.nz>
+ */
+
+/**
+ * Creates an instance of the CSS applier button to apply the subscript class to a selection.
+ *
+ * @todo param stuffs?
+ * @param {type} param
+ */
+Raptor.registerUi(new CSSClassApplierButton({
     name: 'textSub',
     tag: 'sub',
     classes: ['sub']
@@ -18634,7 +19217,20 @@ Raptor.registerUi(new Button({
                 /* End of file: temp/default/src/plugins/text-style/sub.js */
             
                 /* File: temp/default/src/plugins/text-style/super.js */
-                Raptor.registerUi(new CSSClassApplierButton({
+                /**
+ * @fileOverview Contains the superscript button code.
+ * @author  David Neilsen <david@panmedia.co.nz>
+ * @author  Michael Robinson <michael@panmedia.co.nz>
+ * @author Melissa Richards <melissa@panmedia.co.nz>
+ */
+
+/**
+ * Creates an instance of the CSS applier button to apply the superscript class to a selection.
+ *
+ * @todo param stuffs?
+ * @param {type} param
+ */
+Raptor.registerUi(new CSSClassApplierButton({
     name: 'textSuper',
     tag: 'sup',
     classes: ['sup']
@@ -18643,7 +19239,20 @@ Raptor.registerUi(new Button({
                 /* End of file: temp/default/src/plugins/text-style/super.js */
             
                 /* File: temp/default/src/plugins/text-style/underline.js */
-                Raptor.registerUi(new CSSClassApplierButton({
+                /**
+ * @fileOverview Contains the underline button code.
+ * @author  David Neilsen <david@panmedia.co.nz>
+ * @author  Michael Robinson <michael@panmedia.co.nz>
+ * @author Melissa Richards <melissa@panmedia.co.nz>
+ */
+
+/**
+ * Creates an instance of the CSS applier button to apply the underline class to a selection.
+ *
+ * @todo param stuffs?
+ * @param {type} param
+ */
+Raptor.registerUi(new CSSClassApplierButton({
     name: 'textUnderline',
     hotkey: 'ctrl+u',
     tag: 'u',
@@ -18673,20 +19282,45 @@ Raptor.registerPlugin(new ToolTipPlugin());
                 /* End of file: temp/default/src/plugins/tool-tip/tool-tip.js */
             
                 /* File: temp/default/src/plugins/unsaved-edit-warning/unsaved-edit-warning.js */
-                var unsavedEditWarningDirty = 0,
+                /**
+ * @fileOverview Contains the unsaved edit warning plugin class code.
+ * @author  David Neilsen <david@panmedia.co.nz>
+ * @author  Michael Robinson <michael@panmedia.co.nz>
+ * @author Melissa Richards <melissa@panmedia.co.nz>
+ */
+
+var unsavedEditWarningDirty = 0,
     unsavedEditWarningElement = null;
 
+/**
+ * @class The unsaved edit warning plugin.
+ * @constructor
+ * @augments RaptorPlugin
+ *
+ * @todo name details
+ * @param {type} name
+ * @param {Object} overrides Options hash.
+ */
 function UnsavedEditWarningPlugin(name, overrides) {
     RaptorPlugin.call(this, name || 'unsavedEditWarning', overrides);
 }
 
 UnsavedEditWarningPlugin.prototype = Object.create(RaptorPlugin.prototype);
 
+/**
+ * Enables the unsaved edit warning plugin.
+ *
+ * @todo raptor details
+ * @param {type} raptor
+ */
 UnsavedEditWarningPlugin.prototype.enable = function(raptor) {
     this.raptor.bind('dirty', this.show.bind(this));
     this.raptor.bind('cleaned', this.hide.bind(this));
 };
 
+/**
+ * Shows the unsaved edit warning.
+ */
 UnsavedEditWarningPlugin.prototype.show = function() {
     unsavedEditWarningDirty++;
     if (unsavedEditWarningDirty > 0) {
@@ -18695,6 +19329,11 @@ UnsavedEditWarningPlugin.prototype.show = function() {
     }
 };
 
+/**
+ * Hides the unsaved edit warning.
+ *
+ * @param event The mouse event that triggers the function.
+ */
 UnsavedEditWarningPlugin.prototype.hide = function(event) {
     unsavedEditWarningDirty--;
     if (unsavedEditWarningDirty === 0) {
@@ -18702,6 +19341,13 @@ UnsavedEditWarningPlugin.prototype.hide = function(event) {
     }
 };
 
+/**
+ * Prepares and returns the unsaved edit warning element for use in the Raptor UI.
+ *
+ * @todo instance details
+ * @param {type} instance
+ * @returns {Element}
+ */
 UnsavedEditWarningPlugin.prototype.getElement = function(instance) {
     if (!unsavedEditWarningElement) {
         unsavedEditWarningElement = $(this.raptor.getTemplate('unsaved-edit-warning.warning', this.options))
@@ -18725,7 +19371,20 @@ Raptor.registerPlugin(new UnsavedEditWarningPlugin());
                 /* End of file: temp/default/src/plugins/unsaved-edit-warning/unsaved-edit-warning.js */
             
                 /* File: temp/default/src/plugins/view-source/view-source.js */
-                Raptor.registerUi(new DialogButton({
+                /**
+ * @fileOverview Contains the view source dialog code.
+ * @author  David Neilsen <david@panmedia.co.nz>
+ * @author  Michael Robinson <michael@panmedia.co.nz>
+ * @author Melissa Richards <melissa@panmedia.co.nz>
+ */
+
+/**
+ * Creates an instance of the dialog button to open the view source dialog.
+ *
+ * @todo param stuffs?
+ * @param {type} param
+ */
+Raptor.registerUi(new DialogButton({
     name: 'viewSource',
     dialogOptions: {
         width: 600,
@@ -18749,8 +19408,8 @@ Raptor.registerPlugin(new UnsavedEditWarningPlugin());
             
                     })(jQuery);
                     /* End of wrapper. */
-                jQuery('<style type="text/css">\n\
-                /* File: temp/default/packages/raptor-theme.css */\n\
+                document.write('<style type="text/css">\n\
+                /* File: temp/default/src/style/raptor.css */\n\
                 /* Non styles */\n\
 /**\n\
  * Style global variables\n\
@@ -18764,194 +19423,165 @@ Raptor.registerPlugin(new UnsavedEditWarningPlugin());
  */\n\
 /* Base style */\n\
 /**\n\
- * Main editor layout\n\
- *\n\
- * @author David Neilsen <david@panmedia.co.nz>\n\
- * @author Michael Robinson <michael@panmedia.co.nz>\n\
- */\n\
-/******************************************************************************\\n\
- * Editor toolbar\n\
-\******************************************************************************/\n\
-.raptor-wrapper {\n\
-  overflow: visible;\n\
-  z-index: 1300;\n\
-  position: fixed;\n\
-  font-size: 12px;\n\
-  -webkit-user-select: none;\n\
-  -moz-user-select: none;\n\
-  user-select: none; }\n\
-  .raptor-wrapper * {\n\
-    -webkit-user-select: none;\n\
-    -moz-user-select: none;\n\
-    user-select: none; }\n\
-  .raptor-wrapper .raptor-toolbar {\n\
-    padding: 6px 0 0 5px;\n\
-    overflow: visible; }\n\
-  .raptor-wrapper .ui-dialog-titlebar .raptor-element-path:first-child {\n\
-    margin-left: 5px; }\n\
-  .raptor-wrapper .ui-dialog-titlebar .raptor-element-path {\n\
-    min-width: 10px;\n\
-    min-height: 15px;\n\
-    display: inline-block; }\n\
-\n\
-.raptor-dock-docked-to-element .raptor-toolbar {\n\
-  padding: 5px 0 0 5px !important; }\n\
-  .raptor-dock-docked-to-element .raptor-toolbar .raptor-group {\n\
-    margin: 0 5px 5px 0; }\n\
-\n\
-.raptor-dock-docked-element {\n\
-  display: block !important;\n\
-  border: 0 none transparent;\n\
-  -webkit-box-sizing: border-box;\n\
-  -moz-box-sizing: border-box;\n\
-  box-sizing: border-box; }\n\
-\n\
-/******************************************************************************\\n\
- * Inputs\n\
-\******************************************************************************/\n\
-.raptor-wrapper textarea,\n\
-.raptor-wrapper input {\n\
-  padding: 5px; }\n\
-\n\
-/******************************************************************************\\n\
- * Dialogs\n\
-\******************************************************************************/\n\
-.raptor-wrapper .ui-dialog-content {\n\
-  font-size: 13px; }\n\
-.raptor-wrapper textarea {\n\
-  display: -webkit-box;\n\
-  display: -moz-box;\n\
-  display: -ms-box;\n\
-  display: box;\n\
-  -webkit-box-flex: 1;\n\
-  -moz-box-flex: 1;\n\
-  -ms-box-flex: 1;\n\
-  box-flex: 1; }\n\
-\n\
-html body div.ui-dialog div.ui-dialog-titlebar a.ui-dialog-titlebar-close span.ui-icon {\n\
-  margin-top: 0!important; }\n\
-\n\
-/**\n\
  * Main editor styles\n\
  *\n\
  * @author David Neilsen <david@panmedia.co.nz>\n\
  * @author Michael Robinson <michael@panmedia.co.nz>\n\
  */\n\
+/* line 9, style.scss */\n\
+.raptor-wrapper {\n\
+  overflow: visible;\n\
+  position: fixed;\n\
+  font-size: 12px;\n\
+  z-index: 1300;\n\
+  -moz-user-select: -moz-none;\n\
+  -webkit-user-select: none;\n\
+  -ms-user-select: none;\n\
+  user-select: none;\n\
+}\n\
+/* line 16, style.scss */\n\
+.raptor-wrapper * {\n\
+  -moz-user-select: -moz-none;\n\
+  -webkit-user-select: none;\n\
+  -ms-user-select: none;\n\
+  user-select: none;\n\
+}\n\
+/* line 20, style.scss */\n\
+.raptor-wrapper .raptor-toolbar {\n\
+  padding: 6px 0 0 5px;\n\
+  overflow: visible;\n\
+}\n\
+\n\
+/* line 26, style.scss */\n\
 .raptor-editing {\n\
-  outline: none; }\n\
+  outline: none;\n\
+}\n\
 \n\
-/******************************************************************************\\n\
- * Inputs\n\
-\******************************************************************************/\n\
-.raptor-wrapper textarea,\n\
-.raptor-wrapper input {\n\
-  border: 1px solid #d4d4d4; }\n\
-\n\
-/******************************************************************************\\n\
- * Dialogs\n\
-\******************************************************************************/\n\
-.raptor-wrapper .ui-dialog-content {\n\
-  font-size: 13px; }\n\
-\n\
-html body div.ui-wrapper div.ui-dialog-titlebar a.ui-dialog-titlebar-close span.ui-icon {\n\
-  margin-top: 0!important; }\n\
-\n\
-/* Components */\n\
-/**\n\
- * Path selection bar\n\
- *\n\
- * @author David Neilsen <david@panmedia.co.nz>\n\
- */\n\
+/* line 30, style.scss */\n\
 .raptor-path {\n\
   padding: 5px;\n\
-  font-size: 13px; }\n\
+}\n\
 \n\
 /**\n\
- * Select menu UI widget styles\n\
+ * Message widget styles\n\
  *\n\
  * @author David Neilsen <david@panmedia.co.nz>\n\
  */\n\
-.raptor-selectmenu {\n\
-  overflow: visible;\n\
-  position: relative; }\n\
-\n\
-.raptor-selectmenu-button {\n\
-  text-align: left;\n\
-  padding: 3px 18px 5px 5px !important;\n\
-  float: none !important; }\n\
-  .raptor-selectmenu-button .ui-icon {\n\
-    position: absolute;\n\
-    right: 1px;\n\
-    top: 8px; }\n\
-  .raptor-selectmenu-button .raptor-selectmenu-text {\n\
-    font-size: 13px; }\n\
-\n\
-.raptor-selectmenu-wrapper {\n\
-  position: relative; }\n\
-\n\
-.raptor-selectmenu-button .ui-button-text {\n\
-  padding: 0 25px 0 5px; }\n\
-\n\
-.raptor-selectmenu-button .ui-icon {\n\
-  background-repeat: no-repeat; }\n\
-\n\
-.raptor-selectmenu-menu {\n\
-  position: absolute;\n\
-  top: 100%;\n\
-  left: 0;\n\
-  right: auto;\n\
-  display: none;\n\
-  margin-top: -1px !important; }\n\
-\n\
-.raptor-selectmenu-visible .raptor-selectmenu-menu {\n\
-  display: block;\n\
-  z-index: 1; }\n\
-\n\
-.raptor-selectmenu-menu-item {\n\
-  padding: 5px;\n\
-  margin: 3px;\n\
-  z-index: 1;\n\
-  text-align: left;\n\
-  font-size: 13px;\n\
-  font-weight: normal !important;\n\
-  border: 1px solid transparent;\n\
+/* line 10, messages.scss */\n\
+.raptor-messages {\n\
+  margin: 0;\n\
+  /* Error */\n\
+  /* Confirm */\n\
+  /* Information */\n\
+  /* Warning */\n\
+  /* Loading */\n\
+}\n\
+/* line 13, messages.scss */\n\
+.raptor-messages .raptor-message-close {\n\
   cursor: pointer;\n\
-  background-color: inherit; }\n\
-\n\
-.raptor-selectmenu-button {\n\
-  background: #f5f5f5;\n\
-  border: 1px solid #cccccc; }\n\
-\n\
-/**\n\
- * Button UI widget styles\n\
- *\n\
- * @author David Neilsen <david@panmedia.co.nz>\n\
- */\n\
-/**\n\
- * Select menu UI widget styles\n\
- *\n\
- * @author David Neilsen <david@panmedia.co.nz>\n\
- */\n\
-.raptor-menu {\n\
-  z-index: 1600;\n\
-  padding: 6px; }\n\
-\n\
-.raptor-menu .ui-menu-item:before {\n\
-  display: none; }\n\
-\n\
-.raptor-menu .ui-menu-item a,\n\
-.raptor-menu .ui-menu-item a:hover {\n\
-  padding: 3px 10px; }\n\
+  float: right;\n\
+}\n\
+/* line 18, messages.scss */\n\
+.raptor-messages .ui-icon {\n\
+  margin: 0 0 3px 3px;\n\
+}\n\
+/* line 23, messages.scss */\n\
+.raptor-messages .ui-icon,\n\
+.raptor-messages .raptor-message {\n\
+  display: inline-block;\n\
+  vertical-align: top;\n\
+}\n\
+/* line 28, messages.scss */\n\
+.raptor-messages .raptor-message-wrapper {\n\
+  padding: 3px 3px 3px 1px;\n\
+  -webkit-box-shadow: inset 0 -1px 1px rgba(0, 0, 0, 0.35), inset 0 1px 2px rgba(255, 255, 255, 0.5);\n\
+  -moz-box-shadow: inset 0 -1px 1px rgba(0, 0, 0, 0.35), inset 0 1px 2px rgba(255, 255, 255, 0.5);\n\
+  box-shadow: inset 0 -1px 1px rgba(0, 0, 0, 0.35), inset 0 1px 2px rgba(255, 255, 255, 0.5);\n\
+}\n\
+/* line 37, messages.scss */\n\
+.raptor-messages .raptor-message-wrapper:first-child {\n\
+  -moz-border-radius-topright: 5px;\n\
+  -webkit-border-top-right-radius: 5px;\n\
+  border-top-right-radius: 5px;\n\
+  -moz-border-radius-topleft: 5px;\n\
+  -webkit-border-top-left-radius: 5px;\n\
+  border-top-left-radius: 5px;\n\
+}\n\
+/* line 42, messages.scss */\n\
+.raptor-messages .raptor-message-wrapper:last-child {\n\
+  -moz-border-radius-bottomright: 5px;\n\
+  -webkit-border-bottom-right-radius: 5px;\n\
+  border-bottom-right-radius: 5px;\n\
+  -moz-border-radius-bottomleft: 5px;\n\
+  -webkit-border-bottom-left-radius: 5px;\n\
+  border-bottom-left-radius: 5px;\n\
+}\n\
+/* line 48, messages.scss */\n\
+.raptor-messages .raptor-message-circle-close {\n\
+  /* Red */\n\
+  background: url(\'data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0idXRmLTgiPz4gPHN2ZyB2ZXJzaW9uPSIxLjEiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGRlZnM+PGxpbmVhckdyYWRpZW50IGlkPSJncmFkIiBncmFkaWVudFVuaXRzPSJ1c2VyU3BhY2VPblVzZSIgeDE9IjUwJSIgeTE9IjAlIiB4Mj0iNTAlIiB5Mj0iMTAwJSI+PHN0b3Agb2Zmc2V0PSIwJSIgc3RvcC1jb2xvcj0iI2ZmNWQ0YiIvPjxzdG9wIG9mZnNldD0iMTAwJSIgc3RvcC1jb2xvcj0iI2ZhMWMxYyIvPjwvbGluZWFyR3JhZGllbnQ+PC9kZWZzPjxyZWN0IHg9IjAiIHk9IjAiIHdpZHRoPSIxMDAlIiBoZWlnaHQ9IjEwMCUiIGZpbGw9InVybCgjZ3JhZCkiIC8+PC9zdmc+IA==\');\n\
+  background: -webkit-gradient(linear, 50% 0%, 50% 100%, color-stop(0%, #ff5d4b), color-stop(100%, #fa1c1c));\n\
+  background: -webkit-linear-gradient(top, #ff5d4b, #fa1c1c);\n\
+  background: -moz-linear-gradient(top, #ff5d4b, #fa1c1c);\n\
+  background: -o-linear-gradient(top, #ff5d4b, #fa1c1c);\n\
+  background: linear-gradient(top, #ff5d4b, #fa1c1c);\n\
+}\n\
+/* line 54, messages.scss */\n\
+.raptor-messages .raptor-message-circle-check {\n\
+  /* Green */\n\
+  background: url(\'data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0idXRmLTgiPz4gPHN2ZyB2ZXJzaW9uPSIxLjEiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGRlZnM+PGxpbmVhckdyYWRpZW50IGlkPSJncmFkIiBncmFkaWVudFVuaXRzPSJ1c2VyU3BhY2VPblVzZSIgeDE9IjUwJSIgeTE9IjAlIiB4Mj0iNTAlIiB5Mj0iMTAwJSI+PHN0b3Agb2Zmc2V0PSIwJSIgc3RvcC1jb2xvcj0iI2NkZWI4ZSIvPjxzdG9wIG9mZnNldD0iMTAwJSIgc3RvcC1jb2xvcj0iI2E1Yzk1NiIvPjwvbGluZWFyR3JhZGllbnQ+PC9kZWZzPjxyZWN0IHg9IjAiIHk9IjAiIHdpZHRoPSIxMDAlIiBoZWlnaHQ9IjEwMCUiIGZpbGw9InVybCgjZ3JhZCkiIC8+PC9zdmc+IA==\');\n\
+  background: -webkit-gradient(linear, 50% 0%, 50% 100%, color-stop(0%, #cdeb8e), color-stop(100%, #a5c956));\n\
+  background: -webkit-linear-gradient(top, #cdeb8e, #a5c956);\n\
+  background: -moz-linear-gradient(top, #cdeb8e, #a5c956);\n\
+  background: -o-linear-gradient(top, #cdeb8e, #a5c956);\n\
+  background: linear-gradient(top, #cdeb8e, #a5c956);\n\
+}\n\
+/* line 60, messages.scss */\n\
+.raptor-messages .raptor-message-info {\n\
+  /* Blue */\n\
+  background: url(\'data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0idXRmLTgiPz4gPHN2ZyB2ZXJzaW9uPSIxLjEiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGRlZnM+PGxpbmVhckdyYWRpZW50IGlkPSJncmFkIiBncmFkaWVudFVuaXRzPSJ1c2VyU3BhY2VPblVzZSIgeDE9IjUwJSIgeTE9IjAlIiB4Mj0iNTAlIiB5Mj0iMTAwJSI+PHN0b3Agb2Zmc2V0PSIwJSIgc3RvcC1jb2xvcj0iI2E5ZTRmNyIvPjxzdG9wIG9mZnNldD0iMTAwJSIgc3RvcC1jb2xvcj0iIzBmYjRlNyIvPjwvbGluZWFyR3JhZGllbnQ+PC9kZWZzPjxyZWN0IHg9IjAiIHk9IjAiIHdpZHRoPSIxMDAlIiBoZWlnaHQ9IjEwMCUiIGZpbGw9InVybCgjZ3JhZCkiIC8+PC9zdmc+IA==\');\n\
+  background: -webkit-gradient(linear, 50% 0%, 50% 100%, color-stop(0%, #a9e4f7), color-stop(100%, #0fb4e7));\n\
+  background: -webkit-linear-gradient(top, #a9e4f7, #0fb4e7);\n\
+  background: -moz-linear-gradient(top, #a9e4f7, #0fb4e7);\n\
+  background: -o-linear-gradient(top, #a9e4f7, #0fb4e7);\n\
+  background: linear-gradient(top, #a9e4f7, #0fb4e7);\n\
+}\n\
+/* line 66, messages.scss */\n\
+.raptor-messages .raptor-message-alert {\n\
+  /* Yellow */\n\
+  background: url(\'data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0idXRmLTgiPz4gPHN2ZyB2ZXJzaW9uPSIxLjEiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGRlZnM+PGxpbmVhckdyYWRpZW50IGlkPSJncmFkIiBncmFkaWVudFVuaXRzPSJ1c2VyU3BhY2VPblVzZSIgeDE9IjUwJSIgeTE9IjAlIiB4Mj0iNTAlIiB5Mj0iMTAwJSI+PHN0b3Agb2Zmc2V0PSIwJSIgc3RvcC1jb2xvcj0iI2ZmZDY1ZSIvPjxzdG9wIG9mZnNldD0iMTAwJSIgc3RvcC1jb2xvcj0iI2ZlYmYwNCIvPjwvbGluZWFyR3JhZGllbnQ+PC9kZWZzPjxyZWN0IHg9IjAiIHk9IjAiIHdpZHRoPSIxMDAlIiBoZWlnaHQ9IjEwMCUiIGZpbGw9InVybCgjZ3JhZCkiIC8+PC9zdmc+IA==\');\n\
+  background: -webkit-gradient(linear, 50% 0%, 50% 100%, color-stop(0%, #ffd65e), color-stop(100%, #febf04));\n\
+  background: -webkit-linear-gradient(top, #ffd65e, #febf04);\n\
+  background: -moz-linear-gradient(top, #ffd65e, #febf04);\n\
+  background: -o-linear-gradient(top, #ffd65e, #febf04);\n\
+  background: linear-gradient(top, #ffd65e, #febf04);\n\
+}\n\
+/* line 72, messages.scss */\n\
+.raptor-messages .raptor-message-clock {\n\
+  /* Purple */\n\
+  background: url(\'data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0idXRmLTgiPz4gPHN2ZyB2ZXJzaW9uPSIxLjEiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGRlZnM+PGxpbmVhckdyYWRpZW50IGlkPSJncmFkIiBncmFkaWVudFVuaXRzPSJ1c2VyU3BhY2VPblVzZSIgeDE9IjUwJSIgeTE9IjAlIiB4Mj0iNTAlIiB5Mj0iMTAwJSI+PHN0b3Agb2Zmc2V0PSIwJSIgc3RvcC1jb2xvcj0iI2ZiODNmYSIvPjxzdG9wIG9mZnNldD0iMTAwJSIgc3RvcC1jb2xvcj0iI2U5M2NlYyIvPjwvbGluZWFyR3JhZGllbnQ+PC9kZWZzPjxyZWN0IHg9IjAiIHk9IjAiIHdpZHRoPSIxMDAlIiBoZWlnaHQ9IjEwMCUiIGZpbGw9InVybCgjZ3JhZCkiIC8+PC9zdmc+IA==\');\n\
+  background: -webkit-gradient(linear, 50% 0%, 50% 100%, color-stop(0%, #fb83fa), color-stop(100%, #e93cec));\n\
+  background: -webkit-linear-gradient(top, #fb83fa, #e93cec);\n\
+  background: -moz-linear-gradient(top, #fb83fa, #e93cec);\n\
+  background: -o-linear-gradient(top, #fb83fa, #e93cec);\n\
+  background: linear-gradient(top, #fb83fa, #e93cec);\n\
+}\n\
+/* line 77, messages.scss */\n\
+.raptor-messages .raptor-message-clock .ui-icon.ui-icon-clock {\n\
+  background: transparent url(\'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAOXRFWHRTb2Z0d2FyZQBBbmltYXRlZCBQTkcgQ3JlYXRvciB2MS42LjIgKHd3dy5waHBjbGFzc2VzLm9yZyl0zchKAAAAOnRFWHRUZWNobmljYWwgaW5mb3JtYXRpb25zADUuMi4xNzsgYnVuZGxlZCAoMi4wLjM0IGNvbXBhdGlibGUpCBSqhQAAAAhhY1RMAAAACAAAAAC5PYvRAAAAGmZjVEwAAAAAAAAAEAAAABAAAAAAAAAAAAA8A+gAAIIkGDIAAACsSURBVDiNtZLBCcMwDEUfJgOUjhAyQsmp9FA8TgfISj6F4gl66jSdIIf00G9wnLjYKf3w0Qch6Us2fMdVLMYx0haYRZsrMJEegZdiDj3gFFeT54jBiU2mO+XdVvdRyV0OYidVMEAH3AEPHGoboMKwuy+seYqLV9iNTpM90P7S6AQMitXogYnPHSbyz2SAC9HqQVigkW7If90z8FAsctCyvMvKQdpkSOzfxP/hDd++JCi8XmbFAAAAGmZjVEwAAAABAAAAEAAAABAAAAAAAAAAAAA8A+gAABlX8uYAAAC3ZmRBVAAAAAI4jaWQsQ3CQBAEB4cECFGCI1fiAlyFKwARWgSIeqjCNTh0gIjIkBw9gffFSfz74VlpdX/W3Xr3YBmlmIUSmMSoSGHee+CmGsMGaFU/cAecqnVh/95qpg0J/O0gCytgDRzUX4DnryIn5lwO6L7c6fxskRhMwkc4qj+TEcFjC9SqWcsj8x3GhMgu9LHmfUinvgKuYmWWp5BIyEFvBPuUAy9ibzAYgWEhUhQN8BCb2NALKY4q8wCrG7AAAAAaZmNUTAAAAAMAAAAQAAAAEAAAAAAAAAAAADwD6AAA9MEhDwAAAKhmZEFUAAAABDiNY2CgMTgNxTgBExLbh4GB4SCUxgeMcEkcZmBg+A+lcQETqBoTbJI+UM1ku4AiEATFZIEQBoi//kPZxIAAKEaJBYpACAm24wUSBORVGBgYUqA0BtjKAAmHrXg0f4aq+YxuiAQDIiD/Q/k8DAwMdVDMw8DAkIamJo2QCyYjKZ4MtfErlP8VlzeQw2AlkgErkbyBMwzQgRoDA8N+KMapAQDdvyovpG6D8gAAABpmY1RMAAAABQAAABAAAAAQAAAAAAAAAAAAPAPoAAAZC1N1AAAAsWZkQVQAAAAGOI21kkEOgjAURF9YGBbGtYcwLowrwxk8BMcg3XACD9djGJaujKmLTkMRCiXEl0ympYX8+Xz4M62UpIjWR8DI59inDgzg5CkOwEs+YnMFmzhJOdwAK1UAZ+ANfLRewuJ75QAb/kKRvp/HmggVPxHWsAMu8hEN8JRPUdLnt9oP6HTYRc/uEsCVvnlO+wFGFYRJrKPLdU4FU5HCB0KsEt+DxZfBj+xDSo7vF9AbJ9PxYV81AAAAGmZjVEwAAAAHAAAAEAAAABAAAAAAAAAAAAA8A+gAAPSdgJwAAADDZmRBVAAAAAg4jaWSTQrCMBCFP6NIT5AjCF6gJ6jbUnoCL1biDTyF5AAueoZu3LkSrAtHTEJiIn3wmCTz92YILMQ64++BPTDKXQMH4AbcAZQTvAEasTFo4AqcxeowoAFmsSk1s8M+DChRMEnyFFNQAg10sWSFv49cESPUn+RRWFLE8N2DKe2axaIR/sU25eiAi9gUBt6zDzGnFad13nZCgAr/I1UxBdZRUAMPYV2iIETrdGudd28Hqx8FFHCU8wl4xoJeZnUrSRiyCSsAAAAaZmNUTAAAAAkAAAAQAAAAEAAAAAAAAAAAADwD6AAAGe6xwAAAALtmZEFUAAAACjiNpZJBCsIwEEWfpUsPULoSl55Beh4J7nqCHkDceR3pIaSr4Ak8Qq2L/khomlrig+FPhszwJy3EqYCHolq4F6UDBkWnWgbspN+CT7EwMAPuwFM67aUAem/IdIW952jQOeCXg1bN7ZyDNQRvsEkYkgNG+S1XcpHWKwacgatzlLLH2z/8vUJCf5wSaKQxToCVBjSM37jxaluFw+qOXeOgBF4KVzNqNkH3DAfGX7tXnsRREeUD4f8lQGjw+ycAAAAaZmNUTAAAAAsAAAAQAAAAEAAAAAAAAAAAADwD6AAA9HhiKQAAAJ9mZEFUAAAADDiNtZDLCcMwEEQfIUcXoDpCKgg6qIRUEtKB6wg6poDgalyFTj7YBw+2QyRlCc6DYVm0n9FCGQc8JFepWzgBN0WACIxS/NZ8BgYVD8pzA1ogKb5x3xSPyp0a4+YLSe/J4iBH0QF83uCvXKSFq2TBs97KH/Y1ZsdL+3IEgmJt86u0PTAfJlQGdKrprA6ekslBjl76mUYqMgFhpStJaQVr0gAAABpmY1RMAAAADQAAABAAAAAQAAAAAAAAAAAAPAPoAAAZshBTAAAAu2ZkQVQAAAAOOI21kCEOwkAQRR8rKkkFCtmjkJ4ARTgBArViT4LjLJwBgUZUr8NBQlrR38Am3XYEvOTnT7PzuzO7IE8BHFWfgNdELwBLYCMH8EAr+VzIyUvgBlzkZaZ/D1zlCfXXba2+C93sVaNwK08ogUaHzcQEu9wE0O9e83kDEw7YAhG4K/ww5CoJFB52j8bwU6rcTLOJYYWo2kKywk9Zz5yvgCAfDb9nfhLoHztYJzhIpgnGOEv/owMnkSfarUXVlAAAAABJRU5ErkJggg==\') no-repeat center center;\n\
+}\n\
 \n\
 /**\n\
  * Unsupported warning styles\n\
  *\n\
  * @author David Neilsen <david@panmedia.co.nz>\n\
  */\n\
-/* Layout */\n\
+/* line 8, support.scss */\n\
 .raptor-unsupported {\n\
-  position: relative; }\n\
+  position: relative;\n\
+}\n\
 \n\
+/* line 12, support.scss */\n\
 .raptor-unsupported-overlay {\n\
   position: fixed;\n\
   top: 0;\n\
@@ -18959,132 +19589,51 @@ html body div.ui-wrapper div.ui-dialog-titlebar a.ui-dialog-titlebar-close span.
   bottom: 0;\n\
   right: 0;\n\
   background-color: black;\n\
-  filter: alpha(opacity=50);\n\
-  opacity: 0.5; }\n\
+  filter: progid:DXImageTransform.Microsoft.Alpha(Opacity=50);\n\
+  opacity: 0.5;\n\
+}\n\
 \n\
+/* line 22, support.scss */\n\
 .raptor-unsupported-content {\n\
   position: fixed;\n\
   top: 50%;\n\
   left: 50%;\n\
   margin: -200px 0 0 -300px;\n\
   width: 600px;\n\
-  height: 400px; }\n\
+  height: 400px;\n\
+}\n\
 \n\
+/* line 31, support.scss */\n\
 .raptor-unsupported-input {\n\
   position: absolute;\n\
-  bottom: 10px; }\n\
+  bottom: 10px;\n\
+}\n\
 \n\
-/* Style */\n\
+/* line 36, support.scss */\n\
 .raptor-unsupported-content {\n\
   padding: 10px;\n\
   background-color: white;\n\
-  border: 1px solid #777777; }\n\
+  border: 1px solid #777777;\n\
+}\n\
 \n\
-/**\n\
- * Message widget styles\n\
- *\n\
- * @author David Neilsen <david@panmedia.co.nz>\n\
- */\n\
-/******************************************************************************\\n\
- * Messages\n\
-\******************************************************************************/\n\
-.raptor-messages {\n\
-  margin: 0;\n\
-  /* Error */\n\
-  /* Confirm */\n\
-  /* Information */\n\
-  /* Warning */\n\
-  /* Loading */ }\n\
-  .raptor-messages .raptor-message-close {\n\
-    cursor: pointer;\n\
-    float: right; }\n\
-  .raptor-messages .ui-icon {\n\
-    margin: 0 0 3px 3px; }\n\
-  .raptor-messages .ui-icon,\n\
-  .raptor-messages .raptor-message {\n\
-    display: inline-block;\n\
-    vertical-align: top; }\n\
-  .raptor-messages .raptor-message-wrapper {\n\
-    padding: 3px 3px 3px 1px;\n\
-    -webkit-box-shadow: inset 0 -1px 1px rgba(0, 0, 0, 0.35), inset 0 1px 2px rgba(255, 255, 255, 0.5);\n\
-    -moz-box-shadow: inset 0 -1px 1px rgba(0, 0, 0, 0.35), inset 0 1px 2px rgba(255, 255, 255, 0.5);\n\
-    box-shadow: inset 0 -1px 1px rgba(0, 0, 0, 0.35), inset 0 1px 2px rgba(255, 255, 255, 0.5); }\n\
-  .raptor-messages .raptor-message-wrapper:first-child {\n\
-    -moz-border-radius-topright: 5px;\n\
-    -webkit-border-top-right-radius: 5px;\n\
-    border-top-right-radius: 5px;\n\
-    -moz-border-radius-topleft: 5px;\n\
-    -webkit-border-top-left-radius: 5px;\n\
-    border-top-left-radius: 5px; }\n\
-  .raptor-messages .raptor-message-wrapper:last-child {\n\
-    -moz-border-radius-bottomright: 5px;\n\
-    -webkit-border-bottom-right-radius: 5px;\n\
-    border-bottom-right-radius: 5px;\n\
-    -moz-border-radius-bottomleft: 5px;\n\
-    -webkit-border-bottom-left-radius: 5px;\n\
-    border-bottom-left-radius: 5px; }\n\
-  .raptor-messages .raptor-message-circle-close {\n\
-    /* Red */\n\
-    background: url(\'data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0idXRmLTgiPz4gPHN2ZyB2ZXJzaW9uPSIxLjEiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGRlZnM+PGxpbmVhckdyYWRpZW50IGlkPSJncmFkIiBncmFkaWVudFVuaXRzPSJ1c2VyU3BhY2VPblVzZSIgeDE9IjUwJSIgeTE9IjAlIiB4Mj0iNTAlIiB5Mj0iMTAwJSI+PHN0b3Agb2Zmc2V0PSIwJSIgc3RvcC1jb2xvcj0iI2ZmNWQ0YiIvPjxzdG9wIG9mZnNldD0iMTAwJSIgc3RvcC1jb2xvcj0iI2ZhMWMxYyIvPjwvbGluZWFyR3JhZGllbnQ+PC9kZWZzPjxyZWN0IHg9IjAiIHk9IjAiIHdpZHRoPSIxMDAlIiBoZWlnaHQ9IjEwMCUiIGZpbGw9InVybCgjZ3JhZCkiIC8+PC9zdmc+IA==\');\n\
-    background: -webkit-gradient(linear, 50% 0%, 50% 100%, color-stop(0%, #ff5d4b), color-stop(100%, #fa1c1c));\n\
-    background: -webkit-linear-gradient(top, #ff5d4b, #fa1c1c);\n\
-    background: -moz-linear-gradient(top, #ff5d4b, #fa1c1c);\n\
-    background: -o-linear-gradient(top, #ff5d4b, #fa1c1c);\n\
-    background: -ms-linear-gradient(top, #ff5d4b, #fa1c1c);\n\
-    background: linear-gradient(top, #ff5d4b, #fa1c1c); }\n\
-  .raptor-messages .raptor-message-circle-check {\n\
-    /* Green */\n\
-    background: url(\'data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0idXRmLTgiPz4gPHN2ZyB2ZXJzaW9uPSIxLjEiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGRlZnM+PGxpbmVhckdyYWRpZW50IGlkPSJncmFkIiBncmFkaWVudFVuaXRzPSJ1c2VyU3BhY2VPblVzZSIgeDE9IjUwJSIgeTE9IjAlIiB4Mj0iNTAlIiB5Mj0iMTAwJSI+PHN0b3Agb2Zmc2V0PSIwJSIgc3RvcC1jb2xvcj0iI2NkZWI4ZSIvPjxzdG9wIG9mZnNldD0iMTAwJSIgc3RvcC1jb2xvcj0iI2E1Yzk1NiIvPjwvbGluZWFyR3JhZGllbnQ+PC9kZWZzPjxyZWN0IHg9IjAiIHk9IjAiIHdpZHRoPSIxMDAlIiBoZWlnaHQ9IjEwMCUiIGZpbGw9InVybCgjZ3JhZCkiIC8+PC9zdmc+IA==\');\n\
-    background: -webkit-gradient(linear, 50% 0%, 50% 100%, color-stop(0%, #cdeb8e), color-stop(100%, #a5c956));\n\
-    background: -webkit-linear-gradient(top, #cdeb8e, #a5c956);\n\
-    background: -moz-linear-gradient(top, #cdeb8e, #a5c956);\n\
-    background: -o-linear-gradient(top, #cdeb8e, #a5c956);\n\
-    background: -ms-linear-gradient(top, #cdeb8e, #a5c956);\n\
-    background: linear-gradient(top, #cdeb8e, #a5c956); }\n\
-  .raptor-messages .raptor-message-info {\n\
-    /* Blue */\n\
-    background: url(\'data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0idXRmLTgiPz4gPHN2ZyB2ZXJzaW9uPSIxLjEiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGRlZnM+PGxpbmVhckdyYWRpZW50IGlkPSJncmFkIiBncmFkaWVudFVuaXRzPSJ1c2VyU3BhY2VPblVzZSIgeDE9IjUwJSIgeTE9IjAlIiB4Mj0iNTAlIiB5Mj0iMTAwJSI+PHN0b3Agb2Zmc2V0PSIwJSIgc3RvcC1jb2xvcj0iI2E5ZTRmNyIvPjxzdG9wIG9mZnNldD0iMTAwJSIgc3RvcC1jb2xvcj0iIzBmYjRlNyIvPjwvbGluZWFyR3JhZGllbnQ+PC9kZWZzPjxyZWN0IHg9IjAiIHk9IjAiIHdpZHRoPSIxMDAlIiBoZWlnaHQ9IjEwMCUiIGZpbGw9InVybCgjZ3JhZCkiIC8+PC9zdmc+IA==\');\n\
-    background: -webkit-gradient(linear, 50% 0%, 50% 100%, color-stop(0%, #a9e4f7), color-stop(100%, #0fb4e7));\n\
-    background: -webkit-linear-gradient(top, #a9e4f7, #0fb4e7);\n\
-    background: -moz-linear-gradient(top, #a9e4f7, #0fb4e7);\n\
-    background: -o-linear-gradient(top, #a9e4f7, #0fb4e7);\n\
-    background: -ms-linear-gradient(top, #a9e4f7, #0fb4e7);\n\
-    background: linear-gradient(top, #a9e4f7, #0fb4e7); }\n\
-  .raptor-messages .raptor-message-alert {\n\
-    /* Yellow */\n\
-    background: url(\'data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0idXRmLTgiPz4gPHN2ZyB2ZXJzaW9uPSIxLjEiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGRlZnM+PGxpbmVhckdyYWRpZW50IGlkPSJncmFkIiBncmFkaWVudFVuaXRzPSJ1c2VyU3BhY2VPblVzZSIgeDE9IjUwJSIgeTE9IjAlIiB4Mj0iNTAlIiB5Mj0iMTAwJSI+PHN0b3Agb2Zmc2V0PSIwJSIgc3RvcC1jb2xvcj0iI2ZmZDY1ZSIvPjxzdG9wIG9mZnNldD0iMTAwJSIgc3RvcC1jb2xvcj0iI2ZlYmYwNCIvPjwvbGluZWFyR3JhZGllbnQ+PC9kZWZzPjxyZWN0IHg9IjAiIHk9IjAiIHdpZHRoPSIxMDAlIiBoZWlnaHQ9IjEwMCUiIGZpbGw9InVybCgjZ3JhZCkiIC8+PC9zdmc+IA==\');\n\
-    background: -webkit-gradient(linear, 50% 0%, 50% 100%, color-stop(0%, #ffd65e), color-stop(100%, #febf04));\n\
-    background: -webkit-linear-gradient(top, #ffd65e, #febf04);\n\
-    background: -moz-linear-gradient(top, #ffd65e, #febf04);\n\
-    background: -o-linear-gradient(top, #ffd65e, #febf04);\n\
-    background: -ms-linear-gradient(top, #ffd65e, #febf04);\n\
-    background: linear-gradient(top, #ffd65e, #febf04); }\n\
-  .raptor-messages .raptor-message-clock {\n\
-    /* Purple */\n\
-    background: url(\'data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0idXRmLTgiPz4gPHN2ZyB2ZXJzaW9uPSIxLjEiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGRlZnM+PGxpbmVhckdyYWRpZW50IGlkPSJncmFkIiBncmFkaWVudFVuaXRzPSJ1c2VyU3BhY2VPblVzZSIgeDE9IjUwJSIgeTE9IjAlIiB4Mj0iNTAlIiB5Mj0iMTAwJSI+PHN0b3Agb2Zmc2V0PSIwJSIgc3RvcC1jb2xvcj0iI2ZiODNmYSIvPjxzdG9wIG9mZnNldD0iMTAwJSIgc3RvcC1jb2xvcj0iI2U5M2NlYyIvPjwvbGluZWFyR3JhZGllbnQ+PC9kZWZzPjxyZWN0IHg9IjAiIHk9IjAiIHdpZHRoPSIxMDAlIiBoZWlnaHQ9IjEwMCUiIGZpbGw9InVybCgjZ3JhZCkiIC8+PC9zdmc+IA==\');\n\
-    background: -webkit-gradient(linear, 50% 0%, 50% 100%, color-stop(0%, #fb83fa), color-stop(100%, #e93cec));\n\
-    background: -webkit-linear-gradient(top, #fb83fa, #e93cec);\n\
-    background: -moz-linear-gradient(top, #fb83fa, #e93cec);\n\
-    background: -o-linear-gradient(top, #fb83fa, #e93cec);\n\
-    background: -ms-linear-gradient(top, #fb83fa, #e93cec);\n\
-    background: linear-gradient(top, #fb83fa, #e93cec); }\n\
-  .raptor-messages .raptor-message-clock .ui-icon.ui-icon-clock {\n\
-    background: transparent url(\'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAOXRFWHRTb2Z0d2FyZQBBbmltYXRlZCBQTkcgQ3JlYXRvciB2MS42LjIgKHd3dy5waHBjbGFzc2VzLm9yZyl0zchKAAAAOnRFWHRUZWNobmljYWwgaW5mb3JtYXRpb25zADUuMi4xNzsgYnVuZGxlZCAoMi4wLjM0IGNvbXBhdGlibGUpCBSqhQAAAAhhY1RMAAAACAAAAAC5PYvRAAAAGmZjVEwAAAAAAAAAEAAAABAAAAAAAAAAAAA8A+gAAIIkGDIAAACsSURBVDiNtZLBCcMwDEUfJgOUjhAyQsmp9FA8TgfISj6F4gl66jSdIIf00G9wnLjYKf3w0Qch6Us2fMdVLMYx0haYRZsrMJEegZdiDj3gFFeT54jBiU2mO+XdVvdRyV0OYidVMEAH3AEPHGoboMKwuy+seYqLV9iNTpM90P7S6AQMitXogYnPHSbyz2SAC9HqQVigkW7If90z8FAsctCyvMvKQdpkSOzfxP/hDd++JCi8XmbFAAAAGmZjVEwAAAABAAAAEAAAABAAAAAAAAAAAAA8A+gAABlX8uYAAAC3ZmRBVAAAAAI4jaWQsQ3CQBAEB4cECFGCI1fiAlyFKwARWgSIeqjCNTh0gIjIkBw9gffFSfz74VlpdX/W3Xr3YBmlmIUSmMSoSGHee+CmGsMGaFU/cAecqnVh/95qpg0J/O0gCytgDRzUX4DnryIn5lwO6L7c6fxskRhMwkc4qj+TEcFjC9SqWcsj8x3GhMgu9LHmfUinvgKuYmWWp5BIyEFvBPuUAy9ibzAYgWEhUhQN8BCb2NALKY4q8wCrG7AAAAAaZmNUTAAAAAMAAAAQAAAAEAAAAAAAAAAAADwD6AAA9MEhDwAAAKhmZEFUAAAABDiNY2CgMTgNxTgBExLbh4GB4SCUxgeMcEkcZmBg+A+lcQETqBoTbJI+UM1ku4AiEATFZIEQBoi//kPZxIAAKEaJBYpACAm24wUSBORVGBgYUqA0BtjKAAmHrXg0f4aq+YxuiAQDIiD/Q/k8DAwMdVDMw8DAkIamJo2QCyYjKZ4MtfErlP8VlzeQw2AlkgErkbyBMwzQgRoDA8N+KMapAQDdvyovpG6D8gAAABpmY1RMAAAABQAAABAAAAAQAAAAAAAAAAAAPAPoAAAZC1N1AAAAsWZkQVQAAAAGOI21kkEOgjAURF9YGBbGtYcwLowrwxk8BMcg3XACD9djGJaujKmLTkMRCiXEl0ympYX8+Xz4M62UpIjWR8DI59inDgzg5CkOwEs+YnMFmzhJOdwAK1UAZ+ANfLRewuJ75QAb/kKRvp/HmggVPxHWsAMu8hEN8JRPUdLnt9oP6HTYRc/uEsCVvnlO+wFGFYRJrKPLdU4FU5HCB0KsEt+DxZfBj+xDSo7vF9AbJ9PxYV81AAAAGmZjVEwAAAAHAAAAEAAAABAAAAAAAAAAAAA8A+gAAPSdgJwAAADDZmRBVAAAAAg4jaWSTQrCMBCFP6NIT5AjCF6gJ6jbUnoCL1biDTyF5AAueoZu3LkSrAtHTEJiIn3wmCTz92YILMQ64++BPTDKXQMH4AbcAZQTvAEasTFo4AqcxeowoAFmsSk1s8M+DChRMEnyFFNQAg10sWSFv49cESPUn+RRWFLE8N2DKe2axaIR/sU25eiAi9gUBt6zDzGnFad13nZCgAr/I1UxBdZRUAMPYV2iIETrdGudd28Hqx8FFHCU8wl4xoJeZnUrSRiyCSsAAAAaZmNUTAAAAAkAAAAQAAAAEAAAAAAAAAAAADwD6AAAGe6xwAAAALtmZEFUAAAACjiNpZJBCsIwEEWfpUsPULoSl55Beh4J7nqCHkDceR3pIaSr4Ak8Qq2L/khomlrig+FPhszwJy3EqYCHolq4F6UDBkWnWgbspN+CT7EwMAPuwFM67aUAem/IdIW952jQOeCXg1bN7ZyDNQRvsEkYkgNG+S1XcpHWKwacgatzlLLH2z/8vUJCf5wSaKQxToCVBjSM37jxaluFw+qOXeOgBF4KVzNqNkH3DAfGX7tXnsRREeUD4f8lQGjw+ycAAAAaZmNUTAAAAAsAAAAQAAAAEAAAAAAAAAAAADwD6AAA9HhiKQAAAJ9mZEFUAAAADDiNtZDLCcMwEEQfIUcXoDpCKgg6qIRUEtKB6wg6poDgalyFTj7YBw+2QyRlCc6DYVm0n9FCGQc8JFepWzgBN0WACIxS/NZ8BgYVD8pzA1ogKb5x3xSPyp0a4+YLSe/J4iBH0QF83uCvXKSFq2TBs97KH/Y1ZsdL+3IEgmJt86u0PTAfJlQGdKrprA6ekslBjl76mUYqMgFhpStJaQVr0gAAABpmY1RMAAAADQAAABAAAAAQAAAAAAAAAAAAPAPoAAAZshBTAAAAu2ZkQVQAAAAOOI21kCEOwkAQRR8rKkkFCtmjkJ4ARTgBArViT4LjLJwBgUZUr8NBQlrR38Am3XYEvOTnT7PzuzO7IE8BHFWfgNdELwBLYCMH8EAr+VzIyUvgBlzkZaZ/D1zlCfXXba2+C93sVaNwK08ogUaHzcQEu9wE0O9e83kDEw7YAhG4K/ww5CoJFB52j8bwU6rcTLOJYYWo2kKywk9Zz5yvgCAfDb9nfhLoHztYJzhIpgnGOEv/owMnkSfarUXVlAAAAABJRU5ErkJggg==\') no-repeat center center; }\n\
-\n\
-/* Layouts */\n\
 /**\n\
  * Toolbar layout.\n\
  *\n\
  * @author David Neilsen <david@panmedia.co.nz>\n\
  */\n\
+/* line 8, ../components/layout/toolbar.scss */\n\
 .raptor-toolbar-wrapper {\n\
   border: 1px solid #c1c1c1;\n\
-  border-top: none; }\n\
+  border-top: none;\n\
+}\n\
 \n\
+/* line 13, ../components/layout/toolbar.scss */\n\
 .raptor-layout-toolbar-group {\n\
   float: left;\n\
-  margin-right: 5px; }\n\
+  margin-right: 5px;\n\
+}\n\
 \n\
+/* line 18, ../components/layout/toolbar.scss */\n\
 .raptor-layout-toolbar-group .ui-button {\n\
   padding: 0;\n\
   margin-top: 0;\n\
@@ -19095,76 +19644,182 @@ html body div.ui-wrapper div.ui-dialog-titlebar a.ui-dialog-titlebar-close span.
   float: left;\n\
   -webkit-box-sizing: border-box;\n\
   -moz-box-sizing: border-box;\n\
-  box-sizing: border-box; }\n\
+  box-sizing: border-box;\n\
+}\n\
 \n\
+/* line 29, ../components/layout/toolbar.scss */\n\
 .raptor-layout-toolbar-group .ui-button:hover {\n\
-  z-index: 1; }\n\
+  z-index: 1;\n\
+}\n\
 \n\
+/* line 33, ../components/layout/toolbar.scss */\n\
 .raptor-layout-toolbar-group .ui-button-icon-only {\n\
-  width: 32px; }\n\
+  width: 32px;\n\
+}\n\
 \n\
+/* line 37, ../components/layout/toolbar.scss */\n\
 .raptor-layout-toolbar-group .ui-button-text-only .ui-button-text {\n\
-  padding: 8px 16px 10px 16px; }\n\
+  padding: 8px 16px 10px 16px;\n\
+}\n\
 \n\
+/* line 40, ../components/layout/toolbar.scss */\n\
 .raptor-layout-toolbar-group .ui-button-text-icon-primary .ui-button-text {\n\
-  padding: 8px 16px 10px 32px; }\n\
+  padding: 8px 16px 10px 32px;\n\
+}\n\
 \n\
-/* Plugins */\n\
 /**\n\
- * Blockquote plugin\n\
+ * Select menu UI widget styles\n\
  *\n\
  * @author David Neilsen <david@panmedia.co.nz>\n\
  */\n\
-.raptor-quote-block-button .ui-icon-quote {\n\
+/* line 6, ../components/ui/menu.scss */\n\
+.raptor-menu {\n\
+  z-index: 1600;\n\
+  padding: 6px;\n\
+}\n\
+\n\
+/* line 11, ../components/ui/menu.scss */\n\
+.raptor-menu .ui-menu-item:before {\n\
+  display: none;\n\
+}\n\
+\n\
+/* line 16, ../components/ui/menu.scss */\n\
+.raptor-menu .ui-menu-item a,\n\
+.raptor-menu .ui-menu-item a:hover {\n\
+  padding: 3px 10px;\n\
+}\n\
+\n\
+/**\n\
+ * Select menu UI widget styles\n\
+ *\n\
+ * @author David Neilsen <david@panmedia.co.nz>\n\
+ */\n\
+/* line 6, ../components/ui/select-menu.scss */\n\
+.raptor-selectmenu {\n\
+  overflow: visible;\n\
+  position: relative;\n\
+}\n\
+\n\
+/* line 11, ../components/ui/select-menu.scss */\n\
+.raptor-selectmenu-button {\n\
+  text-align: left;\n\
+  padding: 3px 18px 5px 5px !important;\n\
+  float: none !important;\n\
+}\n\
+/* line 18, ../components/ui/select-menu.scss */\n\
+.raptor-selectmenu-button .ui-icon {\n\
+  position: absolute;\n\
+  right: 1px;\n\
+  top: 8px;\n\
+}\n\
+/* line 23, ../components/ui/select-menu.scss */\n\
+.raptor-selectmenu-button .raptor-selectmenu-text {\n\
+  font-size: 13px;\n\
+}\n\
+\n\
+/* line 28, ../components/ui/select-menu.scss */\n\
+.raptor-selectmenu-wrapper {\n\
+  position: relative;\n\
+}\n\
+\n\
+/* line 32, ../components/ui/select-menu.scss */\n\
+.raptor-selectmenu-button .ui-button-text {\n\
+  padding: 0 25px 0 5px;\n\
+}\n\
+\n\
+/* line 35, ../components/ui/select-menu.scss */\n\
+.raptor-selectmenu-button .ui-icon {\n\
+  background-repeat: no-repeat;\n\
+}\n\
+\n\
+/* line 39, ../components/ui/select-menu.scss */\n\
+.raptor-selectmenu-menu {\n\
+  position: absolute;\n\
+  top: 100%;\n\
+  left: 0;\n\
+  right: auto;\n\
+  display: none;\n\
+  margin-top: -1px !important;\n\
+}\n\
+\n\
+/* line 48, ../components/ui/select-menu.scss */\n\
+.raptor-selectmenu-visible .raptor-selectmenu-menu {\n\
+  display: block;\n\
+  z-index: 1;\n\
+}\n\
+\n\
+/* line 53, ../components/ui/select-menu.scss */\n\
+.raptor-selectmenu-menu-item {\n\
+  padding: 5px;\n\
+  margin: 3px;\n\
+  z-index: 1;\n\
+  text-align: left;\n\
+  font-size: 13px;\n\
+  font-weight: normal !important;\n\
+  border: 1px solid transparent;\n\
+  cursor: pointer;\n\
+  background-color: inherit;\n\
+}\n\
+\n\
+/* line 65, ../components/ui/select-menu.scss */\n\
+.raptor-selectmenu-button {\n\
+  background: #f5f5f5;\n\
+  border: 1px solid #cccccc;\n\
+}\n\
+\n\
+/**\n\
+ * Cancel plugin.\n\
+ *\n\
+ * @author David Neilsen <david@panmedia.co.nz>\n\
+ */\n\
+/* line 8, ../plugins/cancel/cancel.scss */\n\
+.raptor-ui-cancel .ui-icon {\n\
   filter: progid:DXImageTransform.Microsoft.Alpha(Opacity=85);\n\
   opacity: 0.85;\n\
-  background: url(\'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAAGVJREFUeNpi/P//PwMlgImBQjAcDWBhYZEA4r1AHA/EKHxiXQBS+BKIF+LgEzTAG4h3I0UvOh+/AUCFbECcDmROA2lC5mMzgAWLGDuUtsTBJ+iFeUDMC6Wx8VEA42hSptwAgAADAO3wKLgntfGkAAAAAElFTkSuQmCC\') 0 0; }\n\
+  background: url(\'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAMAAAAoLQ9TAAAAtFBMVEX///+nAABhAACnAACjAACCAACgAACHAACjAAByAAB1AAByAACDAACnAACCAACHAACgAACNAACbAACXAACMAACSAABfAACYAACRAACjAACbAAChAACqAACNAACcAACHAACqAADEERGsERHQERG+NjaiERHUTEzYERG4ERGlFBSfFRX/d3f6cnK0JSWoHh7qYmLkXFyvFRXmXl7vZ2fNRUX4cHDXT0/+dnbbU1O3Li7GPT26MTG2f8oMAAAAIXRSTlMASEjMzADMzAAASMxIAMwAAMzMzEjMzEhISABIzABISEg/DPocAAAAj0lEQVR4Xo3PVw6DMBBF0RgXTO+hBYhtILX3sv99RRpvgPcxVzp/M5syb7lYepxDABDeYcQ5wg+MAMhr3JOyJKfxTABqduuvjD37O6sBwjZ+f76/7TFuQw1VnhyGYZPklYagKbKLlDIrmkBDGq1hUaqhM4UQJpwOwFdK+a4LAbCdlWNTCgGwjLlhUQqZ8uofSk8NKY1Fm8EAAAAASUVORK5CYII=\') 0 0;\n\
+}\n\
 \n\
-.raptor-quote-block-button:hover .ui-icon-quote {\n\
+/* line 13, ../plugins/cancel/cancel.scss */\n\
+.raptor-ui-cancel:hover .ui-icon {\n\
   filter: progid:DXImageTransform.Microsoft.Alpha(Opacity=100);\n\
-  opacity: 1; }\n\
+  opacity: 1;\n\
+}\n\
 \n\
 /**\n\
  * Snippet menu plugin.\n\
  *\n\
  * @author David Neilsen <david@panmedia.co.nz>\n\
  */\n\
+/* line 8, ../plugins/class-menu/class-menu.scss */\n\
 .raptor-ui-class-menu .ui-icon {\n\
   filter: progid:DXImageTransform.Microsoft.Alpha(Opacity=85);\n\
   opacity: 0.85;\n\
-  background: url(\'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAAyNJREFUeNpskn9MG2UYx7/3o7TlSgNLi1jciiA71jkt6UgAnQpdTMYMTkayLCQzWbIY3faHiQR1TP/TLJkxLsaYmDidM1kTBQqZEp1hKyMgGRMhYXTgoCBFFhmchZZe797X9zpK0O25e3Nv7r6f7/O8z3Ncz1ERRnDpG86t8d2tUuKRkwv8RO+Kn4hCSUFVfHy2TRuOfEooHdQIVglNI5BXnwF/fwsbW4cFi61ZjWadtMkylDD2xPOlKlmuwKKEhtyiXScI+OPr2nSEpT4Y6bdR8EccZZWVzidrqucxglAggLzaHeASJly+fAku607MeF97pa+0rCF3qs1tWxo1jJD9bQBc9xHxVKm/6YDFWeLT1BSXcTdlZUE0m6Elk0ipKt6f3QePx4NQKARd1zk5FIA7dAnirEJ3el2yx5Rl4YhV1/RUih2L428ND0RG+q/dfarq+fwd3kr3buF3fPfDNOTFrt8K1dtwhIaQZIlEZQ0DF8+edrC9YGQuLJHz6l49Uf7Hzd7JQnfRXva88nRVjbuxVEFx+ONf7iqTY+p1ihRwiABvGT04ZyzeGAMHV/TO+HnBZML+Y80VqeTa30TX0k0f6DzfE52aDAv99EN9kb6rCkJjQtcvpGdowCY+PZtTFXWNj68pCsxmqz1bsoOy68evzvX+eWfipnQDX+r36Ht8Ts6elVjsZ5UlFiXTBsykyMvfVmwTLGYtlUyqC3MzsaGrP81EB28P2qa5LtyjXzjcblc4EhlkcCtDiMhxFNr6j6ETBNo/O6OoOraywnVW+1/mJXQ4h0GToB+9UF/v+76zs4/BbzL5qsGI2BQ6RTBFEDROTViH5i1lsK/Bb8f4mXV4KAG0sE/RDPMfg0w85spBR6wWlNLty9Kc/6Xq6gzcyuC+zVoxz2HbXAEcTul+P/6h2+Px+L6LPT3v1Hk8nzwHdDO4+//JmIH0sCL8u6TIwWMffP66z+c7HdO04LPA6MOE4lj28Qde5sZ/PXvoRbu35ejL38RifJAQsgFveZTDlgJuk4H1jQcMFLXJ2/7123OJ5cQFQqyjGfCJcn4DXh8c/hVgAAYpUQUdUKm5AAAAAElFTkSuQmCC\') 0 0; }\n\
+  background: url(\'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAAyNJREFUeNpskn9MG2UYx7/3o7TlSgNLi1jciiA71jkt6UgAnQpdTMYMTkayLCQzWbIY3faHiQR1TP/TLJkxLsaYmDidM1kTBQqZEp1hKyMgGRMhYXTgoCBFFhmchZZe797X9zpK0O25e3Nv7r6f7/O8z3Ncz1ERRnDpG86t8d2tUuKRkwv8RO+Kn4hCSUFVfHy2TRuOfEooHdQIVglNI5BXnwF/fwsbW4cFi61ZjWadtMkylDD2xPOlKlmuwKKEhtyiXScI+OPr2nSEpT4Y6bdR8EccZZWVzidrqucxglAggLzaHeASJly+fAku607MeF97pa+0rCF3qs1tWxo1jJD9bQBc9xHxVKm/6YDFWeLT1BSXcTdlZUE0m6Elk0ipKt6f3QePx4NQKARd1zk5FIA7dAnirEJ3el2yx5Rl4YhV1/RUih2L428ND0RG+q/dfarq+fwd3kr3buF3fPfDNOTFrt8K1dtwhIaQZIlEZQ0DF8+edrC9YGQuLJHz6l49Uf7Hzd7JQnfRXva88nRVjbuxVEFx+ONf7iqTY+p1ihRwiABvGT04ZyzeGAMHV/TO+HnBZML+Y80VqeTa30TX0k0f6DzfE52aDAv99EN9kb6rCkJjQtcvpGdowCY+PZtTFXWNj68pCsxmqz1bsoOy68evzvX+eWfipnQDX+r36Ht8Ts6elVjsZ5UlFiXTBsykyMvfVmwTLGYtlUyqC3MzsaGrP81EB28P2qa5LtyjXzjcblc4EhlkcCtDiMhxFNr6j6ETBNo/O6OoOraywnVW+1/mJXQ4h0GToB+9UF/v+76zs4/BbzL5qsGI2BQ6RTBFEDROTViH5i1lsK/Bb8f4mXV4KAG0sE/RDPMfg0w85spBR6wWlNLty9Kc/6Xq6gzcyuC+zVoxz2HbXAEcTul+P/6h2+Px+L6LPT3v1Hk8nzwHdDO4+//JmIH0sCL8u6TIwWMffP66z+c7HdO04LPA6MOE4lj28Qde5sZ/PXvoRbu35ejL38RifJAQsgFveZTDlgJuk4H1jQcMFLXJ2/7123OJ5cQFQqyjGfCJcn4DXh8c/hVgAAYpUQUdUKm5AAAAAElFTkSuQmCC\') 0 0;\n\
+}\n\
 \n\
+/* line 13, ../plugins/class-menu/class-menu.scss */\n\
 .raptor-ui-class-menu:hover .ui-icon {\n\
   filter: progid:DXImageTransform.Microsoft.Alpha(Opacity=100);\n\
-  opacity: 1; }\n\
-\n\
-/**\n\
- * Clean content plugin\n\
- *\n\
- * @author David Neilsen <david@panmedia.co.nz>\n\
- */\n\
-.raptor-clean-button .ui-icon-clean {\n\
-  filter: progid:DXImageTransform.Microsoft.Alpha(Opacity=85);\n\
-  opacity: 0.85;\n\
-  background: url(\'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAMAAAAoLQ9TAAABNVBMVEUAAAAAAAAgSocgSocgPnAAAABxcXFPT09YWFggSocgSocoToUbPXgSN3kyYZw0ZqT///8iUZkgSoc1Z6UiUJaJrNkwXpZIeLiOvO03a6s4b7JekNUjUpqCp9eNr9pSjeAwX5g2aqquxuV8otPB1euOsNv8/f6gveFgkdVnkMmbuuVfk9lkk9fK3Pbs8vmWtd5Vjs98odCHqNWkv+Jzms6Qt+xnmNuzyudVidS90u6hwe5mmuQtXKCow+OqxepNg82Xtd3C1Ox0m89vl8x3oNl4n9NSjuDi7PqlxO+MtOyWtt2fwO60y+dUjt5zm8/L2+9qneT3+f7g6/qDrelRi95snuWowuSfvOGPr9uwyeqRsdqUs9qat92OrtmDptN5ns9Rh8hqk8uXuehwnt1vl83e6vmZu+gBAK69AAAADXRSTlMbAKM01gogSSmAy7W1OP1GaAAAAM1JREFUeF5VzNN2A1EAQNE7TIrrsSe0Udu2zf//hHZWk672PO6HAySR/UmUwBjT9XyzeJlZuGpe60wE474TxxghhHEcOz4DzLcxRoZhJGT/AOcoiiKEOE9AZEGw291fOcpNdZeD74fEqKZ5lFLP0+YplIDAzBfXrTQKNyW3bEIhgV51QD5fyVv1fQir0zOzcxfW4tLaCGqkHoYWWR/BxubW9k5/7+PgcAjZ8JicnJKz82wC6gRstTu3d/cPj0/PcFIF6ZQMf5NTaaCAfylf1j4ecCeyzckAAAAASUVORK5CYII=\') 0 0; }\n\
-\n\
-.raptor-clean-button:hover .ui-icon-clean {\n\
-  filter: progid:DXImageTransform.Microsoft.Alpha(Opacity=100);\n\
-  opacity: 1; }\n\
+  opacity: 1;\n\
+}\n\
 \n\
 /**\n\
  * Clear formatting style plugin.\n\
  *\n\
  * @author David Neilsen <david@panmedia.co.nz>\n\
  */\n\
+/* line 8, ../plugins/clear-formatting/clear-formatting.scss */\n\
 .raptor-ui-clear-formatting .ui-icon {\n\
   filter: progid:DXImageTransform.Microsoft.Alpha(Opacity=85);\n\
   opacity: 0.85;\n\
-  background: url(\'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAAXNSR0IArs4c6QAAAAZiS0dEAP8A/wD/oL2nkwAAAAlwSFlzAAALEwAACxMBAJqcGAAAAAd0SU1FB9wGGxcPH7KJ9wUAAAEKSURBVDjL3ZG9SgNBFIW/I76D1RIEazEIFitWNguxUPANUkUIKG4jYiEBC7WwUFJZiNssFvoOFipMFx/AoIVVEAvxB7w2MyBhV5Iq4IHLPecy9zBzBv4nJLUltQc5O1awXAE+gAnPhzMAFoE7YNzzoQ0WgBvg1vPBDSRNAl9m9gC4ebPpc+jkkADkkOTggi4KryFpV9KMpHgfXr/T1DJwGWxn4IIuM7iQdB1qDu73oPder9spuNDPYLZoeUrSZd9saQUej6DzUqvZCbhj2Pjr+pu/ZzuwnMLbc7Vqh+BCPyjIIAaefMVhuA69bhTZGnyuwlULXDeKrFWWQT+akDTAbfk3B90s+4WR4Acs5VZuyM1J1wAAAABJRU5ErkJggg==\') 0 0; }\n\
+  background: url(\'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAAXNSR0IArs4c6QAAAAZiS0dEAP8A/wD/oL2nkwAAAAlwSFlzAAALEwAACxMBAJqcGAAAAAd0SU1FB9wGGxcPH7KJ9wUAAAEKSURBVDjL3ZG9SgNBFIW/I76D1RIEazEIFitWNguxUPANUkUIKG4jYiEBC7WwUFJZiNssFvoOFipMFx/AoIVVEAvxB7w2MyBhV5Iq4IHLPecy9zBzBv4nJLUltQc5O1awXAE+gAnPhzMAFoE7YNzzoQ0WgBvg1vPBDSRNAl9m9gC4ebPpc+jkkADkkOTggi4KryFpV9KMpHgfXr/T1DJwGWxn4IIuM7iQdB1qDu73oPder9spuNDPYLZoeUrSZd9saQUej6DzUqvZCbhj2Pjr+pu/ZzuwnMLbc7Vqh+BCPyjIIAaefMVhuA69bhTZGnyuwlULXDeKrFWWQT+akDTAbfk3B90s+4WR4Acs5VZuyM1J1wAAAABJRU5ErkJggg==\') 0 0;\n\
+}\n\
 \n\
+/* line 13, ../plugins/clear-formatting/clear-formatting.scss */\n\
 .raptor-ui-clear-formatting:hover .ui-icon {\n\
   filter: progid:DXImageTransform.Microsoft.Alpha(Opacity=100);\n\
-  opacity: 1; }\n\
+  opacity: 1;\n\
+}\n\
 \n\
 /**\n\
  * Click to edit plugin\n\
@@ -19172,125 +19827,90 @@ html body div.ui-wrapper div.ui-dialog-titlebar a.ui-dialog-titlebar-close span.
  * @author Michael Robinson <michael@panmedia.co.nz>\n\
  * @author David Neilsen <david@panmedia.co.nz>\n\
  */\n\
+/* line 10, ../plugins/click-button-to-edit/click-button-to-edit.scss */\n\
 .raptor-click-button-to-edit-button {\n\
-  z-index: 1100; }\n\
+  z-index: 1100;\n\
+}\n\
 \n\
+/* line 14, ../plugins/click-button-to-edit/click-button-to-edit.scss */\n\
 .raptor-click-button-to-edit-button .ui-icon {\n\
-  background: url(\'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAMAAAAoLQ9TAAABSlBMVEWymwFVVVWymgEKCgqtlQG2AQEDAwOvmQOokQKlfACgiQLTAQHiAQGFbwEICAgcHBwQEBDkAQF8ZwEGBgZbTwJ1YACIdwNbRwhhTA5VBQVACAhQUFDSAQFvBgbgAQEXFxcxCQlgBgaVgxW0AQHFAQEMDAxVVVWoAACkjQKpkgK8FRWbhQKhigKgAACwmgPkAQGJcwGPeQFVVVWlfACojQGAawGGcAG8cwOmfQCOeAGbdQCXcgDx5MB5YwF9aAGDBgaXgQKSfAKYggKOawG7pWLdzqBvWQF2YAB/cyyMegh7XgGlkVVnTgFnTgGslQNnYkFoTgFnTgFnTgFnTgGrlALy5sL29vbd3d3k02D/7oji0V3v3nH4aGjMzMzh0Fv864P4537r2mkAAAD/iIj043jj0l3m1WO7qjPk01/yXFzMu0Tfzljgz1rezVaqP1K6AAAAVXRSTlMAAEAAtwAAAAAAAAAAAAAAAAAAAAAAAAAAAABpPwCdgykAo0O5LySxwkSdw0UyQyvHRR8npshGAAAABmzvyke1AMVFOcD1w0cAsIXRljzAAJZJCQAA2U4xywAAALVJREFUeF41yNOaA0EUAOHTmUxo27axto1RzPW+/21y+uvUXf1gtVmcmk0uIKQaCfEUcAFIo7BIJSngAmSC4vA7Cz6vB2iqhDiSjsqg77FXK59SNOZHYD/5v0lzHAX607/HCscAf7nK5bUM8AdysaRjgD+TT04NW9j8x1etfryFZkvpj9udHYRAOA67e/s/vweHZoSuycjD2blwcXnlQLi2I9wKd/cPboQnQmH+/PL6hvBOKKwBNYghCPFyErUAAAAASUVORK5CYII=\') 0 0; }\n\
+  background: url(\'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAMAAAAoLQ9TAAABSlBMVEWymwFVVVWymgEKCgqtlQG2AQEDAwOvmQOokQKlfACgiQLTAQHiAQGFbwEICAgcHBwQEBDkAQF8ZwEGBgZbTwJ1YACIdwNbRwhhTA5VBQVACAhQUFDSAQFvBgbgAQEXFxcxCQlgBgaVgxW0AQHFAQEMDAxVVVWoAACkjQKpkgK8FRWbhQKhigKgAACwmgPkAQGJcwGPeQFVVVWlfACojQGAawGGcAG8cwOmfQCOeAGbdQCXcgDx5MB5YwF9aAGDBgaXgQKSfAKYggKOawG7pWLdzqBvWQF2YAB/cyyMegh7XgGlkVVnTgFnTgGslQNnYkFoTgFnTgFnTgFnTgGrlALy5sL29vbd3d3k02D/7oji0V3v3nH4aGjMzMzh0Fv864P4537r2mkAAAD/iIj043jj0l3m1WO7qjPk01/yXFzMu0Tfzljgz1rezVaqP1K6AAAAVXRSTlMAAEAAtwAAAAAAAAAAAAAAAAAAAAAAAAAAAABpPwCdgykAo0O5LySxwkSdw0UyQyvHRR8npshGAAAABmzvyke1AMVFOcD1w0cAsIXRljzAAJZJCQAA2U4xywAAALVJREFUeF41yNOaA0EUAOHTmUxo27axto1RzPW+/21y+uvUXf1gtVmcmk0uIKQaCfEUcAFIo7BIJSngAmSC4vA7Cz6vB2iqhDiSjsqg77FXK59SNOZHYD/5v0lzHAX607/HCscAf7nK5bUM8AdysaRjgD+TT04NW9j8x1etfryFZkvpj9udHYRAOA67e/s/vweHZoSuycjD2blwcXnlQLi2I9wKd/cPboQnQmH+/PL6hvBOKKwBNYghCPFyErUAAAAASUVORK5CYII=\') 0 0;\n\
+}\n\
 \n\
+/* line 18, ../plugins/click-button-to-edit/click-button-to-edit.scss */\n\
 .raptor-click-button-to-edit {\n\
-  outline: 1px solid transparent; }\n\
+  outline: 1px solid transparent;\n\
+}\n\
 \n\
+/* line 22, ../plugins/click-button-to-edit/click-button-to-edit.scss */\n\
 .raptor-click-button-to-edit-highlight {\n\
   outline: 1px dotted rgba(0, 0, 0, 0.5);\n\
-  -webkit-transition: all 0.5s 0s;\n\
+  -webkit-transition: all 0.5s;\n\
+  -webkit-transition-delay: 0s;\n\
   -moz-transition: all 0.5s 0s;\n\
-  -ms-transition: all 0.5s 0s;\n\
   -o-transition: all 0.5s 0s;\n\
-  transition: all 0.5s 0s; }\n\
+  transition: all 0.5s 0s;\n\
+}\n\
 \n\
 /**\n\
  * Basic color menu plugin.\n\
  *\n\
  * @author David Neilsen <david@panmedia.co.nz>\n\
  */\n\
+/* line 6, ../plugins/color-menu-basic/color-menu-basic.scss */\n\
 .raptor-ui-color-menu-basic-menu > div {\n\
-  min-width: 100px; }\n\
+  min-width: 100px;\n\
+}\n\
 \n\
+/* line 10, ../plugins/color-menu-basic/color-menu-basic.scss */\n\
 .raptor-ui-color-menu-basic-menu span {\n\
-  padding-left: 2px; }\n\
+  padding-left: 2px;\n\
+}\n\
 \n\
+/* line 14, ../plugins/color-menu-basic/color-menu-basic.scss */\n\
 .raptor-ui-color-menu-basic-swatch {\n\
   width: 16px;\n\
   height: 16px;\n\
   float: left;\n\
   margin-top: 2px;\n\
-  border: 1px solid rgba(0, 0, 0, 0.2); }\n\
+  border: 1px solid rgba(0, 0, 0, 0.2);\n\
+}\n\
 \n\
+/* line 22, ../plugins/color-menu-basic/color-menu-basic.scss */\n\
 .raptor-ui-color-menu-basic .ui-icon-swatch {\n\
   background-image: none;\n\
-  border: 1px solid rgba(0, 0, 0, 0.35); }\n\
+  border: 1px solid rgba(0, 0, 0, 0.35);\n\
+}\n\
 \n\
 /**\n\
- * Debug plugin\n\
+ * Dock to element plugin.\n\
  *\n\
  * @author David Neilsen <david@panmedia.co.nz>\n\
  */\n\
-.raptor-debug-reinit-button .ui-icon-reload {\n\
-  filter: progid:DXImageTransform.Microsoft.Alpha(Opacity=85);\n\
-  opacity: 0.85;\n\
-  background: url(\'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAAqBJREFUeNqkU01PE2EQnrfdtmyLpbRNA/ULGyAhRi+NHkTk5sEEiRyMEi+evHszJh5I/AF613ho9EIwhEiMB4kSjQcWSDxgIAhJoZV26dd2t/v17jqzkoLGG5vM7rvzzPPsfOww13XhOJdAt8vPN0EIBEAQBPD5/UHGWALdnWgW2iO07H+40sL91APhH2ev4HOH+tJiZzoZCia7guXpj8XsnevprGX9yVQMM8i9K0jA2GI7A+9y3Uwo4I6Mj6aijToHzl2nXrNk27bBMDg0FQ7dcQFezeYljH6PlmsLuI4T8zF+e+zqqZ69ggaKZrH13WaxXDcUwm2LQ6xbgOKOCreu9WTfLuQVy3bSCBV8XoBpjmR6xYvFfKNflpuZTyuF1q+y8sHhXLINA7q6g/Byek06ERWgUlJh8EykHzkTxPUETMMYTcWCQ/Wqllnb3hct0/yM01nWVZUwePZiWcLnt0Vpd1NvmZCMBuL4PtwuwdL1S37GMqpuQaFUL+Mk5rllgeM41BuqeZH5/bmNzdJSbzQEiUggjJyBtgCqRVTDjqrc9c6YOjbRhlCHSON9YKMYGQpDrWVDh2F7mR2WoOsbezVdU30CdMXEGNY3abZ0rLcEVVkGpVqlPk0SRjEUS5y2gGUYX7byckURgnB66OxJ7MFD7MHkAQZ0Jh9hFEOxxDkUMM2ZrR/bMo+IsA3hjuzN4fPpvtQUjneJjM7kI4xiKJY4xGW0C9F7bwDrHvNHwk8T4zcutGz0hRjEQp4+1AwHGoYLosBgf3b+O1e1x9iPuUbu7uGfiEJzerUGu6+npwKDA8lm5lx8J54Ie2lWapr7c6tSWd+QwTSfYGPn/lqmoyKOpkn2yuoErKxeQdfgAbSO9hWXbAa/XDjKYcdd598CDAAkzn7JYhVZYAAAAABJRU5ErkJggg==\') 0 0; }\n\
-\n\
-.raptor-debug-reinit-button:hover .ui-icon-reload {\n\
-  filter: progid:DXImageTransform.Microsoft.Alpha(Opacity=100);\n\
-  opacity: 1; }\n\
-\n\
-.raptor-debug-destroy-button .ui-icon-close {\n\
-  filter: progid:DXImageTransform.Microsoft.Alpha(Opacity=85);\n\
-  opacity: 0.85;\n\
-  background: url(\'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAMAAAAoLQ9TAAAAtFBMVEX///+nAABhAACnAACjAACCAACgAACHAACjAAByAAB1AAByAACDAACnAACCAACHAACgAACNAACbAACXAACMAACSAABfAACYAACRAACjAACbAAChAACqAACNAACcAACHAACqAADEERGsERHQERG+NjaiERHUTEzYERG4ERGlFBSfFRX/d3f6cnK0JSWoHh7qYmLkXFyvFRXmXl7vZ2fNRUX4cHDXT0/+dnbbU1O3Li7GPT26MTG2f8oMAAAAIXRSTlMASEjMzADMzAAASMxIAMwAAMzMzEjMzEhISABIzABISEg/DPocAAAAj0lEQVR4Xo3PVw6DMBBF0RgXTO+hBYhtILX3sv99RRpvgPcxVzp/M5syb7lYepxDABDeYcQ5wg+MAMhr3JOyJKfxTABqduuvjD37O6sBwjZ+f76/7TFuQw1VnhyGYZPklYagKbKLlDIrmkBDGq1hUaqhM4UQJpwOwFdK+a4LAbCdlWNTCgGwjLlhUQqZ8uofSk8NKY1Fm8EAAAAASUVORK5CYII=\') 0 0; }\n\
-\n\
-.raptor-debug-destroy-button:hover .ui-icon-close {\n\
-  filter: progid:DXImageTransform.Microsoft.Alpha(Opacity=100);\n\
-  opacity: 1; }\n\
-\n\
-/**\n\
- * Dock plugin\n\
- *\n\
- * @author David Neilsen <david@panmedia.co.nz>\n\
- */\n\
-.raptor-ui-dock-to-screen .ui-icon {\n\
-  filter: progid:DXImageTransform.Microsoft.Alpha(Opacity=85);\n\
-  opacity: 0.85;\n\
-  background: url(\'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAMAAAAoLQ9TAAAAwFBMVEX///8NDQ1VVVVVVVVTU1M5OTlLS0tHR0dVVVVDQ0MfHx8vLy8+Pj40NDQPDw/Gxsa4uMTr6+vz8/O2xO0tT8Tv7++uut0lR7PBz/hcdcwiRKvp6emqt9s+XtbQ1ehHac1thuX5+fmptdzk5OT29vbh4eFXed/n5+fu7u7x8fGfrecoSq739/fCz/jFxcjLy8q4xu3KytbDzevb29vY2NjU1NPQ0M7P1eY1V7vBzvdkhuzHx8bFxcbg4ujFxczHx9F6WxVSAAAAEXRSTlMAhmZZWnNrbSJvfnhxdWTT046to6oAAACXSURBVHheZco1FsMwAATRTcxhkZnCzMz3v1WkyvbLb6YZ2Fq9oNmA3j2ezpft87X5fPc9HXhUAZN12QTI/HvBz4BbFWD2V5K7dFX6JmCNKKVxyMJYdmQBDhVi4DHGvIEQ1AFac0ICzhnnASHzFmDMplKyS1RmBtAmQyk/5CqkDTSjsbS4LlSiJtAg6k3fqQppAJ1aWQd/fntuHFvCkQDlAAAAAElFTkSuQmCC\') 0 0; }\n\
-\n\
-.raptor-ui-dock-to-screen:hover .ui-icon-pin-s {\n\
-  filter: progid:DXImageTransform.Microsoft.Alpha(Opacity=100);\n\
-  opacity: 1; }\n\
-\n\
+/* line 9, ../plugins/dock/dock-to-element.scss */\n\
 .raptor-ui-dock-to-element .ui-icon {\n\
   filter: progid:DXImageTransform.Microsoft.Alpha(Opacity=85);\n\
   opacity: 0.85;\n\
-  background: url(\'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAMAAAAoLQ9TAAAAsVBMVEX///9VVVUNDQ1VVVVVVVUvLy9TU1MfHx+4uMTGxsZBY+hAYuYREREPDw9BY+kiRK0lR7Wwvue9y/O5x/C+zPVcfuO4xe5CZMjBz/iywOgzVc81V7q0weoqTLAjRasrTcE7Xd1Qcte2xO3Azfa7yfHQ0M7Ly8rFxcbFxcy1wuvHx9HKyta/zPXp6enBzve2w+zY2Njb29vh4eHU1NPr6+tlh+3Hx8a5xu/FxcjCz/jn5+fv4craAAAADnRSTlMAZoZZInhaftPTwIBCZLWComUAAACBSURBVHheZcRVcgJRFADRJiNYMu5uuBPP/heWx9eF4lR1o2sjoelgTi/n98Xya/Wz3u4mJnw+gvD3XghtchRJC3G/F30MeeCJIIfSG4RXQjV8i6EC2++Eb4MTFSJyoO7StBaQbVw3uyqG6mBAcyqK5k8Zqz7GMLMsa/6ivN72xpN/8isdAjArQVYAAAAASUVORK5CYII=\') 0 0; }\n\
+  background: url(\'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAMAAAAoLQ9TAAAAsVBMVEX///9VVVUNDQ1VVVVVVVUvLy9TU1MfHx+4uMTGxsZBY+hAYuYREREPDw9BY+kiRK0lR7Wwvue9y/O5x/C+zPVcfuO4xe5CZMjBz/iywOgzVc81V7q0weoqTLAjRasrTcE7Xd1Qcte2xO3Azfa7yfHQ0M7Ly8rFxcbFxcy1wuvHx9HKyta/zPXp6enBzve2w+zY2Njb29vh4eHU1NPr6+tlh+3Hx8a5xu/FxcjCz/jn5+fv4craAAAADnRSTlMAZoZZInhaftPTwIBCZLWComUAAACBSURBVHheZcRVcgJRFADRJiNYMu5uuBPP/heWx9eF4lR1o2sjoelgTi/n98Xya/Wz3u4mJnw+gvD3XghtchRJC3G/F30MeeCJIIfSG4RXQjV8i6EC2++Eb4MTFSJyoO7StBaQbVw3uyqG6mBAcyqK5k8Zqz7GMLMsa/6ivN72xpN/8isdAjArQVYAAAAASUVORK5CYII=\') 0 0;\n\
+}\n\
 \n\
+/* line 14, ../plugins/dock/dock-to-element.scss */\n\
 .raptor-ui-dock-to-element:hover .ui-icon-pin-s {\n\
   filter: progid:DXImageTransform.Microsoft.Alpha(Opacity=100);\n\
-  opacity: 1; }\n\
-\n\
-/**\n\
- * Dialog docked to body\n\
- */\n\
-.raptor-dock-docked .raptor-toolbar-wrapper {\n\
-  display: -webkit-box;\n\
-  display: -moz-box;\n\
-  display: -ms-box;\n\
-  display: box;\n\
-  -webkit-box-pack: center;\n\
-  -moz-box-pack: center;\n\
-  -ms-box-pack: center;\n\
-  box-pack: center;\n\
-  -webkit-box-align: center;\n\
-  -moz-box-align: center;\n\
-  -ms-box-align: center;\n\
-  box-align: center; }\n\
-.raptor-dock-docked .raptor-toolbar {\n\
-  text-align: center; }\n\
-\n\
-.raptor-dock-docked .raptor-path,\n\
-.raptor-dock-docked-to-element .raptor-path {\n\
-  display: none; }\n\
-\n\
-.raptor-ios .raptor-dock-docked .raptor-path {\n\
-  display: none; }\n\
+  opacity: 1;\n\
+}\n\
 \n\
 /**\n\
  * Dialog docked to element\n\
  */\n\
+/* line 25, ../plugins/dock/dock-to-element.scss */\n\
 .raptor-dock-docked-to-element-wrapper {\n\
   font-size: inherit;\n\
   color: inherit;\n\
-  font-family: inherit; }\n\
+  font-family: inherit;\n\
+}\n\
 \n\
+/* line 30, ../plugins/dock/dock-to-element.scss */\n\
 .raptor-dock-docked-to-element-wrapper .raptor-wrapper {\n\
   /* Removed fixed position from the editor */\n\
   position: relative !important;\n\
@@ -19313,28 +19933,29 @@ html body div.ui-wrapper div.ui-dialog-titlebar a.ui-dialog-titlebar-close span.
   -webkit-box-orient: vertical;\n\
   -moz-box-orient: vertical;\n\
   -ms-box-orient: vertical;\n\
-  box-orient: vertical; }\n\
-  .raptor-dock-docked-to-element-wrapper .raptor-wrapper .raptor-toolbar {\n\
-    margin: 0;\n\
-    z-index: 2;\n\
-    -webkit-box-ordinal-group: 1;\n\
-    -moz-box-ordinal-group: 1;\n\
-    -ms-box-ordinal-group: 1;\n\
-    box-ordinal-group: 1; }\n\
-  .raptor-dock-docked-to-element-wrapper .raptor-wrapper .raptor-toolbar .ui-widget-header {\n\
-    border-top: 0;\n\
-    border-left: 0;\n\
-    border-right: 0; }\n\
-  .raptor-dock-docked-to-element-wrapper .raptor-wrapper .raptor-path {\n\
-    border: 0 none;\n\
-    margin: 0;\n\
-    -webkit-box-ordinal-group: 3;\n\
-    -moz-box-ordinal-group: 3;\n\
-    -ms-box-ordinal-group: 3;\n\
-    box-ordinal-group: 3; }\n\
-  .raptor-dock-docked-to-element-wrapper .raptor-wrapper .raptor-messages {\n\
-    margin: 0; }\n\
+  box-orient: vertical;\n\
+}\n\
+/* line 50, ../plugins/dock/dock-to-element.scss */\n\
+.raptor-dock-docked-to-element-wrapper .raptor-wrapper .raptor-toolbar {\n\
+  margin: 0;\n\
+  z-index: 2;\n\
+  -webkit-box-ordinal-group: 1;\n\
+  -moz-box-ordinal-group: 1;\n\
+  -ms-box-ordinal-group: 1;\n\
+  box-ordinal-group: 1;\n\
+}\n\
+/* line 57, ../plugins/dock/dock-to-element.scss */\n\
+.raptor-dock-docked-to-element-wrapper .raptor-wrapper .raptor-toolbar .ui-widget-header {\n\
+  border-top: 0;\n\
+  border-left: 0;\n\
+  border-right: 0;\n\
+}\n\
+/* line 63, ../plugins/dock/dock-to-element.scss */\n\
+.raptor-dock-docked-to-element-wrapper .raptor-wrapper .raptor-messages {\n\
+  margin: 0;\n\
+}\n\
 \n\
+/* line 68, ../plugins/dock/dock-to-element.scss */\n\
 .raptor-dock-docked-element {\n\
   /* Override margin so toolbars sit flush next to element */\n\
   margin: 0 !important;\n\
@@ -19356,35 +19977,90 @@ html body div.ui-wrapper div.ui-dialog-titlebar a.ui-dialog-titlebar-close span.
   -webkit-box-ordinal-group: 2;\n\
   -moz-box-ordinal-group: 2;\n\
   -ms-box-ordinal-group: 2;\n\
-  box-ordinal-group: 2; }\n\
+  box-ordinal-group: 2;\n\
+}\n\
 \n\
 /**\n\
- * Messages\n\
+ * Dock to screen plugin.\n\
+ *\n\
+ * @author David Neilsen <david@panmedia.co.nz>\n\
  */\n\
+/* line 9, ../plugins/dock/dock-to-screen.scss */\n\
+.raptor-ui-dock-to-screen .ui-icon {\n\
+  filter: progid:DXImageTransform.Microsoft.Alpha(Opacity=85);\n\
+  opacity: 0.85;\n\
+  background: url(\'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAMAAAAoLQ9TAAAAwFBMVEX///8NDQ1VVVVVVVVTU1M5OTlLS0tHR0dVVVVDQ0MfHx8vLy8+Pj40NDQPDw/Gxsa4uMTr6+vz8/O2xO0tT8Tv7++uut0lR7PBz/hcdcwiRKvp6emqt9s+XtbQ1ehHac1thuX5+fmptdzk5OT29vbh4eFXed/n5+fu7u7x8fGfrecoSq739/fCz/jFxcjLy8q4xu3KytbDzevb29vY2NjU1NPQ0M7P1eY1V7vBzvdkhuzHx8bFxcbg4ujFxczHx9F6WxVSAAAAEXRSTlMAhmZZWnNrbSJvfnhxdWTT046to6oAAACXSURBVHheZco1FsMwAATRTcxhkZnCzMz3v1WkyvbLb6YZ2Fq9oNmA3j2ezpft87X5fPc9HXhUAZN12QTI/HvBz4BbFWD2V5K7dFX6JmCNKKVxyMJYdmQBDhVi4DHGvIEQ1AFac0ICzhnnASHzFmDMplKyS1RmBtAmQyk/5CqkDTSjsbS4LlSiJtAg6k3fqQppAJ1aWQd/fntuHFvCkQDlAAAAAElFTkSuQmCC\') 0 0;\n\
+}\n\
+\n\
+/* line 14, ../plugins/dock/dock-to-screen.scss */\n\
+.raptor-ui-dock-to-screen:hover .ui-icon-pin-s {\n\
+  filter: progid:DXImageTransform.Microsoft.Alpha(Opacity=100);\n\
+  opacity: 1;\n\
+}\n\
+\n\
+/* line 19, ../plugins/dock/dock-to-screen.scss */\n\
+.raptor-dock-docked .raptor-toolbar-wrapper {\n\
+  display: -webkit-box;\n\
+  display: -moz-box;\n\
+  display: -ms-box;\n\
+  display: box;\n\
+  -webkit-box-pack: center;\n\
+  -moz-box-pack: center;\n\
+  -ms-box-pack: center;\n\
+  box-pack: center;\n\
+  -webkit-box-align: center;\n\
+  -moz-box-align: center;\n\
+  -ms-box-align: center;\n\
+  box-align: center;\n\
+}\n\
+/* line 25, ../plugins/dock/dock-to-screen.scss */\n\
+.raptor-dock-docked .raptor-toolbar {\n\
+  text-align: center;\n\
+}\n\
+\n\
+/**\n\
+ * Dock plugin.\n\
+ *\n\
+ * @author David Neilsen <david@panmedia.co.nz>\n\
+ */\n\
+/* line 8, ../plugins/dock/dock.scss */\n\
+.raptor-dock-docked-to-element .raptor-path, .raptor-dock-docked .raptor-path {\n\
+  display: none;\n\
+}\n\
+\n\
+/* line 13, ../plugins/dock/dock.scss */\n\
 .raptor-dock-docked .raptor-messages {\n\
   position: fixed;\n\
   top: 0;\n\
   left: 50%;\n\
   margin: 0 -400px 10px;\n\
   padding: 0;\n\
-  text-align: left; }\n\
-  .raptor-dock-docked .raptor-messages .raptor-message-wrapper {\n\
-    width: 800px; }\n\
+  text-align: left;\n\
+}\n\
+/* line 21, ../plugins/dock/dock.scss */\n\
+.raptor-dock-docked .raptor-messages .raptor-message-wrapper {\n\
+  width: 800px;\n\
+}\n\
 \n\
 /**\n\
  * Embed plugin\n\
  *\n\
  * @author David Neilsen <david@panmedia.co.nz>\n\
  */\n\
+/* line 10, ../plugins/embed/embed.scss */\n\
 .raptor-ui-embed .ui-icon {\n\
   filter: progid:DXImageTransform.Microsoft.Alpha(Opacity=85);\n\
   opacity: 0.85;\n\
-  background: url(\'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAMAAAAoLQ9TAAAAxlBMVEX////////fNzfaMTHVLCzKISHFGxvvR0flPDzpSEjdMTH4Y2PaKyvtTk7PJibXIyOnLi7lQECkKyvSHR3mPj6eJCSUGhqRFxfqQkL0XFziOTmOFBSBBwehKCiHDQ3PFRWaISGXHR3wVlaECgqqMTGLEBDGHR365eW1ICDaXFz139/LDg7NLi6tNDTSKSnMNzd9AwP1TEy/Fhbwxsbqv7+7EhKzFBS6EBDonZ3akJDkhISxBwf8a2vLIiLPcHD88fH67+/fYGAnLmvBAAAAAXRSTlMAQObYZgAAAJtJREFUeF5Vx0WShFAUBMB631F3afdxd7v/pQaiN5C7BK4mgM3nxAahczfihIgrrfVTqs+qGN2qLMvHwy4tB6sOmWeMIXp7/jI9L8PCYowR0e/3xzVj1gLLiHNOg9OR82iJvBZC0GD/J0Sdo7B93+/78+737AKNK6Uker2UA7fBNlBKPdyos2CLWXI/ksywnr+MzNdoLyZa4HYC/3EAHWTN0A0YAAAAAElFTkSuQmCC\') 0 0; }\n\
+  background: url(\'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAMAAAAoLQ9TAAAAxlBMVEX////////fNzfaMTHVLCzKISHFGxvvR0flPDzpSEjdMTH4Y2PaKyvtTk7PJibXIyOnLi7lQECkKyvSHR3mPj6eJCSUGhqRFxfqQkL0XFziOTmOFBSBBwehKCiHDQ3PFRWaISGXHR3wVlaECgqqMTGLEBDGHR365eW1ICDaXFz139/LDg7NLi6tNDTSKSnMNzd9AwP1TEy/Fhbwxsbqv7+7EhKzFBS6EBDonZ3akJDkhISxBwf8a2vLIiLPcHD88fH67+/fYGAnLmvBAAAAAXRSTlMAQObYZgAAAJtJREFUeF5Vx0WShFAUBMB631F3afdxd7v/pQaiN5C7BK4mgM3nxAahczfihIgrrfVTqs+qGN2qLMvHwy4tB6sOmWeMIXp7/jI9L8PCYowR0e/3xzVj1gLLiHNOg9OR82iJvBZC0GD/J0Sdo7B93+/78+737AKNK6Uker2UA7fBNlBKPdyos2CLWXI/ksywnr+MzNdoLyZa4HYC/3EAHWTN0A0YAAAAAElFTkSuQmCC\') 0 0;\n\
+}\n\
 \n\
+/* line 15, ../plugins/embed/embed.scss */\n\
 .raptor-ui-embed:hover .ui-icon {\n\
   filter: progid:DXImageTransform.Microsoft.Alpha(Opacity=100);\n\
-  opacity: 1; }\n\
+  opacity: 1;\n\
+}\n\
 \n\
+/* line 19, ../plugins/embed/embed.scss */\n\
 .raptor-ui-embed-panel-tabs {\n\
   height: 100%;\n\
   width: 100%;\n\
@@ -19399,38 +20075,46 @@ html body div.ui-wrapper div.ui-dialog-titlebar a.ui-dialog-titlebar-close span.
   -webkit-box-flex: 1;\n\
   -moz-box-flex: 1;\n\
   -ms-box-flex: 1;\n\
-  box-flex: 1; }\n\
-  .raptor-ui-embed-panel-tabs .raptor-ui-embed-code-tab,\n\
-  .raptor-ui-embed-panel-tabs .raptor-ui-embed-preview-tab {\n\
-    display: -webkit-box;\n\
-    display: -moz-box;\n\
-    display: -ms-box;\n\
-    display: box;\n\
-    -webkit-box-orient: vertical;\n\
-    -moz-box-orient: vertical;\n\
-    -ms-box-orient: vertical;\n\
-    box-orient: vertical;\n\
-    -webkit-box-flex: 1;\n\
-    -moz-box-flex: 1;\n\
-    -ms-box-flex: 1;\n\
-    box-flex: 1;\n\
-    -webkit-box-sizing: border-box;\n\
-    -moz-box-sizing: border-box;\n\
-    box-sizing: border-box; }\n\
-    .raptor-ui-embed-panel-tabs .raptor-ui-embed-code-tab p,\n\
-    .raptor-ui-embed-panel-tabs .raptor-ui-embed-preview-tab p {\n\
-      padding-top: 10px; }\n\
-    .raptor-ui-embed-panel-tabs .raptor-ui-embed-code-tab textarea,\n\
-    .raptor-ui-embed-panel-tabs .raptor-ui-embed-preview-tab textarea {\n\
-      display: -webkit-box;\n\
-      display: -moz-box;\n\
-      display: -ms-box;\n\
-      display: box;\n\
-      -webkit-box-flex: 4;\n\
-      -moz-box-flex: 4;\n\
-      -ms-box-flex: 4;\n\
-      box-flex: 4; }\n\
+  box-flex: 1;\n\
+}\n\
+/* line 28, ../plugins/embed/embed.scss */\n\
+.raptor-ui-embed-panel-tabs .raptor-ui-embed-code-tab,\n\
+.raptor-ui-embed-panel-tabs .raptor-ui-embed-preview-tab {\n\
+  display: -webkit-box;\n\
+  display: -moz-box;\n\
+  display: -ms-box;\n\
+  display: box;\n\
+  -webkit-box-orient: vertical;\n\
+  -moz-box-orient: vertical;\n\
+  -ms-box-orient: vertical;\n\
+  box-orient: vertical;\n\
+  -webkit-box-flex: 1;\n\
+  -moz-box-flex: 1;\n\
+  -ms-box-flex: 1;\n\
+  box-flex: 1;\n\
+  -webkit-box-sizing: border-box;\n\
+  -moz-box-sizing: border-box;\n\
+  box-sizing: border-box;\n\
+}\n\
+/* line 34, ../plugins/embed/embed.scss */\n\
+.raptor-ui-embed-panel-tabs .raptor-ui-embed-code-tab p,\n\
+.raptor-ui-embed-panel-tabs .raptor-ui-embed-preview-tab p {\n\
+  padding-top: 10px;\n\
+}\n\
+/* line 38, ../plugins/embed/embed.scss */\n\
+.raptor-ui-embed-panel-tabs .raptor-ui-embed-code-tab textarea,\n\
+.raptor-ui-embed-panel-tabs .raptor-ui-embed-preview-tab textarea {\n\
+  display: -webkit-box;\n\
+  display: -moz-box;\n\
+  display: -ms-box;\n\
+  display: box;\n\
+  -webkit-box-flex: 4;\n\
+  -moz-box-flex: 4;\n\
+  -ms-box-flex: 4;\n\
+  box-flex: 4;\n\
+}\n\
 \n\
+/* line 45, ../plugins/embed/embed.scss */\n\
 .raptor-ui-embed-dialog .ui-dialog-content {\n\
   display: -webkit-box !important;\n\
   display: -moz-box !important;\n\
@@ -19439,160 +20123,152 @@ html body div.ui-wrapper div.ui-dialog-titlebar a.ui-dialog-titlebar-close span.
   overflow: hidden;\n\
   -webkit-box-sizing: border-box;\n\
   -moz-box-sizing: border-box;\n\
-  box-sizing: border-box; }\n\
+  box-sizing: border-box;\n\
+}\n\
 \n\
 /**\n\
  * Float block plugin\n\
  *\n\
  * @author David Neilsen <david@panmedia.co.nz>\n\
  */\n\
+/* line 8, ../plugins/float/float.scss */\n\
 .raptor-ui-float-left .ui-icon {\n\
   filter: progid:DXImageTransform.Microsoft.Alpha(Opacity=85);\n\
   opacity: 0.85;\n\
-  background: url(\'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAAS5JREFUeNpi/P//PwMlgImBQsACY1zaIH4A6Bp7dAUzV31jnLHy22YgkxFqIQhf/vfvXymKAQ8eidtra35lYAQqY+FgZWBmZ2X49fk7AxvbX6DsN1+CLlgwn5khMECAwcLiL4OogiIDj6QEw9uLZ4AGfAVJ70BzAQg7ohigrnaP4cEDLoY3bzkYzL6/ZVA34ma4ev07w/sPv0HSHgRdoKICUvgR6IWPDK8evWb49+8iw/1bfxhevwYbsBfNdhC2BkkwwqLRxRhuFgM3HyMDrwAjw8vH/xj2nvuH1WZgIDKgGMDExLQNiz9xYWagASboBpAU/zAXsCCJ7SbCZjaghexAmgOIFUh2AXKyh7GRXTARiI2w2MoKVMwBtRVkOysQHwNiPxQXDFhmotgAgAADAKYzbYynfqX2AAAAAElFTkSuQmCC\') 0 0; }\n\
+  background: url(\'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAAS5JREFUeNpi/P//PwMlgImBQsACY1zaIH4A6Bp7dAUzV31jnLHy22YgkxFqIQhf/vfvXymKAQ8eidtra35lYAQqY+FgZWBmZ2X49fk7AxvbX6DsN1+CLlgwn5khMECAwcLiL4OogiIDj6QEw9uLZ4AGfAVJ70BzAQg7ohigrnaP4cEDLoY3bzkYzL6/ZVA34ma4ev07w/sPv0HSHgRdoKICUvgR6IWPDK8evWb49+8iw/1bfxhevwYbsBfNdhC2BkkwwqLRxRhuFgM3HyMDrwAjw8vH/xj2nvuH1WZgIDKgGMDExLQNiz9xYWagASboBpAU/zAXsCCJ7SbCZjaghexAmgOIFUh2AXKyh7GRXTARiI2w2MoKVMwBtRVkOysQHwNiPxQXDFhmotgAgAADAKYzbYynfqX2AAAAAElFTkSuQmCC\') 0 0;\n\
+}\n\
 \n\
+/* line 13, ../plugins/float/float.scss */\n\
 .raptor-ui-float-left:hover .ui-icon {\n\
   filter: progid:DXImageTransform.Microsoft.Alpha(Opacity=100);\n\
-  opacity: 1; }\n\
+  opacity: 1;\n\
+}\n\
 \n\
+/* line 17, ../plugins/float/float.scss */\n\
 .raptor-ui-float-none .ui-icon {\n\
   filter: progid:DXImageTransform.Microsoft.Alpha(Opacity=85);\n\
   opacity: 0.85;\n\
-  background: url(\'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAMAAAAoLQ9TAAAAkFBMVEUAAAABAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEAAAABAQEAAADRrxbRsBYBAQEBAQEBAQEBAQEBAQEBAQEBAQEAAAAAAAAAAACcegnCrQ6ffgqukQv+/GixkS3duyLhwyfkyizevSNRMDCigDLauC/y41DcuiLrzTTQrhWCYBiObSDErz3r4VvApCt4Vg6dewnDaH3NAAAAGHRSTlMAycfDxcu9v8HYu+DAwIm3uZnRkdDn7LIyy/h+AAAAWklEQVR4Xp2KRwqFMBQAYzfGXmPtvfx//9spgvAWQcRZzgx6gz6dGEDkQ1FWNRBN2/XZCMRvXtZtB4LSfxon6AHTsjVZUQWR5xz2cWfJxYR9eFf2MQnCCH3hAIfwBUXJe8YuAAAAAElFTkSuQmCC\') 0 0; }\n\
+  background: url(\'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAMAAAAoLQ9TAAAAkFBMVEUAAAABAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEAAAABAQEAAADRrxbRsBYBAQEBAQEBAQEBAQEBAQEBAQEBAQEAAAAAAAAAAACcegnCrQ6ffgqukQv+/GixkS3duyLhwyfkyizevSNRMDCigDLauC/y41DcuiLrzTTQrhWCYBiObSDErz3r4VvApCt4Vg6dewnDaH3NAAAAGHRSTlMAycfDxcu9v8HYu+DAwIm3uZnRkdDn7LIyy/h+AAAAWklEQVR4Xp2KRwqFMBQAYzfGXmPtvfx//9spgvAWQcRZzgx6gz6dGEDkQ1FWNRBN2/XZCMRvXtZtB4LSfxon6AHTsjVZUQWR5xz2cWfJxYR9eFf2MQnCCH3hAIfwBUXJe8YuAAAAAElFTkSuQmCC\') 0 0;\n\
+}\n\
 \n\
+/* line 22, ../plugins/float/float.scss */\n\
 .raptor-ui-float-none:hover .ui-icon {\n\
   filter: progid:DXImageTransform.Microsoft.Alpha(Opacity=100);\n\
-  opacity: 1; }\n\
+  opacity: 1;\n\
+}\n\
 \n\
+/* line 26, ../plugins/float/float.scss */\n\
 .raptor-ui-float-right .ui-icon {\n\
   filter: progid:DXImageTransform.Microsoft.Alpha(Opacity=85);\n\
   opacity: 0.85;\n\
-  background: url(\'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAAS1JREFUeNpi/P//PwMlgImBQsACN4mJqRFIaQExIxQzZYRzBaaHcWE4kZGJ8aCe/0sHFAOAoB5d4avXfAwPH4swaGt+ZWAEGsnCwcrAzM7K8Ovzd3sMFwDBWpjNMPrK5b++C94yMwQGCDBYWPxlEFVQZOCRlGB4e/EMAzYDgtFdICr6kUFd7QfDgwdcDG/ecjCYfX/LoG7EzXD1+ncGeyNMAzYiuQDsCmHhf54qKr+BzI9AL3xkePXoNcO/fxcZ7t/6wwDzAyMsGoGBiDWUnQwR4tx8jAy8AowMLx//Y9h95g+GAdvQXIAPM//798+EKBfgAkADMMJgNxE2swEtZAfSHECsQLILkJM9jI3sgolAbITFVlagYg6orSDbWYH4GBD7obhgwDITxQYABBgAdBpg+9sXURwAAAAASUVORK5CYII=\') 0 0; }\n\
+  background: url(\'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAAS1JREFUeNpi/P//PwMlgImBQsACN4mJqRFIaQExIxQzZYRzBaaHcWE4kZGJ8aCe/0sHFAOAoB5d4avXfAwPH4swaGt+ZWAEGsnCwcrAzM7K8Ovzd3sMFwDBWpjNMPrK5b++C94yMwQGCDBYWPxlEFVQZOCRlGB4e/EMAzYDgtFdICr6kUFd7QfDgwdcDG/ecjCYfX/LoG7EzXD1+ncGeyNMAzYiuQDsCmHhf54qKr+BzI9AL3xkePXoNcO/fxcZ7t/6wwDzAyMsGoGBiDWUnQwR4tx8jAy8AowMLx//Y9h95g+GAdvQXIAPM//798+EKBfgAkADMMJgNxE2swEtZAfSHECsQLILkJM9jI3sgolAbITFVlagYg6orSDbWYH4GBD7obhgwDITxQYABBgAdBpg+9sXURwAAAAASUVORK5CYII=\') 0 0;\n\
+}\n\
 \n\
+/* line 31, ../plugins/float/float.scss */\n\
 .raptor-ui-float-right:hover .ui-icon- {\n\
   filter: progid:DXImageTransform.Microsoft.Alpha(Opacity=100);\n\
-  opacity: 1; }\n\
+  opacity: 1;\n\
+}\n\
 \n\
 /**\n\
  * Show guides plugin\n\
  *\n\
  * @author David Neilsen <david@panmedia.co.nz>\n\
  */\n\
+/* line 8, ../plugins/guides/guides.scss */\n\
 .raptor-ui-guides .ui-icon {\n\
   filter: progid:DXImageTransform.Microsoft.Alpha(Opacity=85);\n\
   opacity: 0.85;\n\
-  background: url(\'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAAHZJREFUeNpi/P//PwNFAGQAIyMjDK9BYqNgXHqZ0MSYcFmEyxBGsClMTGS5+t+/fxg2biLGAGTXoBvATGoYkuUFGMDmhd2kGjL4vHCUUi9cIjcpnwPi2UAsBaXPQZPwOXxscD5Cy0xLSbUc3YDnJLue0uwMEGAA2O1APJOrHFQAAAAASUVORK5CYII=\') 0 0; }\n\
+  background: url(\'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAAHZJREFUeNpi/P//PwNFAGQAIyMjDK9BYqNgXHqZ0MSYcFmEyxBGsClMTGS5+t+/fxg2biLGAGTXoBvATGoYkuUFGMDmhd2kGjL4vHCUUi9cIjcpnwPi2UAsBaXPQZPwOXxscD5Cy0xLSbUc3YDnJLue0uwMEGAA2O1APJOrHFQAAAAASUVORK5CYII=\') 0 0;\n\
+}\n\
 \n\
+/* line 13, ../plugins/guides/guides.scss */\n\
 .raptor-ui-guides:hover .ui-icon {\n\
   filter: progid:DXImageTransform.Microsoft.Alpha(Opacity=100);\n\
-  opacity: 1; }\n\
+  opacity: 1;\n\
+}\n\
 \n\
+/* line 17, ../plugins/guides/guides.scss */\n\
 .raptor-ui-guides-visible * {\n\
-  outline: 1px dashed rgba(0, 0, 0, 0.5); }\n\
+  outline: 1px dashed rgba(0, 0, 0, 0.5);\n\
+}\n\
 \n\
 /**\n\
  * History plugin\n\
  *\n\
  * @author David Neilsen <david@panmedia.co.nz>\n\
  */\n\
+/* line 8, ../plugins/history/history.scss */\n\
 .raptor-ui-history-undo .ui-icon {\n\
   filter: progid:DXImageTransform.Microsoft.Alpha(Opacity=85);\n\
   opacity: 0.85;\n\
-  background: url(\'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAAe1JREFUeNrEUzFrFEEU/mazu7d3x8U9g0ROwkHEwrSrNmksJBxok1RRwUIEz0awFStZoqQw5B9ok1jYiRDBwl4PSaFJVLCMMfHWS7zb3ZndGd9ssgdXiVzhwGNnH+/75n3vm2FKKQyzDAy5zKmHLRSKRdiOA6tQgGlZDcrPUme3dcFBEPSLlZQQcZyFTFN8WZiGOUCnVCMRws9/4zD8BwkEFpz7N66c8vQJUbeLNEn+LuEQqxo8jv0716e8/f0UPIp0+n1OTbFLsUF1z+n7boAgA0eRf/em521tdeE4BuYunfa0OYehEMUJ3wt6Fza+7s4EkVwh3DJFLyPgYejfa0576+u/MsZe70g/tX8QRujSHDgXtpTpmOvarkjYrZ97Qg/xUTYDOv3B46U3rcnJMqRUUKaBtsXwzWDYJmfax1y0x07gx/FxfLbckd+1Wj0dYddI8vlcwhp1gcUnr/z55mXvbcfA99WXrVwjMwzGHNs0yiWbVSpFXqtVMTFxkrU+zOt55ENc04N7tvTCP9O86mn76D6cIzDSODYRhhUEnXFguy4/bs6gWr1IubN9F3KShHN8Wn6a3QNtZaFU0lvtZXAUm1LK13Jn5z7Vzw0Q9EmE0NvZDNnpoDw6OuC7voFUs0C19Uzif39MQxP8EWAA91//GdkHdYEAAAAASUVORK5CYII=\') 0 0; }\n\
+  background: url(\'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAAe1JREFUeNrEUzFrFEEU/mazu7d3x8U9g0ROwkHEwrSrNmksJBxok1RRwUIEz0awFStZoqQw5B9ok1jYiRDBwl4PSaFJVLCMMfHWS7zb3ZndGd9ssgdXiVzhwGNnH+/75n3vm2FKKQyzDAy5zKmHLRSKRdiOA6tQgGlZDcrPUme3dcFBEPSLlZQQcZyFTFN8WZiGOUCnVCMRws9/4zD8BwkEFpz7N66c8vQJUbeLNEn+LuEQqxo8jv0716e8/f0UPIp0+n1OTbFLsUF1z+n7boAgA0eRf/em521tdeE4BuYunfa0OYehEMUJ3wt6Fza+7s4EkVwh3DJFLyPgYejfa0576+u/MsZe70g/tX8QRujSHDgXtpTpmOvarkjYrZ97Qg/xUTYDOv3B46U3rcnJMqRUUKaBtsXwzWDYJmfax1y0x07gx/FxfLbckd+1Wj0dYddI8vlcwhp1gcUnr/z55mXvbcfA99WXrVwjMwzGHNs0yiWbVSpFXqtVMTFxkrU+zOt55ENc04N7tvTCP9O86mn76D6cIzDSODYRhhUEnXFguy4/bs6gWr1IubN9F3KShHN8Wn6a3QNtZaFU0lvtZXAUm1LK13Jn5z7Vzw0Q9EmE0NvZDNnpoDw6OuC7voFUs0C19Uzif39MQxP8EWAA91//GdkHdYEAAAAASUVORK5CYII=\') 0 0;\n\
+}\n\
 \n\
+/* line 13, ../plugins/history/history.scss */\n\
 .raptor-ui-history-undo:hover .ui-icon {\n\
   filter: progid:DXImageTransform.Microsoft.Alpha(Opacity=100);\n\
-  opacity: 1; }\n\
+  opacity: 1;\n\
+}\n\
 \n\
+/* line 17, ../plugins/history/history.scss */\n\
 .raptor-ui-history-redo .ui-icon {\n\
   filter: progid:DXImageTransform.Microsoft.Alpha(Opacity=85);\n\
   opacity: 0.85;\n\
-  background: url(\'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAAd9JREFUeNrEU89LG0EUfjP7KyvEGsRorRhoySGCuSyht0IPgicFQZCcvXsvHoP/Q8FDKZRCpQityKIHvZT2YI6t6MUfCJqQKpt1d7Ozu7N9O9vWhIIUcvDBt/OY4X3z3vfNkjiOoZ+g0GfIyaf46gtQSQJF0wQIvePN5nJiJYS8xmUzDAIz8H1gnQ74npcS3BeubYOm60lqCKQjm/89QhSG0HEcSG6tzo4bAWM1JJntGaE7UNQKcL6EaQkxknQfcS6Imk0GizOTxrvPx7Xf4pvdBAOc85VBnVTLU6OPhx8NZBVZUjmPIYpStNsMGo0I5l8+NT5sfxckggCFAYrFzyaHlo1yoYDdSs2WD9e2A/atC4wFooMkJBT79EqBF88Lxu7eYU0QMN+v5Eey1enSRKF1y6ULFoKFAFUDntMgwpsiDuAEMbgBhydDKmxtH9TRmdWUwPOWSsXi2Fmr7RyfNG6sa9vzbI+FHT+MI3730hbmjIwEcLTxSRSrup5qgH6Wvn39cd76ae9TSndw6wzRQNiSooQxiohjHij4Pqy379PiTMb86wJalL+6ZB+pLK9RSv+x0XddkQfrb9K2VdXssRHZk4M1mRDc6XXWsaw/aT15ibKimN3n5MF/pr4JfgkwANDA599q/NhJAAAAAElFTkSuQmCC\') 0 0; }\n\
+  background: url(\'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAAd9JREFUeNrEU89LG0EUfjP7KyvEGsRorRhoySGCuSyht0IPgicFQZCcvXsvHoP/Q8FDKZRCpQityKIHvZT2YI6t6MUfCJqQKpt1d7Ozu7N9O9vWhIIUcvDBt/OY4X3z3vfNkjiOoZ+g0GfIyaf46gtQSQJF0wQIvePN5nJiJYS8xmUzDAIz8H1gnQ74npcS3BeubYOm60lqCKQjm/89QhSG0HEcSG6tzo4bAWM1JJntGaE7UNQKcL6EaQkxknQfcS6Imk0GizOTxrvPx7Xf4pvdBAOc85VBnVTLU6OPhx8NZBVZUjmPIYpStNsMGo0I5l8+NT5sfxckggCFAYrFzyaHlo1yoYDdSs2WD9e2A/atC4wFooMkJBT79EqBF88Lxu7eYU0QMN+v5Eey1enSRKF1y6ULFoKFAFUDntMgwpsiDuAEMbgBhydDKmxtH9TRmdWUwPOWSsXi2Fmr7RyfNG6sa9vzbI+FHT+MI3730hbmjIwEcLTxSRSrup5qgH6Wvn39cd76ae9TSndw6wzRQNiSooQxiohjHij4Pqy379PiTMb86wJalL+6ZB+pLK9RSv+x0XddkQfrb9K2VdXssRHZk4M1mRDc6XXWsaw/aT15ibKimN3n5MF/pr4JfgkwANDA599q/NhJAAAAAElFTkSuQmCC\') 0 0;\n\
+}\n\
 \n\
+/* line 22, ../plugins/history/history.scss */\n\
 .raptor-ui-history-redo:hover .ui-icon {\n\
   filter: progid:DXImageTransform.Microsoft.Alpha(Opacity=100);\n\
-  opacity: 1; }\n\
+  opacity: 1;\n\
+}\n\
 \n\
 /**\n\
  * Horizontal rule plugin\n\
  *\n\
  * @author David Neilsen <david@panmedia.co.nz>\n\
  */\n\
+/* line 8, ../plugins/hr/hr.scss */\n\
 .raptor-ui-hr-create .ui-icon {\n\
   filter: progid:DXImageTransform.Microsoft.Alpha(Opacity=85);\n\
   opacity: 0.85;\n\
-  background: url(\'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAAXhJREFUeNpi/P//PwMTExMDEmgEYi0gZsSCrwJxNUzhv3//GBixGEA0ABnAgkV8LZqtTFDaF6aAX8KCwdBrA4QDckFq+1sGSUVrBkZGRqKwvEEhg2PyS7BeuAv07AsZXjw4BmJuQLIV5gImJLYrv7g53LlwA8TkLRgCi28wXDzQF/Dr10+G379/M/z58wfoz/9gfUxMrAzMzGwMsnr5DBwcvBgGHABiexBDyTiV4cuXTwxfv35j+PHjB9CQ/0BnszCwsHAysLHxIofVQSB2gBlgnxogAqREiI6B+ikf7ZFdcHD2hjf2X79+Zfj8+TNeF7Cz84K9wMrKdRDZAAcQ8fbJaYYndw4zYAsDHlFjBjZxKwyXwAPx1cMTDIdWxoKY+5BCHo7f31tp8VM9iUFQ0oaBQ9YBYQIoLo1dygmmA2QgIGHJoGhUCtaLLSkfweICVqA6diDNAcQKyJYTlRdAanCJY8sL04HYFM3WM0Acgs0QRlymEwsAAgwAwwCYinucCRoAAAAASUVORK5CYII=\') 0 0; }\n\
+  background: url(\'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAAXhJREFUeNpi/P//PwMTExMDEmgEYi0gZsSCrwJxNUzhv3//GBixGEA0ABnAgkV8LZqtTFDaF6aAX8KCwdBrA4QDckFq+1sGSUVrBkZGRqKwvEEhg2PyS7BeuAv07AsZXjw4BmJuQLIV5gImJLYrv7g53LlwA8TkLRgCi28wXDzQF/Dr10+G379/M/z58wfoz/9gfUxMrAzMzGwMsnr5DBwcvBgGHABiexBDyTiV4cuXTwxfv35j+PHjB9CQ/0BnszCwsHAysLHxIofVQSB2gBlgnxogAqREiI6B+ikf7ZFdcHD2hjf2X79+Zfj8+TNeF7Cz84K9wMrKdRDZAAcQ8fbJaYYndw4zYAsDHlFjBjZxKwyXwAPx1cMTDIdWxoKY+5BCHo7f31tp8VM9iUFQ0oaBQ9YBYQIoLo1dygmmA2QgIGHJoGhUCtaLLSkfweICVqA6diDNAcQKyJYTlRdAanCJY8sL04HYFM3WM0Acgs0QRlymEwsAAgwAwwCYinucCRoAAAAASUVORK5CYII=\') 0 0;\n\
+}\n\
 \n\
+/* line 12, ../plugins/hr/hr.scss */\n\
 .raptor-ui-hr-create:hover .ui-icon-hr {\n\
   filter: progid:DXImageTransform.Microsoft.Alpha(Opacity=100);\n\
-  opacity: 1; }\n\
-\n\
-/**\n\
- * Internationalisation plugin\n\
- *\n\
- * @author Michael Robinson <michael@panmedia.co.nz>\n\
- * @author David Neilsen <david@panmedia.co.nz>\n\
- */\n\
-.raptor-wrapper .raptor-i18n-select {\n\
-  height: 23px;\n\
-  top: -8px;\n\
-  text-align: left; }\n\
-\n\
-.raptor-wrapper .raptor-i18n-select .raptor-selectmenu-status {\n\
-  font-size: 13px;\n\
-  line-height: 10px; }\n\
-\n\
-.raptor-selectmenu-menu li a, .raptor-selectmenu-status {\n\
-  line-height: 12px; }\n\
-\n\
-.raptor-wrapper .raptor-i18n-select .raptor-selectmenu-item-icon {\n\
-  height: 24px;\n\
-  width: 24px; }\n\
-\n\
-.raptor-selectmenu-menu .ui-icon.raptor-i18n-en,\n\
-.raptor-wrapper .ui-icon.raptor-i18n-en {\n\
-  background: url(\'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAALCAIAAAD5gJpuAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAAflJREFUeNpinDRzn5qN3uFDt16+YWBg+Pv339+KGN0rbVP+//2rW5tf0Hfy/2+mr99+yKpyOl3Ydt8njEWIn8f9zj639NC7j78eP//8739GVUUhNUNuhl8//ysKeZrJ/v7z10Zb2PTQTIY1XZO2Xmfad+f7XgkXxuUrVB6cjPVXef78JyMjA8PFuwyX7gAZj97+T2e9o3d4BWNp84K1NzubTjAB3fH0+fv6N3qP/ir9bW6ozNQCijB8/8zw/TuQ7r4/ndvN5mZgkpPXiis3Pv34+ZPh5t23//79Rwehof/9/NDEgMrOXHvJcrllgpoRN8PFOwy/fzP8+gUlgZI/f/5xcPj/69e/37//AUX+/mXRkN555gsOG2xt/5hZQMwF4r9///75++f3nz8nr75gSms82jfvQnT6zqvXPjC8e/srJQHo9P9fvwNtAHmG4f8zZ6dDc3bIyM2LTNlsbtfM9OPHH3FhtqUz3eXX9H+cOy9ZMB2o6t/Pn0DHMPz/b+2wXGTvPlPGFxdcD+mZyjP8+8MUE6sa7a/xo6Pykn1s4zdzIZ6///8zMGpKM2pKAB0jqy4UE7/msKat6Jw5mafrsxNtWZ6/fjvNLW29qv25pQd///n+5+/fxDDVbcc//P/zx/36m5Ub9zL8+7t66yEROcHK7q5bldMBAgwADcRBCuVLfoEAAAAASUVORK5CYII=\') 0 0; }\n\
-\n\
-.raptor-selectmenu-menu .ui-icon.raptor-i18n-zh_CN,\n\
-.raptor-wrapper .ui-icon.raptor-i18n-zh_CN {\n\
-  background: url(\'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAALCAIAAAD5gJpuAAAABGdBTUEAAK/INwWK6QAAABl0RVh0U29mdHdhcmUAQWRvYmUgSW1hZ2VSZWFkeXHJZTwAAAFqSURBVHjaYrzOwPAPjJgYQEDAleHVbhADIvgHLPgHiQ0QQCxAlkR9NW8sw+cV/1gV/7Gb/hV4+vfzhj8Mv/78//Pn/+/f/8AkhH1t0yaAAAJp4I37zyz2lDfu79uqv/++/WYz+cuq/vvLxt8gdb+A5K9/v34B2SyyskBLAAII5JAva/7/+/z367a/f3/8ZuT9+//Pr78vQUrB6n4CSSj6/RuoASCAWEDO/fD3ddEfhv9/OE3/sKj8/n7k9/fDQNUIs/+DVf8HawAIIJCT/v38C3Hr95N/GDh/f94AVvT7N8RUBpjxQAVADQABBNLw/y/Ifwy/f/399ufTOpDBEPf8g5sN0QBEDAwAAQTWABEChgOSA9BVA00E2wAQQCANQBbEif/AzoCqgLkbbBYwWP/+//sXqBYggFhAkfL7D7OkJFCOCSj65zfUeFjwg8z++/ffX5AGoGKAAGI8jhSRyIw/SJH9D4aAYQoQYAA6rnMw1jU2vQAAAABJRU5ErkJggg==\') 0 0; }\n\
+  opacity: 1;\n\
+}\n\
 \n\
 /**\n\
  * Image resize button plugin\n\
  *\n\
  * @author David Neilsen <david@panmedia.co.nz>\n\
  */\n\
+/* line 6, ../plugins/image-resize-button/image-resize-button.scss */\n\
 .raptor-image-resize-button-button .ui-icon {\n\
-  background: url(\'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAMAAAAoLQ9TAAABAlBMVEX///9TddoqTLAjRasiRK1ihOlOcNVYet9miO5QctdWeN05W9k4WthCZMgyVM0zVc9BY8ddf+VSdNk0VtE+YOM8Xt8rTcFCZOssTsBCZOolR7U1V7o1V9Nlh+1CZMj5/Pz9/v5BY+kiRK3y9/f///9cfuP2+vojRasrTcHu9fUqTLD1+vo1V7o7Xd0zVc8lR7VTmv9sqf9coP/v9v/I3uvV5/fb6v1BfIS33Opxp7BZkpv+///s9PRQctdVnP9CdahShbhlmMri7v+Qw/Ci1fuPvv+71/+JvcZJlf8pZW2Cs8yw0fx7rt692f+rz//A2v/c6/+01P8cV2A2aZwxdFNuoZMUoDQrAAAAHXRSTlMAAAAAAADAAMAAAAAAAMAAAMDAwADAAAAAwAAAACp/YQ8AAACvSURBVHhehcc1csNQAAXA98WMljFiNjMFmRnuf5VM4lGVwtst/nFdgeXJL54VXBdITYlUJDMFLMIdVzhiAaLqJYc7iaeKgNHpB3cn4+nk+ibodwyAorr+w+P788vrm9+lKICm897X93yxvJj1cpoGGCaKP+5X283tOo4YBmi2R+Xn6dn50+VVOWo3Ab1eZEc7WVHXAVvRhhVNsYGBUzuo1JwBEIathvxXudEKQ+z3A1iJGpAw1RqcAAAAAElFTkSuQmCC\') 0 0; }\n\
+  background: url(\'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAMAAAAoLQ9TAAABAlBMVEX///9TddoqTLAjRasiRK1ihOlOcNVYet9miO5QctdWeN05W9k4WthCZMgyVM0zVc9BY8ddf+VSdNk0VtE+YOM8Xt8rTcFCZOssTsBCZOolR7U1V7o1V9Nlh+1CZMj5/Pz9/v5BY+kiRK3y9/f///9cfuP2+vojRasrTcHu9fUqTLD1+vo1V7o7Xd0zVc8lR7VTmv9sqf9coP/v9v/I3uvV5/fb6v1BfIS33Opxp7BZkpv+///s9PRQctdVnP9CdahShbhlmMri7v+Qw/Ci1fuPvv+71/+JvcZJlf8pZW2Cs8yw0fx7rt692f+rz//A2v/c6/+01P8cV2A2aZwxdFNuoZMUoDQrAAAAHXRSTlMAAAAAAADAAMAAAAAAAMAAAMDAwADAAAAAwAAAACp/YQ8AAACvSURBVHhehcc1csNQAAXA98WMljFiNjMFmRnuf5VM4lGVwtst/nFdgeXJL54VXBdITYlUJDMFLMIdVzhiAaLqJYc7iaeKgNHpB3cn4+nk+ibodwyAorr+w+P788vrm9+lKICm897X93yxvJj1cpoGGCaKP+5X283tOo4YBmi2R+Xn6dn50+VVOWo3Ab1eZEc7WVHXAVvRhhVNsYGBUzuo1JwBEIathvxXudEKQ+z3A1iJGpAw1RqcAAAAAElFTkSuQmCC\') 0 0;\n\
+}\n\
 \n\
 /**\n\
  * Embed plugin\n\
  *\n\
  * @author David Neilsen <david@panmedia.co.nz>\n\
  */\n\
+/* line 8, ../plugins/insert-file/insert-file.scss */\n\
 .raptor-ui-insert-file .ui-icon {\n\
   filter: progid:DXImageTransform.Microsoft.Alpha(Opacity=85);\n\
   opacity: 0.85;\n\
-  background: url(\'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAAcVJREFUeNrEkz1rFFEUhp+587nzmY2JYXeNki1isWKihZ0gaGFjIULA3sYfEQikFVsrwTaF+gdsY2ljF4KdYuNmY9yM2bkz47kzECxlU3jgMncu87znPS9zrbquuUgpLljO1s7OI3n25+S/OWVZDt7u7r6ah36yvf3cKbW2Ksnh7ksLZYFriy1ZMw0mnrQjK5AzGXa4BKMe6Aq2btcY1tFaq1K+3Lhi4TmQCbAUwfef0HHbdxPz5BRuyKAbAzidgWEM6+iiaAT60T7rvTW6Ub/pfH0FVpJWKBdgeKl1cqZb0UZA2EZAVxUfPr3mYxDy8NZj7o3uN5aNI2M7L2AxhKJsz0LXjFG1AoURELWDwwMWsgX2Tt5wfPKV1eWr9BZXuZx26XjS2gpb2GtH+13VFI3AbKZKUTs7HvDjl8N07PFu8plOcEgURsRRTBzHJHFClqQi3GdtecCdaz6GPXcw7D3A8zx83ycMQ5IkJssSut1UlsBZRCohRJGL8hW6zs8d2JU4+LvqJuGSXNJTKpe9YjqtOToqCYKgaXJzVBkHtjMZjz3bdXn/4uk//j6mWY7tehjWyjY3n4mD4VwXSakv1n+/jX8EGAAI68BpoWbP4wAAAABJRU5ErkJggg==\') 0 0; }\n\
+  background: url(\'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAAcVJREFUeNrEkz1rFFEUhp+587nzmY2JYXeNki1isWKihZ0gaGFjIULA3sYfEQikFVsrwTaF+gdsY2ljF4KdYuNmY9yM2bkz47kzECxlU3jgMncu87znPS9zrbquuUgpLljO1s7OI3n25+S/OWVZDt7u7r6ah36yvf3cKbW2Ksnh7ksLZYFriy1ZMw0mnrQjK5AzGXa4BKMe6Aq2btcY1tFaq1K+3Lhi4TmQCbAUwfef0HHbdxPz5BRuyKAbAzidgWEM6+iiaAT60T7rvTW6Ub/pfH0FVpJWKBdgeKl1cqZb0UZA2EZAVxUfPr3mYxDy8NZj7o3uN5aNI2M7L2AxhKJsz0LXjFG1AoURELWDwwMWsgX2Tt5wfPKV1eWr9BZXuZx26XjS2gpb2GtH+13VFI3AbKZKUTs7HvDjl8N07PFu8plOcEgURsRRTBzHJHFClqQi3GdtecCdaz6GPXcw7D3A8zx83ycMQ5IkJssSut1UlsBZRCohRJGL8hW6zs8d2JU4+LvqJuGSXNJTKpe9YjqtOToqCYKgaXJzVBkHtjMZjz3bdXn/4uk//j6mWY7tehjWyjY3n4mD4VwXSakv1n+/jX8EGAAI68BpoWbP4wAAAABJRU5ErkJggg==\') 0 0;\n\
+}\n\
 \n\
+/* line 13, ../plugins/insert-file/insert-file.scss */\n\
 .raptor-ui-insert-file:hover .ui-icon {\n\
   filter: progid:DXImageTransform.Microsoft.Alpha(Opacity=100);\n\
-  opacity: 1; }\n\
-\n\
-/**\n\
- * Statistics plugin\n\
- *\n\
- * @author David Neilsen <david@panmedia.co.nz>\n\
- * @author Micharl Robinson <michael@panmedia.co.nz>\n\
- */\n\
-.raptor-ui-statistics .ui-icon {\n\
-  filter: progid:DXImageTransform.Microsoft.Alpha(Opacity=85);\n\
-  opacity: 0.85;\n\
-  background: url(\'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAAhFJREFUeNrEk7tv01AUxr/4kcRO7Fh1HghFgSAeYglDlIfUbGEBhaWoUxFiQWJGMDDyhzB2ZmANYmAoIvQPaIHIkVJjKyWkcdzYSR1zbhSGQhFDB47007333PN9V/cVCcMQ5wkO54wIxe+5q8Rt4gaRW+VsYo9oE1/+ZpAktjKZzL1arXatWCzmFEVhOYzH40m327U7nc7nwWDwhlLbxITN8SsDVvisXq9vtVqtuqZp2XK5HDcMg5vNZlylUon7vq+XSqXLi8WiYJqmTvWfiNkvg8e06gMqLDmOI5AIvV4P8/l8CeuzHMHn8/kcmeiWZQWk6zCD67quP280GuXNdlv4qKrwTk6WwpXoFNVqNTKdTtf6/X7C87wPzOAhrX4nCIK195KEp4aBtxyHKRm4roujozGdwQSO49LYx/7+VzIPeVEUOcsyh+wab9Ge0+SKGW3nhSzj5WiEoWlhMvHolKOIRmVIkgpZVhGPKxAEGdlsIc20zOASz/NSs9lkl4IwJuOJH+CVksDi2APPx0iYIgNlCTNYXy8hmdQkpmUGCfag2u134DgJipKGdqGAR6NjbKdVOAMbQRAiRsaCEKMaHru7XdYutRw95R+Hh0NXVTNIpXQy0KDrOVy8chOb34Z4XcjCMvZoO86p12bbBy7Tsv5dYoc4OAtFFM3BxkZ4xtzOSvvPuE98X7V//oX//ht/CjAAagzmsnB4V5cAAAAASUVORK5CYII=\') 0 0; }\n\
-\n\
-.raptor-ui-statistics:hover .ui-icon {\n\
-  filter: progid:DXImageTransform.Microsoft.Alpha(Opacity=100);\n\
-  opacity: 1; }\n\
+  opacity: 1;\n\
+}\n\
 \n\
 /**\n\
  * Link plugin\n\
@@ -19600,25 +20276,34 @@ html body div.ui-wrapper div.ui-dialog-titlebar a.ui-dialog-titlebar-close span.
  * @author Michael Robinson <michael@panmedia.co.nz>\n\
  * @author David Neilsen <david@panmedia.co.nz>\n\
  */\n\
+/* line 10, ../plugins/link/link.scss */\n\
 .raptor-ui-link-create .ui-icon {\n\
   filter: progid:DXImageTransform.Microsoft.Alpha(Opacity=85);\n\
   opacity: 0.85;\n\
-  background: url(\'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAMAAAAoLQ9TAAAAilBMVEX///8EBARUVFRUVFQEBARTU1MqKiwfHx5MTEzGxsZNTU1FRUWAgH8SEhJnZ2fd3d06Ojrg4ODIyMgODg4DAwMSEhLCwsGcnKXExNEvLy+ysrh+foMQEBBBQUEEBATJydeenqcDAwPT09OIiIjj4+OZmZl3d3fU1OPCwsHW1tXq6urr6+va2trGxsaRnmwcAAAAI3RSTlMAimdfRTOWgDXbAGXFj339cv3dAHtC3OP8bt+2cnuA/OMA+Akct2IAAABoSURBVHhetcVZFoIgGAbQ7wcVwyEKtBi01OZh/9urw2EJdV8ufkHmnDHG85RE2a7Wp812GGJtiaqvG1rOXws1dV9BzWKi2/3xfL1pErOCdT6YS2SCdxZdsdtfD8ci1UFnIxGNWUrjHz6V6QhqNdQf6wAAAABJRU5ErkJggg==\') 0 0; }\n\
+  background: url(\'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAMAAAAoLQ9TAAAAilBMVEX///8EBARUVFRUVFQEBARTU1MqKiwfHx5MTEzGxsZNTU1FRUWAgH8SEhJnZ2fd3d06Ojrg4ODIyMgODg4DAwMSEhLCwsGcnKXExNEvLy+ysrh+foMQEBBBQUEEBATJydeenqcDAwPT09OIiIjj4+OZmZl3d3fU1OPCwsHW1tXq6urr6+va2trGxsaRnmwcAAAAI3RSTlMAimdfRTOWgDXbAGXFj339cv3dAHtC3OP8bt+2cnuA/OMA+Akct2IAAABoSURBVHhetcVZFoIgGAbQ7wcVwyEKtBi01OZh/9urw2EJdV8ufkHmnDHG85RE2a7Wp812GGJtiaqvG1rOXws1dV9BzWKi2/3xfL1pErOCdT6YS2SCdxZdsdtfD8ci1UFnIxGNWUrjHz6V6QhqNdQf6wAAAABJRU5ErkJggg==\') 0 0;\n\
+}\n\
 \n\
+/* line 15, ../plugins/link/link.scss */\n\
 .raptor-ui-link-create:hover .ui-icon {\n\
   filter: progid:DXImageTransform.Microsoft.Alpha(Opacity=100);\n\
-  opacity: 1; }\n\
+  opacity: 1;\n\
+}\n\
 \n\
+/* line 19, ../plugins/link/link.scss */\n\
 .raptor-ui-link-remove .ui-icon {\n\
   filter: progid:DXImageTransform.Microsoft.Alpha(Opacity=85);\n\
   opacity: 0.85;\n\
-  background: url(\'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAMAAAAoLQ9TAAAA2FBMVEX///8WFhYvLy9LS0sEBAQODg4EBARNTU0DAwNVVVVUVFQtLS1nZ2cfHx46OjoSEhLGxsZTU1OAgH/T09NUVFQEBAQ6OjpMTEwvLy+4uMDCwsEQEBCvr7sSEhIEBAR+foMqKixFRUUEBARDQ0MBAQEBAQG5ucQiIiICAgIODg7Z2dlAQEBMTEwsLCxGRkYAAABPT0/e3t4mJiYqKiopKSlUVFQiIiJJSUkjIyNFRUU5OTkBAQEoKCi/v8zCws+qgFWFZkY7MSbc3Nzj4+Pm5ubOztzU1OTQ0N6IE/7FAAAAQ3RSTlMAAAAAigAAAAAAZwB9gACP2zPF+F9ocjVu39xy40KAtpZlRQBrUPx9AIb8AE8AAAAA/AAAAAAAAAAAAAAA/PwAAAD8PWHlxQAAALtJREFUeF5dzsVWxEAQheHqpGPEPeMWGXfcmQHe/42oC+ewmH95F1UfGWFyhZLQUBHlTvBxOp92gZP/DaN25Esp/ag9ukeUxa5p6qbpxpmHqGgNOtWm6gxahaIokwX1ht16ps3q7rAn9utrg7RxX6Z6KvtjbWJZGHTuuLLtw8P2f/CAWd4uGYNBqCpj5s1NM2cMPd3xc2D4EDDkIWCmj1NgSEHAlGUJDAnEmOfPr+8XxtDr27sQwHDA0GU/2RcVwEV78WkAAAAASUVORK5CYII=\') 0 0; }\n\
+  background: url(\'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAMAAAAoLQ9TAAAA2FBMVEX///8WFhYvLy9LS0sEBAQODg4EBARNTU0DAwNVVVVUVFQtLS1nZ2cfHx46OjoSEhLGxsZTU1OAgH/T09NUVFQEBAQ6OjpMTEwvLy+4uMDCwsEQEBCvr7sSEhIEBAR+foMqKixFRUUEBARDQ0MBAQEBAQG5ucQiIiICAgIODg7Z2dlAQEBMTEwsLCxGRkYAAABPT0/e3t4mJiYqKiopKSlUVFQiIiJJSUkjIyNFRUU5OTkBAQEoKCi/v8zCws+qgFWFZkY7MSbc3Nzj4+Pm5ubOztzU1OTQ0N6IE/7FAAAAQ3RSTlMAAAAAigAAAAAAZwB9gACP2zPF+F9ocjVu39xy40KAtpZlRQBrUPx9AIb8AE8AAAAA/AAAAAAAAAAAAAAA/PwAAAD8PWHlxQAAALtJREFUeF5dzsVWxEAQheHqpGPEPeMWGXfcmQHe/42oC+ewmH95F1UfGWFyhZLQUBHlTvBxOp92gZP/DaN25Esp/ag9ukeUxa5p6qbpxpmHqGgNOtWm6gxahaIokwX1ht16ps3q7rAn9utrg7RxX6Z6KvtjbWJZGHTuuLLtw8P2f/CAWd4uGYNBqCpj5s1NM2cMPd3xc2D4EDDkIWCmj1NgSEHAlGUJDAnEmOfPr+8XxtDr27sQwHDA0GU/2RcVwEV78WkAAAAASUVORK5CYII=\') 0 0;\n\
+}\n\
 \n\
+/* line 24, ../plugins/link/link.scss */\n\
 .raptor-ui-link-remove:hover .ui-icon {\n\
   filter: progid:DXImageTransform.Microsoft.Alpha(Opacity=100);\n\
-  opacity: 1; }\n\
+  opacity: 1;\n\
+}\n\
 \n\
 /* Dialog */\n\
+/* line 29, ../plugins/link/link.scss */\n\
 .raptor-ui-link-create-panel .raptor-ui-link-create-menu {\n\
   height: 100%;\n\
   width: 200px;\n\
@@ -19631,110 +20316,169 @@ html body div.ui-wrapper div.ui-dialog-titlebar a.ui-dialog-titlebar-close span.
   -webkit-box-orient: vertical;\n\
   -moz-box-orient: vertical;\n\
   -ms-box-orient: vertical;\n\
-  box-orient: vertical; }\n\
-  .raptor-ui-link-create-panel .raptor-ui-link-create-menu p {\n\
-    font-weight: bold;\n\
-    margin: 12px 0 8px; }\n\
-  .raptor-ui-link-create-panel .raptor-ui-link-create-menu fieldset {\n\
-    -webkit-box-flex: 2;\n\
-    -moz-box-flex: 2;\n\
-    -ms-box-flex: 2;\n\
-    box-flex: 2;\n\
-    margin: 2px 4px;\n\
-    padding: 7px 4px;\n\
-    font-size: 13px; }\n\
-    .raptor-ui-link-create-panel .raptor-ui-link-create-menu fieldset label {\n\
-      display: block;\n\
-      margin-bottom: 10px; }\n\
-      .raptor-ui-link-create-panel .raptor-ui-link-create-menu fieldset label span {\n\
-        display: inline-block;\n\
-        width: 150px;\n\
-        font-size: 13px;\n\
-        vertical-align: top; }\n\
+  box-orient: vertical;\n\
+}\n\
+/* line 38, ../plugins/link/link.scss */\n\
+.raptor-ui-link-create-panel .raptor-ui-link-create-menu p {\n\
+  font-weight: bold;\n\
+  margin: 12px 0 8px;\n\
+}\n\
+/* line 42, ../plugins/link/link.scss */\n\
+.raptor-ui-link-create-panel .raptor-ui-link-create-menu fieldset {\n\
+  -webkit-box-flex: 2;\n\
+  -moz-box-flex: 2;\n\
+  -ms-box-flex: 2;\n\
+  box-flex: 2;\n\
+  margin: 2px 4px;\n\
+  padding: 7px 4px;\n\
+  font-size: 13px;\n\
+}\n\
+/* line 47, ../plugins/link/link.scss */\n\
+.raptor-ui-link-create-panel .raptor-ui-link-create-menu fieldset label {\n\
+  display: block;\n\
+  margin-bottom: 10px;\n\
+}\n\
+/* line 50, ../plugins/link/link.scss */\n\
+.raptor-ui-link-create-panel .raptor-ui-link-create-menu fieldset label span {\n\
+  display: inline-block;\n\
+  width: 150px;\n\
+  font-size: 13px;\n\
+  vertical-align: top;\n\
+}\n\
 \n\
+/* line 61, ../plugins/link/link.scss */\n\
 .raptor-ui-link-create-panel .raptor-ui-link-create-menu fieldset,\n\
 .raptor-ui-link-create-panel .raptor-ui-link-create-wrap fieldset {\n\
-  border: none; }\n\
+  border: none;\n\
+}\n\
 \n\
+/* line 65, ../plugins/link/link.scss */\n\
 .raptor-ui-link-create-panel .raptor-ui-link-create-wrap {\n\
   margin-left: 200px;\n\
   padding-left: 20px;\n\
   min-height: 200px;\n\
-  position: relative; }\n\
-  .raptor-ui-link-create-panel .raptor-ui-link-create-wrap.raptor-ui-link-create-loading:after {\n\
-    content: \'Loading...\';\n\
-    position: absolute;\n\
-    top: 60px;\n\
-    left: 200px;\n\
-    padding-left: 20px;\n\
-    background: url(\'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAOXRFWHRTb2Z0d2FyZQBBbmltYXRlZCBQTkcgQ3JlYXRvciB2MS42LjIgKHd3dy5waHBjbGFzc2VzLm9yZyl0zchKAAAAOnRFWHRUZWNobmljYWwgaW5mb3JtYXRpb25zADUuMi4xNzsgYnVuZGxlZCAoMi4wLjM0IGNvbXBhdGlibGUpCBSqhQAAAAhhY1RMAAAACAAAAAC5PYvRAAAAGmZjVEwAAAAAAAAAEAAAABAAAAAAAAAAAAA8A+gAAIIkGDIAAACsSURBVDiNtZLBCcMwDEUfJgOUjhAyQsmp9FA8TgfISj6F4gl66jSdIIf00G9wnLjYKf3w0Qch6Us2fMdVLMYx0haYRZsrMJEegZdiDj3gFFeT54jBiU2mO+XdVvdRyV0OYidVMEAH3AEPHGoboMKwuy+seYqLV9iNTpM90P7S6AQMitXogYnPHSbyz2SAC9HqQVigkW7If90z8FAsctCyvMvKQdpkSOzfxP/hDd++JCi8XmbFAAAAGmZjVEwAAAABAAAAEAAAABAAAAAAAAAAAAA8A+gAABlX8uYAAAC3ZmRBVAAAAAI4jaWQsQ3CQBAEB4cECFGCI1fiAlyFKwARWgSIeqjCNTh0gIjIkBw9gffFSfz74VlpdX/W3Xr3YBmlmIUSmMSoSGHee+CmGsMGaFU/cAecqnVh/95qpg0J/O0gCytgDRzUX4DnryIn5lwO6L7c6fxskRhMwkc4qj+TEcFjC9SqWcsj8x3GhMgu9LHmfUinvgKuYmWWp5BIyEFvBPuUAy9ibzAYgWEhUhQN8BCb2NALKY4q8wCrG7AAAAAaZmNUTAAAAAMAAAAQAAAAEAAAAAAAAAAAADwD6AAA9MEhDwAAAKhmZEFUAAAABDiNY2CgMTgNxTgBExLbh4GB4SCUxgeMcEkcZmBg+A+lcQETqBoTbJI+UM1ku4AiEATFZIEQBoi//kPZxIAAKEaJBYpACAm24wUSBORVGBgYUqA0BtjKAAmHrXg0f4aq+YxuiAQDIiD/Q/k8DAwMdVDMw8DAkIamJo2QCyYjKZ4MtfErlP8VlzeQw2AlkgErkbyBMwzQgRoDA8N+KMapAQDdvyovpG6D8gAAABpmY1RMAAAABQAAABAAAAAQAAAAAAAAAAAAPAPoAAAZC1N1AAAAsWZkQVQAAAAGOI21kkEOgjAURF9YGBbGtYcwLowrwxk8BMcg3XACD9djGJaujKmLTkMRCiXEl0ympYX8+Xz4M62UpIjWR8DI59inDgzg5CkOwEs+YnMFmzhJOdwAK1UAZ+ANfLRewuJ75QAb/kKRvp/HmggVPxHWsAMu8hEN8JRPUdLnt9oP6HTYRc/uEsCVvnlO+wFGFYRJrKPLdU4FU5HCB0KsEt+DxZfBj+xDSo7vF9AbJ9PxYV81AAAAGmZjVEwAAAAHAAAAEAAAABAAAAAAAAAAAAA8A+gAAPSdgJwAAADDZmRBVAAAAAg4jaWSTQrCMBCFP6NIT5AjCF6gJ6jbUnoCL1biDTyF5AAueoZu3LkSrAtHTEJiIn3wmCTz92YILMQ64++BPTDKXQMH4AbcAZQTvAEasTFo4AqcxeowoAFmsSk1s8M+DChRMEnyFFNQAg10sWSFv49cESPUn+RRWFLE8N2DKe2axaIR/sU25eiAi9gUBt6zDzGnFad13nZCgAr/I1UxBdZRUAMPYV2iIETrdGudd28Hqx8FFHCU8wl4xoJeZnUrSRiyCSsAAAAaZmNUTAAAAAkAAAAQAAAAEAAAAAAAAAAAADwD6AAAGe6xwAAAALtmZEFUAAAACjiNpZJBCsIwEEWfpUsPULoSl55Beh4J7nqCHkDceR3pIaSr4Ak8Qq2L/khomlrig+FPhszwJy3EqYCHolq4F6UDBkWnWgbspN+CT7EwMAPuwFM67aUAem/IdIW952jQOeCXg1bN7ZyDNQRvsEkYkgNG+S1XcpHWKwacgatzlLLH2z/8vUJCf5wSaKQxToCVBjSM37jxaluFw+qOXeOgBF4KVzNqNkH3DAfGX7tXnsRREeUD4f8lQGjw+ycAAAAaZmNUTAAAAAsAAAAQAAAAEAAAAAAAAAAAADwD6AAA9HhiKQAAAJ9mZEFUAAAADDiNtZDLCcMwEEQfIUcXoDpCKgg6qIRUEtKB6wg6poDgalyFTj7YBw+2QyRlCc6DYVm0n9FCGQc8JFepWzgBN0WACIxS/NZ8BgYVD8pzA1ogKb5x3xSPyp0a4+YLSe/J4iBH0QF83uCvXKSFq2TBs97KH/Y1ZsdL+3IEgmJt86u0PTAfJlQGdKrprA6ekslBjl76mUYqMgFhpStJaQVr0gAAABpmY1RMAAAADQAAABAAAAAQAAAAAAAAAAAAPAPoAAAZshBTAAAAu2ZkQVQAAAAOOI21kCEOwkAQRR8rKkkFCtmjkJ4ARTgBArViT4LjLJwBgUZUr8NBQlrR38Am3XYEvOTnT7PzuzO7IE8BHFWfgNdELwBLYCMH8EAr+VzIyUvgBlzkZaZ/D1zlCfXXba2+C93sVaNwK08ogUaHzcQEu9wE0O9e83kDEw7YAhG4K/ww5CoJFB52j8bwU6rcTLOJYYWo2kKywk9Zz5yvgCAfDb9nfhLoHztYJzhIpgnGOEv/owMnkSfarUXVlAAAAABJRU5ErkJggg==\') no-repeat left center; }\n\
-  .raptor-ui-link-create-panel .raptor-ui-link-create-wrap h2 {\n\
-    margin: 10px 0 0; }\n\
-  .raptor-ui-link-create-panel .raptor-ui-link-create-wrap fieldset {\n\
-    margin: 2px 4px;\n\
-    padding: 7px 4px;\n\
-    font-size: 13px; }\n\
-    .raptor-ui-link-create-panel .raptor-ui-link-create-wrap fieldset input[type=text] {\n\
-      width: 300px;\n\
-      padding: 5px; }\n\
-    .raptor-ui-link-create-panel .raptor-ui-link-create-wrap fieldset input[type=text].raptor-external-href,\n\
-    .raptor-ui-link-create-panel .raptor-ui-link-create-wrap fieldset input[type=text].raptor-document-href {\n\
-      width: 400px; }\n\
-    .raptor-ui-link-create-panel .raptor-ui-link-create-wrap fieldset.raptor-email label {\n\
-      display: inline-block;\n\
-      width: 140px; }\n\
-    .raptor-ui-link-create-panel .raptor-ui-link-create-wrap fieldset.raptor-email input {\n\
-      width: 340px; }\n\
-  .raptor-ui-link-create-panel .raptor-ui-link-create-wrap ol li {\n\
-    list-style: decimal inside; }\n\
+  position: relative;\n\
+}\n\
+/* line 71, ../plugins/link/link.scss */\n\
+.raptor-ui-link-create-panel .raptor-ui-link-create-wrap.raptor-ui-link-create-loading:after {\n\
+  content: \'Loading...\';\n\
+  position: absolute;\n\
+  top: 60px;\n\
+  left: 200px;\n\
+  padding-left: 20px;\n\
+  background: url(\'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAOXRFWHRTb2Z0d2FyZQBBbmltYXRlZCBQTkcgQ3JlYXRvciB2MS42LjIgKHd3dy5waHBjbGFzc2VzLm9yZyl0zchKAAAAOnRFWHRUZWNobmljYWwgaW5mb3JtYXRpb25zADUuMi4xNzsgYnVuZGxlZCAoMi4wLjM0IGNvbXBhdGlibGUpCBSqhQAAAAhhY1RMAAAACAAAAAC5PYvRAAAAGmZjVEwAAAAAAAAAEAAAABAAAAAAAAAAAAA8A+gAAIIkGDIAAACsSURBVDiNtZLBCcMwDEUfJgOUjhAyQsmp9FA8TgfISj6F4gl66jSdIIf00G9wnLjYKf3w0Qch6Us2fMdVLMYx0haYRZsrMJEegZdiDj3gFFeT54jBiU2mO+XdVvdRyV0OYidVMEAH3AEPHGoboMKwuy+seYqLV9iNTpM90P7S6AQMitXogYnPHSbyz2SAC9HqQVigkW7If90z8FAsctCyvMvKQdpkSOzfxP/hDd++JCi8XmbFAAAAGmZjVEwAAAABAAAAEAAAABAAAAAAAAAAAAA8A+gAABlX8uYAAAC3ZmRBVAAAAAI4jaWQsQ3CQBAEB4cECFGCI1fiAlyFKwARWgSIeqjCNTh0gIjIkBw9gffFSfz74VlpdX/W3Xr3YBmlmIUSmMSoSGHee+CmGsMGaFU/cAecqnVh/95qpg0J/O0gCytgDRzUX4DnryIn5lwO6L7c6fxskRhMwkc4qj+TEcFjC9SqWcsj8x3GhMgu9LHmfUinvgKuYmWWp5BIyEFvBPuUAy9ibzAYgWEhUhQN8BCb2NALKY4q8wCrG7AAAAAaZmNUTAAAAAMAAAAQAAAAEAAAAAAAAAAAADwD6AAA9MEhDwAAAKhmZEFUAAAABDiNY2CgMTgNxTgBExLbh4GB4SCUxgeMcEkcZmBg+A+lcQETqBoTbJI+UM1ku4AiEATFZIEQBoi//kPZxIAAKEaJBYpACAm24wUSBORVGBgYUqA0BtjKAAmHrXg0f4aq+YxuiAQDIiD/Q/k8DAwMdVDMw8DAkIamJo2QCyYjKZ4MtfErlP8VlzeQw2AlkgErkbyBMwzQgRoDA8N+KMapAQDdvyovpG6D8gAAABpmY1RMAAAABQAAABAAAAAQAAAAAAAAAAAAPAPoAAAZC1N1AAAAsWZkQVQAAAAGOI21kkEOgjAURF9YGBbGtYcwLowrwxk8BMcg3XACD9djGJaujKmLTkMRCiXEl0ympYX8+Xz4M62UpIjWR8DI59inDgzg5CkOwEs+YnMFmzhJOdwAK1UAZ+ANfLRewuJ75QAb/kKRvp/HmggVPxHWsAMu8hEN8JRPUdLnt9oP6HTYRc/uEsCVvnlO+wFGFYRJrKPLdU4FU5HCB0KsEt+DxZfBj+xDSo7vF9AbJ9PxYV81AAAAGmZjVEwAAAAHAAAAEAAAABAAAAAAAAAAAAA8A+gAAPSdgJwAAADDZmRBVAAAAAg4jaWSTQrCMBCFP6NIT5AjCF6gJ6jbUnoCL1biDTyF5AAueoZu3LkSrAtHTEJiIn3wmCTz92YILMQ64++BPTDKXQMH4AbcAZQTvAEasTFo4AqcxeowoAFmsSk1s8M+DChRMEnyFFNQAg10sWSFv49cESPUn+RRWFLE8N2DKe2axaIR/sU25eiAi9gUBt6zDzGnFad13nZCgAr/I1UxBdZRUAMPYV2iIETrdGudd28Hqx8FFHCU8wl4xoJeZnUrSRiyCSsAAAAaZmNUTAAAAAkAAAAQAAAAEAAAAAAAAAAAADwD6AAAGe6xwAAAALtmZEFUAAAACjiNpZJBCsIwEEWfpUsPULoSl55Beh4J7nqCHkDceR3pIaSr4Ak8Qq2L/khomlrig+FPhszwJy3EqYCHolq4F6UDBkWnWgbspN+CT7EwMAPuwFM67aUAem/IdIW952jQOeCXg1bN7ZyDNQRvsEkYkgNG+S1XcpHWKwacgatzlLLH2z/8vUJCf5wSaKQxToCVBjSM37jxaluFw+qOXeOgBF4KVzNqNkH3DAfGX7tXnsRREeUD4f8lQGjw+ycAAAAaZmNUTAAAAAsAAAAQAAAAEAAAAAAAAAAAADwD6AAA9HhiKQAAAJ9mZEFUAAAADDiNtZDLCcMwEEQfIUcXoDpCKgg6qIRUEtKB6wg6poDgalyFTj7YBw+2QyRlCc6DYVm0n9FCGQc8JFepWzgBN0WACIxS/NZ8BgYVD8pzA1ogKb5x3xSPyp0a4+YLSe/J4iBH0QF83uCvXKSFq2TBs97KH/Y1ZsdL+3IEgmJt86u0PTAfJlQGdKrprA6ekslBjl76mUYqMgFhpStJaQVr0gAAABpmY1RMAAAADQAAABAAAAAQAAAAAAAAAAAAPAPoAAAZshBTAAAAu2ZkQVQAAAAOOI21kCEOwkAQRR8rKkkFCtmjkJ4ARTgBArViT4LjLJwBgUZUr8NBQlrR38Am3XYEvOTnT7PzuzO7IE8BHFWfgNdELwBLYCMH8EAr+VzIyUvgBlzkZaZ/D1zlCfXXba2+C93sVaNwK08ogUaHzcQEu9wE0O9e83kDEw7YAhG4K/ww5CoJFB52j8bwU6rcTLOJYYWo2kKywk9Zz5yvgCAfDb9nfhLoHztYJzhIpgnGOEv/owMnkSfarUXVlAAAAABJRU5ErkJggg==\') no-repeat left center;\n\
+}\n\
+/* line 80, ../plugins/link/link.scss */\n\
+.raptor-ui-link-create-panel .raptor-ui-link-create-wrap h2 {\n\
+  margin: 10px 0 0;\n\
+}\n\
+/* line 83, ../plugins/link/link.scss */\n\
+.raptor-ui-link-create-panel .raptor-ui-link-create-wrap fieldset {\n\
+  margin: 2px 4px;\n\
+  padding: 7px 4px;\n\
+  font-size: 13px;\n\
+}\n\
+/* line 87, ../plugins/link/link.scss */\n\
+.raptor-ui-link-create-panel .raptor-ui-link-create-wrap fieldset input[type=text] {\n\
+  width: 300px;\n\
+  padding: 5px;\n\
+}\n\
+/* line 92, ../plugins/link/link.scss */\n\
+.raptor-ui-link-create-panel .raptor-ui-link-create-wrap fieldset input[type=text].raptor-external-href,\n\
+.raptor-ui-link-create-panel .raptor-ui-link-create-wrap fieldset input[type=text].raptor-document-href {\n\
+  width: 400px;\n\
+}\n\
+/* line 95, ../plugins/link/link.scss */\n\
+.raptor-ui-link-create-panel .raptor-ui-link-create-wrap fieldset.raptor-email label {\n\
+  display: inline-block;\n\
+  width: 140px;\n\
+}\n\
+/* line 99, ../plugins/link/link.scss */\n\
+.raptor-ui-link-create-panel .raptor-ui-link-create-wrap fieldset.raptor-email input {\n\
+  width: 340px;\n\
+}\n\
+/* line 104, ../plugins/link/link.scss */\n\
+.raptor-ui-link-create-panel .raptor-ui-link-create-wrap ol li {\n\
+  list-style: decimal inside;\n\
+}\n\
 \n\
+/* line 111, ../plugins/link/link.scss */\n\
 .raptor-ui-link-create-panel .raptor-ui-link-create-wrap\n\
 .raptor-ui-link-create-panel .raptor-ui-link-create-wrap fieldset #raptor-ui-link-create-external-target {\n\
-  vertical-align: middle; }\n\
+  vertical-align: middle;\n\
+}\n\
 \n\
+/* line 116, ../plugins/link/link.scss */\n\
 .raptor-ui-link-create-error-message div {\n\
-  padding: 0 0.7em; }\n\
-  .raptor-ui-link-create-error-message div p {\n\
-    margin: 0; }\n\
-    .raptor-ui-link-create-error-message div p .ui-icon {\n\
-      margin-top: 2px;\n\
-      float: left;\n\
-      margin-right: 2px; }\n\
+  padding: 0 0.7em;\n\
+}\n\
+/* line 118, ../plugins/link/link.scss */\n\
+.raptor-ui-link-create-error-message div p {\n\
+  margin: 0;\n\
+}\n\
+/* line 120, ../plugins/link/link.scss */\n\
+.raptor-ui-link-create-error-message div p .ui-icon {\n\
+  margin-top: 2px;\n\
+  float: left;\n\
+  margin-right: 2px;\n\
+}\n\
 \n\
 /**\n\
  * List plugin\n\
  *\n\
  * @author David Neilsen <david@panmedia.co.nz>\n\
  */\n\
+/* line 8, ../plugins/list/list.scss */\n\
 .raptor-ui-list-unordered .ui-icon-list-unordered {\n\
   filter: progid:DXImageTransform.Microsoft.Alpha(Opacity=85);\n\
   opacity: 0.85;\n\
-  background: url(\'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAAMlJREFUeNpi/P//PwNFAGQAIyNjGBCvgdIMxGKQXhaoORFlZWWBXV1dTED2KqjYGiBmRMJMaOwrQFwOc0EEEG+A0iS5gBFEMDExkeX9f//+MTAxUAhgBsQC8U4oTRKABWJ8Rkae84wZk5iB7MVQsW1IAYYLW8MCMRGID0Bp+gYiC46EhTPR4QrEdCA+A6VJT8pAcDMsLB3EuAniQP14BIiPAfEJID4FxGehqe8OED8B4vVgvVADioH4GZTGGWhYvUtpbqQ4JQIEGABjeFYu055ToAAAAABJRU5ErkJggg==\') 0 0; }\n\
+  background: url(\'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAAMlJREFUeNpi/P//PwNFAGQAIyNjGBCvgdIMxGKQXhaoORFlZWWBXV1dTED2KqjYGiBmRMJMaOwrQFwOc0EEEG+A0iS5gBFEMDExkeX9f//+MTAxUAhgBsQC8U4oTRKABWJ8Rkae84wZk5iB7MVQsW1IAYYLW8MCMRGID0Bp+gYiC46EhTPR4QrEdCA+A6VJT8pAcDMsLB3EuAniQP14BIiPAfEJID4FxGehqe8OED8B4vVgvVADioH4GZTGGWhYvUtpbqQ4JQIEGABjeFYu055ToAAAAABJRU5ErkJggg==\') 0 0;\n\
+}\n\
 \n\
+/* line 13, ../plugins/list/list.scss */\n\
 .raptor-ui-list-unordered:hover .ui-icon-list-unordered {\n\
   filter: progid:DXImageTransform.Microsoft.Alpha(Opacity=100);\n\
-  opacity: 1; }\n\
+  opacity: 1;\n\
+}\n\
 \n\
+/* line 17, ../plugins/list/list.scss */\n\
 .raptor-ui-list-ordered .ui-icon-list-ordered {\n\
   filter: progid:DXImageTransform.Microsoft.Alpha(Opacity=85);\n\
   opacity: 0.85;\n\
-  background: url(\'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAAM1JREFUeNpi/P//PwNFAGQAIyNjIxCvAWJBIGYgFoP0skDNqQfidUDMiGT2GigfhpnQ2FeAuJwFSQMTmuNCiPEBTFMblF1CahAwgvzBxMREVvj9+/cP7oIuIN4Bpcl2gRMQJwFxDFRuG1KAYcVAF1jDojEBiGcAsQSp0QjzgiEQawLxSiibNoGInmqRE9J0IJaEYnNSXAAzYC4QNwJxIJLcEbRAYwZidiDmgOLTYPVIzgJpPgD2F45Aw+olqAFrgfg5EBeTagAjpdkZIMAAg/ZGwsH5qkAAAAAASUVORK5CYII=\') 0 0; }\n\
+  background: url(\'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAAM1JREFUeNpi/P//PwNFAGQAIyNjIxCvAWJBIGYgFoP0skDNqQfidUDMiGT2GigfhpnQ2FeAuJwFSQMTmuNCiPEBTFMblF1CahAwgvzBxMREVvj9+/cP7oIuIN4Bpcl2gRMQJwFxDFRuG1KAYcVAF1jDojEBiGcAsQSp0QjzgiEQawLxSiibNoGInmqRE9J0IJaEYnNSXAAzYC4QNwJxIJLcEbRAYwZidiDmgOLTYPVIzgJpPgD2F45Aw+olqAFrgfg5EBeTagAjpdkZIMAAg/ZGwsH5qkAAAAAASUVORK5CYII=\') 0 0;\n\
+}\n\
 \n\
+/* line 22, ../plugins/list/list.scss */\n\
 .raptor-ui-list-ordered:hover .ui-icon-list-ordered {\n\
   filter: progid:DXImageTransform.Microsoft.Alpha(Opacity=100);\n\
-  opacity: 1; }\n\
+  opacity: 1;\n\
+}\n\
 \n\
 /**\n\
  * Logo plugin\n\
  *\n\
  * @author David Neilsen <david@panmedia.co.nz>\n\
  */\n\
+/* line 8, ../plugins/logo/logo.scss */\n\
 .raptor-ui-logo {\n\
   border: none !important;\n\
   background: transparent !important;\n\
   -webkit-box-shadow: none !important;\n\
   -moz-box-shadow: none !important;\n\
-  box-shadow: none !important; }\n\
+  box-shadow: none !important;\n\
+}\n\
+\n\
+/* line 14, ../plugins/logo/logo.scss */\n\
+.raptor-ui-logo .ui-icon {\n\
+  background: url(\'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACMAAAAjCAYAAAAe2bNZAAAHEElEQVR4Xr3We2xW5R3A8e/vnPO+vb60FFpSoEiBgUFg4+IEdxPnNlEyFdc4d9FEucockkzDIluMuAzQaSZM0eEmwhxeIE6uEa1IhcFAA1QG2lLKgCKl9vK+7Xs55zzPb8lo1PjPsH3DJ3n+/+Z38jy/Q08FRzYUm10Lquw78x7UnXMfMbvm329qFt6a3v+HYfSQ0AO2eu5yTNc9YAtELYogKIoDIlad6A5yBj7ihM4Hcs3D7brtZyLT1mnWY+xbd+0Wk7xaxVFBRUHpJiAKKooAqHhIbGyFTH7gdNYno2/NfEYlMxujKtYIn6OfBSmfUrFu/nb3ur9M4yI4XCR9f9kwku2zpGYT0lEnhHHIcVQjEUVQQRFUFRUuHADEJK/PvL1wflZjbNB6EyWF8mzrRP39qtMEx+Oa2rZZ5Mh+CAMAUEVU9UITKKICRPxzK5MHnrosazHi6oT2ljQr9gRsdyZw/o6dPHpyFFSOECvOhQYQuqlaIRUX9dMqJkO0/dCC7MXE8pprzwTkuiCZOIt+cQcFE39M/D9NKA6ofnY8F6IC4RlE44L1kTD53azFUFDwjroRwtCI4zjU1R9n+YpVNHdYXFfAWkQUTIA2NCEHG5GTearnRCGKiubxf3hcpGTp5TtHD687n+rqKs2PKqlUUlrb2iiI9kHVILmF6DkHGj4WOb4TPFCDSoCjeeXYidO3ZW8y83Iq+qfL+k4ZKXxQ36SNZ1sZmpuhvLI/tjUNG/rCuhY42QDlKIWeJcd1TN9+T/s/fWWWTnnsz1l7Z4I5D6/y8lrHpW9qmXL3kn0cO5Vg9Z0VjJ80BH3cgl+IiIGUQuwUOmYvtuQrvz61+N9/rBRJZfVqn1m1cEHYPqg490Qhf1s81r735DcYf3UF+kYMKR2PlJWhoyrRmCpn86D6CmhKjhv04oq3z75xPJrVmAHLNxapqzPDjiFP2SDqmHRo6RAkOQgkDvFWZexwKMkRBqdhfDGUDrgt6Nj8WPn3h/tZXwfn9x/s0/eJTbudqxvKpaK5n8bToeapJyGIETQM0LxIqNH8PaGXt67qxpdWbxJReirccvdDYfXdH2V2zFmyN6FRvqBW1QnvWb5Vn6tSf90N75//6MRwgLbDm4vaD71ZTDYFb84fafc8OFk33JzyX51Rd+hkopDPaXtqbak/Y8nscOmdG/SVa9T8tTIZbv7hgVTTjmEA4T+q9gbrq+aTTeGx1wboq9M19WrVVr7ATzxxmd09/6w+21/1ha+prhyjZu3YD/19i/9k1k4/Gj499Wy88WA0MwchW+zGqn+al2/Q5tcXTuZzgrdmvqA7ble77Rarq7+tuuxKo09G1K6ZoJ3bl01qfn19rGvLbyJ061rwuz4AvXuBxa131EzO95u/B+ylm5MyR9EU4jtC4jB4/RysIO1HcCLvLCn7ydZpdPNvvndN5oyzBqju1dUWSGIVx/iVAMefu10AJNP1Vboy0HIEzXSg5iQaiGoQmtyO2us/3rT4Oro5A8138q9teD6xYebPexWjqh4oqC0FIHEKAIk4g9UJ4HQZ0tYXMQ6EKhjPlcQ5ihKHZwOY2mVXubfFL3PKT1fkJRteQFV6HIOqoOCZrmsBht/3rgJQEvUILESHoicGoYEPIUigSmBxOpvGA0jbsaXadB4CL3A+qaeXn0niapUIJj/59xkv083UeEVydARESqFiIvQbAOkQQgTfQlfr0EbVctoTlWIMmDBiNdKEiPY4xqh7GABF88KOqnDzjxLBu3c0OIPKLtevh8qwA8g3j6uMnKq4+ZAxig+R0PeGrJ/eSGeiAgRsiM0pea9Xk9nUkF8t4oVgRUXUbWkp8BJhJZd3qDRsEOp3oUdrRBv2iJSPRH0jhIABsJ4YI6iCtXwSG1XNBfJlYyQWJXrLA6vPba1z5lnrIqggCK7AiTqId4JEEOsire1oQZGKEfAtkl+MWOugKqiixnDsw8Y2IBfwAPkyMdoZiO1f6EZufGjrxqkrm7+1/ZgsX3cgeLTmRPiauBHR/BFKugi8Chg4EaxA+VDskNH4xYMzQWACRUAuxKzdVtsMxOiO6cnWdnOikWjgBzm2O/y5B6fdetfo4FkN1YrrOQAaBiqZjNR2Fu5c86/4S/WnWptL+0TlikEFRZOH9xlWEJX8cb+qeQySnUAKCAHt6S+EAA4gjF6aZ+5/o138QNHQIZMQcV2MKaRguT8mc2Z/C5AGQsACAWBzHTxc16QDY8iGAnAubO4fPK+Pj1f9paN6n6t6r6OZZVNO0++62KQBXg4g9IDDxZMucIHYM3s7X1aiEORDJ5BbTkNHdD2fvJn+MO4pl4AAUYH+QOWLs65cdOq3V+1rXHTlri1zpzwCORVAXyDCJeKISG6hSwlQDJR0B8Q8KIp4XhRwuMQcwBXwgAjgdkcIvfBfJQSLgYAG8DYAAAAASUVORK5CYII=\') 0 0;\n\
+  background-repeat: no-repeat;\n\
+  width: 35px;\n\
+  height: 35px;\n\
+  left: 0;\n\
+  top: 0;\n\
+  margin: 0;\n\
+  padding: 0;\n\
+}\n\
 \n\
 /**\n\
  * Paste plugin\n\
@@ -19742,6 +20486,7 @@ html body div.ui-wrapper div.ui-dialog-titlebar a.ui-dialog-titlebar-close span.
  * @author David Neilsen <david@panmedia.co.nz>\n\
  * @author Michael Robinson <michael@panmedia.co.nz>\n\
  */\n\
+/* line 10, ../plugins/paste/paste.scss */\n\
 .raptor-paste-panel-tabs {\n\
   height: auto;\n\
   width: 100%;\n\
@@ -19756,11 +20501,15 @@ html body div.ui-wrapper div.ui-dialog-titlebar a.ui-dialog-titlebar-close span.
   -webkit-box-flex: 1;\n\
   -moz-box-flex: 1;\n\
   -ms-box-flex: 1;\n\
-  box-flex: 1; }\n\
+  box-flex: 1;\n\
+}\n\
 \n\
+/* line 19, ../plugins/paste/paste.scss */\n\
 .raptor-paste .ui-tabs a {\n\
-  outline: none; }\n\
+  outline: none;\n\
+}\n\
 \n\
+/* line 23, ../plugins/paste/paste.scss */\n\
 .raptor-paste-panel-tabs > div {\n\
   overflow: auto;\n\
   display: -webkit-box;\n\
@@ -19779,8 +20528,10 @@ html body div.ui-wrapper div.ui-dialog-titlebar a.ui-dialog-titlebar-close span.
   -moz-box-sizing: border-box;\n\
   box-sizing: border-box;\n\
   border: 1px solid #c2c2c2;\n\
-  border-top: none; }\n\
+  border-top: none;\n\
+}\n\
 \n\
+/* line 35, ../plugins/paste/paste.scss */\n\
 .raptor-paste-panel-tabs > div > textarea.raptor-paste-area {\n\
   -webkit-box-flex: 1;\n\
   -moz-box-flex: 1;\n\
@@ -19789,13 +20540,17 @@ html body div.ui-wrapper div.ui-dialog-titlebar a.ui-dialog-titlebar-close span.
   display: -webkit-box;\n\
   display: -moz-box;\n\
   display: -ms-box;\n\
-  display: box; }\n\
+  display: box;\n\
+}\n\
 \n\
+/* line 41, ../plugins/paste/paste.scss */\n\
 .raptor-paste-panel-tabs > div > textarea,\n\
 .raptor-paste-panel-tabs > div > .raptor-paste-area {\n\
   border: none;\n\
-  padding: 2px; }\n\
+  padding: 2px;\n\
+}\n\
 \n\
+/* line 46, ../plugins/paste/paste.scss */\n\
 .raptor-paste-dialog .ui-dialog-content {\n\
   display: -webkit-box !important;\n\
   display: -moz-box !important;\n\
@@ -19804,306 +20559,456 @@ html body div.ui-wrapper div.ui-dialog-titlebar a.ui-dialog-titlebar-close span.
   overflow: hidden;\n\
   -webkit-box-sizing: border-box;\n\
   -moz-box-sizing: border-box;\n\
-  box-sizing: border-box; }\n\
+  box-sizing: border-box;\n\
+}\n\
 \n\
 /**\n\
- * Raptorize plugin\n\
+ * Save plugin.\n\
  *\n\
  * @author David Neilsen <david@panmedia.co.nz>\n\
  */\n\
-.raptor-raptorize-button .ui-icon-raptorize {\n\
-  filter: progid:DXImageTransform.Microsoft.Alpha(Opacity=85);\n\
-  opacity: 0.85;\n\
-  background: url(\'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAMAAAAoLQ9TAAABDlBMVEX///9NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU0Y/iVtAAAAWXRSTlMA/v1mTvW+WQFF+nGpsyPlDhXL1GvZHduk48LslL2a7tadwee772kEfqD8+OGCXWJ2+bQ9pt7xCme4iQU4iNH0mCEPEd82Ocxj4De2HoMaq3MHZJsDeGwCG8H1fioAAAC1SURBVHheNchFlsMwEADRlmRkSDKmMDMMMjMz9P0vkifLrl194F3NW0qtugV5Wt1FHpnloGKRmr3TK96YDjiMxFGCONngcJ1De4GNDJqhvd2VkbzsY+eDw2efMTYsjRFxd4+DZx6ajC1xhXTTB560EyfWASJW2FEG3vGJElZOz4xzH6QLKLqMgpvbu3sxD+4jPBFJe05fBby9ly0S6ADxl4BviGjp5xd0Of0TUqaUEPs/kR1YA96IIUDtx93SAAAAAElFTkSuQmCC\') 0 0; }\n\
-\n\
-.raptor-raptorize-button:hover .ui-icon-raptorize {\n\
-  filter: progid:DXImageTransform.Microsoft.Alpha(Opacity=100);\n\
-  opacity: 1; }\n\
-\n\
-/**\n\
- * Save plugin\n\
- *\n\
- * @author David Neilsen <david@panmedia.co.nz>\n\
- */\n\
+/* line 8, ../plugins/save/save.scss */\n\
 .raptor-ui-save .ui-icon {\n\
   filter: progid:DXImageTransform.Microsoft.Alpha(Opacity=85);\n\
   opacity: 0.85;\n\
-  background: url(\'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAAVNJREFUeNqkU71ugzAQPowtwdAdqRLK3odg6161a+cukZonoGrElgWWDqhb16oP0AfoytStirows0QRMj/unQsohAQi5aTD5vju4/Pd2VBKwTnG6cEYe8bl6s73P09Jel8ur3H5ruv6CUiBYRgfQRAosnrCyQhLOZTLG1ImpYQSA1VVjf7dNE0gLOV0R6AXlAMSk4uiGCUQ6ITdJzDpz0SQTxAoxlqVZo+gLEuQyDxFwIQAwg4IiPV3vYbL2WyUgDBHFbxG0Um9t237sIIkSeDYYGHbur3neQMCTgqoRWEYDToh8NyLxSO4rgtpmrY14D0CUsA5h80mh/n8QQdXq7CTTN/ILMtqa9AjEDjOGrTdSnAcRwdpr1unzB5BMweiGwY8tx/H8U+WZbmUSoPJlfr3NrZLgDkXujbNXaD9DfoLAt8OFRHPfb8X+sLcW+Pc6/wnwABHMdnKf4KT4gAAAABJRU5ErkJggg==\') 0 0; }\n\
+  background: url(\'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAAVNJREFUeNqkU71ugzAQPowtwdAdqRLK3odg6161a+cukZonoGrElgWWDqhb16oP0AfoytStirows0QRMj/unQsohAQi5aTD5vju4/Pd2VBKwTnG6cEYe8bl6s73P09Jel8ur3H5ruv6CUiBYRgfQRAosnrCyQhLOZTLG1ImpYQSA1VVjf7dNE0gLOV0R6AXlAMSk4uiGCUQ6ITdJzDpz0SQTxAoxlqVZo+gLEuQyDxFwIQAwg4IiPV3vYbL2WyUgDBHFbxG0Um9t237sIIkSeDYYGHbur3neQMCTgqoRWEYDToh8NyLxSO4rgtpmrY14D0CUsA5h80mh/n8QQdXq7CTTN/ILMtqa9AjEDjOGrTdSnAcRwdpr1unzB5BMweiGwY8tx/H8U+WZbmUSoPJlfr3NrZLgDkXujbNXaD9DfoLAt8OFRHPfb8X+sLcW+Pc6/wnwABHMdnKf4KT4gAAAABJRU5ErkJggg==\') 0 0;\n\
+}\n\
 \n\
+/* line 13, ../plugins/save/save.scss */\n\
 .raptor-ui-save:hover .ui-icon {\n\
   filter: progid:DXImageTransform.Microsoft.Alpha(Opacity=100);\n\
-  opacity: 1; }\n\
-\n\
-.raptor-ui-cancel .ui-icon {\n\
-  filter: progid:DXImageTransform.Microsoft.Alpha(Opacity=85);\n\
-  opacity: 0.85;\n\
-  background: url(\'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAMAAAAoLQ9TAAAAtFBMVEX///+nAABhAACnAACjAACCAACgAACHAACjAAByAAB1AAByAACDAACnAACCAACHAACgAACNAACbAACXAACMAACSAABfAACYAACRAACjAACbAAChAACqAACNAACcAACHAACqAADEERGsERHQERG+NjaiERHUTEzYERG4ERGlFBSfFRX/d3f6cnK0JSWoHh7qYmLkXFyvFRXmXl7vZ2fNRUX4cHDXT0/+dnbbU1O3Li7GPT26MTG2f8oMAAAAIXRSTlMASEjMzADMzAAASMxIAMwAAMzMzEjMzEhISABIzABISEg/DPocAAAAj0lEQVR4Xo3PVw6DMBBF0RgXTO+hBYhtILX3sv99RRpvgPcxVzp/M5syb7lYepxDABDeYcQ5wg+MAMhr3JOyJKfxTABqduuvjD37O6sBwjZ+f76/7TFuQw1VnhyGYZPklYagKbKLlDIrmkBDGq1hUaqhM4UQJpwOwFdK+a4LAbCdlWNTCgGwjLlhUQqZ8uofSk8NKY1Fm8EAAAAASUVORK5CYII=\') 0 0; }\n\
-\n\
-.raptor-ui-cancel:hover .ui-icon {\n\
-  filter: progid:DXImageTransform.Microsoft.Alpha(Opacity=100);\n\
-  opacity: 1; }\n\
+  opacity: 1;\n\
+}\n\
 \n\
 /**\n\
  * Snippet menu plugin.\n\
  *\n\
  * @author Melissa Richards <melissa@panmedia.co.nz>\n\
  */\n\
+/* line 8, ../plugins/snippet-menu/snippet-menu.scss */\n\
 .raptor-ui-snippet-menu .ui-icon {\n\
   filter: progid:DXImageTransform.Microsoft.Alpha(Opacity=85);\n\
   opacity: 0.85;\n\
-  background: url(\'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAMAAAAoLQ9TAAAAUVBMVEX///8XODhUfn5PeXkwVVVUfn5JcXE5X19BaWkbPT2/0ND+///5/f3r9/fr+vry+vq2x8f+/v66y8vs9PTU5eXl9PT2+vrCcW7i7u6uv78zqiKT+FVrAAAACnRSTlMAgmdpd01sc29httCJoAAAAEhJREFUeF61yEcOgDAMBdFAup1GL/c/KOLLygngzW7UN+zYWQzNk2CN4dK9z+tbchihLqIGDJ+P8yJqRNljmLKJYjDi0EX1jwctjAPf3g65IAAAAABJRU5ErkJggg==\') 0 0; }\n\
+  background: url(\'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAMAAAAoLQ9TAAAAUVBMVEX///8XODhUfn5PeXkwVVVUfn5JcXE5X19BaWkbPT2/0ND+///5/f3r9/fr+vry+vq2x8f+/v66y8vs9PTU5eXl9PT2+vrCcW7i7u6uv78zqiKT+FVrAAAACnRSTlMAgmdpd01sc29httCJoAAAAEhJREFUeF61yEcOgDAMBdFAup1GL/c/KOLLygngzW7UN+zYWQzNk2CN4dK9z+tbchihLqIGDJ+P8yJqRNljmLKJYjDi0EX1jwctjAPf3g65IAAAAABJRU5ErkJggg==\') 0 0;\n\
+}\n\
 \n\
+/* line 13, ../plugins/snippet-menu/snippet-menu.scss */\n\
 .raptor-ui-snippet-menu:hover .ui-icon {\n\
   filter: progid:DXImageTransform.Microsoft.Alpha(Opacity=100);\n\
-  opacity: 1; }\n\
+  opacity: 1;\n\
+}\n\
 \n\
 /**\n\
  * Special Characters plugin\n\
  *\n\
  * @author Michael Robinson <michael@panmedia.co.nz>\n\
  */\n\
+/* line 8, ../plugins/special-characters/special-characters.scss */\n\
 .raptor-ui-special-characters .ui-icon-special-characters {\n\
   filter: progid:DXImageTransform.Microsoft.Alpha(Opacity=85);\n\
   opacity: 0.85;\n\
-  background: url(\'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAANRJREFUeNrUkz0KAjEQhZNFUAtxt9B7WC1Y2e45rDyAp1ms9yZrKXgD27VYsRELs76BF0nY+AOpHPhg5k3mEYZEd12nYiJRkRFtMPDcEs9vDGbMz+BmG8aYsAEjBWuwoIni8AHswMU7LUu0aK2FLSjBnLViXrLnzYR2kIMjaBytoZb/ssQryAJ6xt5XgwosQeFoBbWqdzqwA2EFaqeuqamPO6C4QdqCkdOSvJVe7+W6bogp2IMTmRBbSy/1bu064npiMHzzPiQe4I6Z11vQ//+ZngIMAFDvbrCjwfedAAAAAElFTkSuQmCC\') 0 0; }\n\
+  background: url(\'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAANRJREFUeNrUkz0KAjEQhZNFUAtxt9B7WC1Y2e45rDyAp1ms9yZrKXgD27VYsRELs76BF0nY+AOpHPhg5k3mEYZEd12nYiJRkRFtMPDcEs9vDGbMz+BmG8aYsAEjBWuwoIni8AHswMU7LUu0aK2FLSjBnLViXrLnzYR2kIMjaBytoZb/ssQryAJ6xt5XgwosQeFoBbWqdzqwA2EFaqeuqamPO6C4QdqCkdOSvJVe7+W6bogp2IMTmRBbSy/1bu064npiMHzzPiQe4I6Z11vQ//+ZngIMAFDvbrCjwfedAAAAAElFTkSuQmCC\') 0 0;\n\
+}\n\
 \n\
+/* line 13, ../plugins/special-characters/special-characters.scss */\n\
 .raptor-ui-special-characters:hover .ui-icon-special-characters {\n\
   filter: progid:DXImageTransform.Microsoft.Alpha(Opacity=100);\n\
-  opacity: 1; }\n\
+  opacity: 1;\n\
+}\n\
+\n\
+/**\n\
+ * Statistics plugin\n\
+ *\n\
+ * @author David Neilsen <david@panmedia.co.nz>\n\
+ * @author Micharl Robinson <michael@panmedia.co.nz>\n\
+ */\n\
+/* line 7, ../plugins/statistics/statistics.scss */\n\
+.raptor-ui-statistics .ui-icon {\n\
+  filter: progid:DXImageTransform.Microsoft.Alpha(Opacity=85);\n\
+  opacity: 0.85;\n\
+  background: url(\'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAAhFJREFUeNrEk7tv01AUxr/4kcRO7Fh1HghFgSAeYglDlIfUbGEBhaWoUxFiQWJGMDDyhzB2ZmANYmAoIvQPaIHIkVJjKyWkcdzYSR1zbhSGQhFDB47007333PN9V/cVCcMQ5wkO54wIxe+5q8Rt4gaRW+VsYo9oE1/+ZpAktjKZzL1arXatWCzmFEVhOYzH40m327U7nc7nwWDwhlLbxITN8SsDVvisXq9vtVqtuqZp2XK5HDcMg5vNZlylUon7vq+XSqXLi8WiYJqmTvWfiNkvg8e06gMqLDmOI5AIvV4P8/l8CeuzHMHn8/kcmeiWZQWk6zCD67quP280GuXNdlv4qKrwTk6WwpXoFNVqNTKdTtf6/X7C87wPzOAhrX4nCIK195KEp4aBtxyHKRm4roujozGdwQSO49LYx/7+VzIPeVEUOcsyh+wab9Ge0+SKGW3nhSzj5WiEoWlhMvHolKOIRmVIkgpZVhGPKxAEGdlsIc20zOASz/NSs9lkl4IwJuOJH+CVksDi2APPx0iYIgNlCTNYXy8hmdQkpmUGCfag2u134DgJipKGdqGAR6NjbKdVOAMbQRAiRsaCEKMaHru7XdYutRw95R+Hh0NXVTNIpXQy0KDrOVy8chOb34Z4XcjCMvZoO86p12bbBy7Tsv5dYoc4OAtFFM3BxkZ4xtzOSvvPuE98X7V//oX//ht/CjAAagzmsnB4V5cAAAAASUVORK5CYII=\') 0 0;\n\
+}\n\
+\n\
+/* line 12, ../plugins/statistics/statistics.scss */\n\
+.raptor-ui-statistics:hover .ui-icon {\n\
+  filter: progid:DXImageTransform.Microsoft.Alpha(Opacity=100);\n\
+  opacity: 1;\n\
+}\n\
 \n\
 /**\n\
  * Table plugin.\n\
  *\n\
  * @author David Neilsen <david@panmedia.co.nz>\n\
  */\n\
+/* line 8, ../plugins/table/style/table-support.scss */\n\
+.raptor-table-support-selected ::selection,\n\
+.raptor-table-support-selected ::-moz-selection {\n\
+  background: transparent;\n\
+}\n\
+\n\
+/* line 12, ../plugins/table/style/table-support.scss */\n\
+.raptor-table-support-cell-selected {\n\
+  background-color: Highlight;\n\
+}\n\
+\n\
+/**\n\
+ * Table plugin.\n\
+ *\n\
+ * @author David Neilsen <david@panmedia.co.nz>\n\
+ */\n\
+/* line 10, ../plugins/table/style/table.scss */\n\
 .raptor-ui-table-create-menu td {\n\
   width: 14px;\n\
   height: 14px;\n\
-  border: 1px solid black; }\n\
+  border: 1px solid black;\n\
+}\n\
 \n\
+/* line 16, ../plugins/table/style/table.scss */\n\
 .raptor-ui-table-create-menu .raptor-ui-table-create-menu-hover {\n\
-  border: 1px solid red; }\n\
+  border: 1px solid red;\n\
+}\n\
 \n\
+/* line 20, ../plugins/table/style/table.scss */\n\
 .raptor-ui-table-create .ui-icon {\n\
   filter: progid:DXImageTransform.Microsoft.Alpha(Opacity=85);\n\
   opacity: 0.85;\n\
-  background: url(\'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAMAAAAoLQ9TAAAA81BMVEX///9Vf38LKytAZ2cpTU0wVVU0WlpLc3NVf39TfX04Xl4YOjoNLS08Y2NRenpEa2tOd3dHb2/C09NEzP+8zc31+fn6/Pzx9/fu9fXA0dHF1tbD1NRDy/73/Pzp9vbk9PSG0uz+//+I7v/p+fk0vO/5/f38/v7u+Pg9xfj0+/tCyv3r9/fm9fXx+fm+z8/H2Ng4wPOF6/w6wvU2vvE1vfCE6vvM2tpkzvU/x/rO3d29zs7J2tr///88w/Z/5fZ94/R64PF43u/K2dni8/PM3NxByfzQ3t6D0OmBzueAzOV+y+R8yeJ6x+B5xt94xd7I2NiF0utdtcIgAAAAEnRSTlMAZodwend1a01nc4Flcmhuam1CIHuOAAAAuElEQVR4Xl3KRZbCQBQAwM9EcGuXOO5u4+52/9PQLytCrQsKuYwCFK8zilCLsTd82fdvlvPVuh3XoNHFyXCx6d/eze8f2t0G5DvY2/2/vX98fn3//Hby0PRxEjGmGJOMEb8J9QH2oqvZq0bb6SUZ1MGamEGpolRSSiYWVHvpOGj0aEavCqWRGZwrziXnZFQCN0jHs0Z/ZgQuOGMzhFBCSCHI2AE7TIfSSJoR2lBuPZ1olaFykVGBc0fWbx5/ckww/gAAAABJRU5ErkJggg==\') 0 0; }\n\
+  background: url(\'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAMAAAAoLQ9TAAAA81BMVEX///9Vf38LKytAZ2cpTU0wVVU0WlpLc3NVf39TfX04Xl4YOjoNLS08Y2NRenpEa2tOd3dHb2/C09NEzP+8zc31+fn6/Pzx9/fu9fXA0dHF1tbD1NRDy/73/Pzp9vbk9PSG0uz+//+I7v/p+fk0vO/5/f38/v7u+Pg9xfj0+/tCyv3r9/fm9fXx+fm+z8/H2Ng4wPOF6/w6wvU2vvE1vfCE6vvM2tpkzvU/x/rO3d29zs7J2tr///88w/Z/5fZ94/R64PF43u/K2dni8/PM3NxByfzQ3t6D0OmBzueAzOV+y+R8yeJ6x+B5xt94xd7I2NiF0utdtcIgAAAAEnRSTlMAZodwend1a01nc4Flcmhuam1CIHuOAAAAuElEQVR4Xl3KRZbCQBQAwM9EcGuXOO5u4+52/9PQLytCrQsKuYwCFK8zilCLsTd82fdvlvPVuh3XoNHFyXCx6d/eze8f2t0G5DvY2/2/vX98fn3//Hby0PRxEjGmGJOMEb8J9QH2oqvZq0bb6SUZ1MGamEGpolRSSiYWVHvpOGj0aEavCqWRGZwrziXnZFQCN0jHs0Z/ZgQuOGMzhFBCSCHI2AE7TIfSSJoR2lBuPZ1olaFykVGBc0fWbx5/ckww/gAAAABJRU5ErkJggg==\') 0 0;\n\
+}\n\
 \n\
+/* line 25, ../plugins/table/style/table.scss */\n\
 .raptor-ui-table-create:hover .ui-icon {\n\
   filter: progid:DXImageTransform.Microsoft.Alpha(Opacity=100);\n\
-  opacity: 1; }\n\
+  opacity: 1;\n\
+}\n\
 \n\
+/* line 29, ../plugins/table/style/table.scss */\n\
 .raptor-ui-table-insert-row .ui-icon {\n\
   filter: progid:DXImageTransform.Microsoft.Alpha(Opacity=85);\n\
   opacity: 0.85;\n\
-  background: url(\'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAAeZJREFUeNqcU0FrE0EU/mYyIaRoaNOQJlGSbjy0FuxR8VIoUcGDN4X+gUJ/QA899dBf0V76CwTBS6EVIsVLBQ8hLdbiRgrRCKE2JmmTNtmZvre7WVBEGx+83fd23vfN997MiuerqxBCPAOQxvBWU8YYkGderq2tD4umzZeUdhyOhaHHkw+ATwitdeB/yt8XRkFYoRyPQGrDFAKP7whsfzbuW2tyWt62gYLFJJ6/qQBcT1ipnH7fVeD4BDu2QV51Yb6dwfBu5I+iBPyuIbTnnDsmBsIK1fcIfAXwdq52sDwTD3rdOzzEg+npIN8tlUhBFoSV6ufDL7j5LvuVFbxI9ICmgTWmcFyvB/Ow0mlUarUgTycS4HpXweVY25zet+cdkrbx6em1T6CY2vIUnLdaxxhpFZmRYtydu/dP8MfdsqvAJWienORudJPz9KFIMfZevb2WApeg1xNK1qMidmAt6EWDlcI+qEvkQx1YqhP0/LuzaV+BTJRmOMgx4+tGFJ34CMotIBOP49b4OG7TwJrtNrLJJHITE5hMpfCj0RgokOqi22XC0OAY+R4UIsBRtRrcPLaybf+Scz1hQ+qU+iaLhMNhbE61/Q6JAZm/zoDrCRsRsdlZ7muRmPPD/kxSyooYDOV/7UqAAQBguExUpw0RrAAAAABJRU5ErkJggg==\') 0 0; }\n\
+  background: url(\'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAAeZJREFUeNqcU0FrE0EU/mYyIaRoaNOQJlGSbjy0FuxR8VIoUcGDN4X+gUJ/QA899dBf0V76CwTBS6EVIsVLBQ8hLdbiRgrRCKE2JmmTNtmZvre7WVBEGx+83fd23vfN997MiuerqxBCPAOQxvBWU8YYkGderq2tD4umzZeUdhyOhaHHkw+ATwitdeB/yt8XRkFYoRyPQGrDFAKP7whsfzbuW2tyWt62gYLFJJ6/qQBcT1ipnH7fVeD4BDu2QV51Yb6dwfBu5I+iBPyuIbTnnDsmBsIK1fcIfAXwdq52sDwTD3rdOzzEg+npIN8tlUhBFoSV6ufDL7j5LvuVFbxI9ICmgTWmcFyvB/Ow0mlUarUgTycS4HpXweVY25zet+cdkrbx6em1T6CY2vIUnLdaxxhpFZmRYtydu/dP8MfdsqvAJWienORudJPz9KFIMfZevb2WApeg1xNK1qMidmAt6EWDlcI+qEvkQx1YqhP0/LuzaV+BTJRmOMgx4+tGFJ34CMotIBOP49b4OG7TwJrtNrLJJHITE5hMpfCj0RgokOqi22XC0OAY+R4UIsBRtRrcPLaybf+Scz1hQ+qU+iaLhMNhbE61/Q6JAZm/zoDrCRsRsdlZ7muRmPPD/kxSyooYDOV/7UqAAQBguExUpw0RrAAAAABJRU5ErkJggg==\') 0 0;\n\
+}\n\
 \n\
+/* line 34, ../plugins/table/style/table.scss */\n\
 .raptor-ui-table-insert-row:hover .ui-icon {\n\
   filter: progid:DXImageTransform.Microsoft.Alpha(Opacity=100);\n\
-  opacity: 1; }\n\
+  opacity: 1;\n\
+}\n\
 \n\
+/* line 38, ../plugins/table/style/table.scss */\n\
 .raptor-ui-table-insert-column .ui-icon {\n\
   filter: progid:DXImageTransform.Microsoft.Alpha(Opacity=85);\n\
   opacity: 0.85;\n\
-  background: url(\'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAMAAAAoLQ9TAAABFFBMVEX///8LKytVf39TfX08Y2NVf393rpBLc3NHb29Reno4Xl5Od3c0WlopTU1AZ2dEa2swVVUYOjoNLS0wt0BEzP+8zc3x9/fu9fUrsDmG0uxDy/4xuEHp9vYcnSbI6cu9zs71+fn6/PwgoisHgQozu0QorDXr9/cwt0Dp+fnu+Pg0vO8WlB38/v7+//8kpzD5/f3k9PTx+fmI7v/3/PxCyv0utD3m9fX0+/vi8/P///943u/I2dl4xd6w5/u/8/tAyPu67vau5fpS6mNf0PpayvS95PEr4zy54O2F6/zX5OTb5+cg4DHP3t7X4+PT4uJkzvVd7W4W3idG6Fdl7nbQ4OB5xt/M3Nzg9f055UrT4OA1vfCE0eoavkAQAAAAFHRSTlMAh2Znck0aa21oc2p1enBud4Fl4L/CnmUAAADNSURBVHheZcpFUgRBAAXRDy3jSkm7y7gL7u6u978HXWwggtzk5kFZFanpWqpmVwBp4ycncMQkoNAnxmzvaOft4Piz0y8ApR6ZzM53oyja3+z0SkBuSIy7rxPzyTx72R7mgPyUTHTfn9/PfZ9O80BtSQx961I71G5cuqwB1XEmPC9+jD2PjquA3BbiYvA++HBpWwaKSSYYC04DxmhSBMqWELf2lX3tUqsM1BeZ4Lz70OWcLupAZSTEcxiGry4dVYBGa/23VgNorvytiX99A3lfH44tztyBAAAAAElFTkSuQmCC\') 0 0; }\n\
+  background: url(\'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAMAAAAoLQ9TAAABFFBMVEX///8LKytVf39TfX08Y2NVf393rpBLc3NHb29Reno4Xl5Od3c0WlopTU1AZ2dEa2swVVUYOjoNLS0wt0BEzP+8zc3x9/fu9fUrsDmG0uxDy/4xuEHp9vYcnSbI6cu9zs71+fn6/PwgoisHgQozu0QorDXr9/cwt0Dp+fnu+Pg0vO8WlB38/v7+//8kpzD5/f3k9PTx+fmI7v/3/PxCyv0utD3m9fX0+/vi8/P///943u/I2dl4xd6w5/u/8/tAyPu67vau5fpS6mNf0PpayvS95PEr4zy54O2F6/zX5OTb5+cg4DHP3t7X4+PT4uJkzvVd7W4W3idG6Fdl7nbQ4OB5xt/M3Nzg9f055UrT4OA1vfCE0eoavkAQAAAAFHRSTlMAh2Znck0aa21oc2p1enBud4Fl4L/CnmUAAADNSURBVHheZcpFUgRBAAXRDy3jSkm7y7gL7u6u978HXWwggtzk5kFZFanpWqpmVwBp4ycncMQkoNAnxmzvaOft4Piz0y8ApR6ZzM53oyja3+z0SkBuSIy7rxPzyTx72R7mgPyUTHTfn9/PfZ9O80BtSQx961I71G5cuqwB1XEmPC9+jD2PjquA3BbiYvA++HBpWwaKSSYYC04DxmhSBMqWELf2lX3tUqsM1BeZ4Lz70OWcLupAZSTEcxiGry4dVYBGa/23VgNorvytiX99A3lfH44tztyBAAAAAElFTkSuQmCC\') 0 0;\n\
+}\n\
 \n\
+/* line 43, ../plugins/table/style/table.scss */\n\
 .raptor-ui-table-insert-column:hover .ui-icon {\n\
   filter: progid:DXImageTransform.Microsoft.Alpha(Opacity=100);\n\
-  opacity: 1; }\n\
+  opacity: 1;\n\
+}\n\
 \n\
+/* line 47, ../plugins/table/style/table.scss */\n\
 .raptor-ui-table-delete-row .ui-icon {\n\
   filter: progid:DXImageTransform.Microsoft.Alpha(Opacity=85);\n\
   opacity: 0.85;\n\
-  background: url(\'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAAfhJREFUeNqcU0FrE0EU/mbdEHpQJA1tk0hs4iGttIgUKhVvsaIWL2L/QMHizYvnFvoLehEKgtScPemt5lTQkkICxVaKNAElJEKJhhib1N2Z8b3Z7EJFAvHBx74H833zvfdmxeLq6gMAMQweda31W1spFX+9trYxKPvRysoT/tpKSqEpuVMESNGARAP8q97NXgTzjICU0lKaJQTmrwhsHWnzVYogga0ykE2xiId8BeDzzPMEXFfInsC7skba7kLXfkHzbYTbQ0T8piCUB66lvgDmGQHXdXsO4N1c7eDZ1UjQa+HwEDcmJoJ6e2+PHCTBvDMOFqMODuoWUuEwvhwfB/NIxWKo1OtBHYtGweev7+zsKt+BJGvjD+cwv76Or5kZVO4t9N1AlXCtVHpOvoueACn+PDlBaXkZNwsFfKB8YXa2/x6npmZe5XLkwHFMC41WC3ObmzhoC5Pn8vn+r6hWK9q+Ax7i6fYRNjo20q0O7pILv+e/wZGgudxfWnqa2d9/b5ED08Kb5hCSiRB+Ow7ikQgSw8O4RANrtdtIjozg8ugoxsfG8L3ZNEOkd3Dr0+Qk7NNu95y/Rn4H2TDwuVoNXh7Hx3L5TG0cE8+s8UejEQ6FQniZafe6IwXE+/bP55nHuTg/Pf2YlNOD/kyWZVWEEC+EP5j/jT8CDADTO03xCBe9dwAAAABJRU5ErkJggg==\') 0 0; }\n\
+  background: url(\'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAAfhJREFUeNqcU0FrE0EU/mbdEHpQJA1tk0hs4iGttIgUKhVvsaIWL2L/QMHizYvnFvoLehEKgtScPemt5lTQkkICxVaKNAElJEKJhhib1N2Z8b3Z7EJFAvHBx74H833zvfdmxeLq6gMAMQweda31W1spFX+9trYxKPvRysoT/tpKSqEpuVMESNGARAP8q97NXgTzjICU0lKaJQTmrwhsHWnzVYogga0ykE2xiId8BeDzzPMEXFfInsC7skba7kLXfkHzbYTbQ0T8piCUB66lvgDmGQHXdXsO4N1c7eDZ1UjQa+HwEDcmJoJ6e2+PHCTBvDMOFqMODuoWUuEwvhwfB/NIxWKo1OtBHYtGweev7+zsKt+BJGvjD+cwv76Or5kZVO4t9N1AlXCtVHpOvoueACn+PDlBaXkZNwsFfKB8YXa2/x6npmZe5XLkwHFMC41WC3ObmzhoC5Pn8vn+r6hWK9q+Ax7i6fYRNjo20q0O7pILv+e/wZGgudxfWnqa2d9/b5ED08Kb5hCSiRB+Ow7ikQgSw8O4RANrtdtIjozg8ugoxsfG8L3ZNEOkd3Dr0+Qk7NNu95y/Rn4H2TDwuVoNXh7Hx3L5TG0cE8+s8UejEQ6FQniZafe6IwXE+/bP55nHuTg/Pf2YlNOD/kyWZVWEEC+EP5j/jT8CDADTO03xCBe9dwAAAABJRU5ErkJggg==\') 0 0;\n\
+}\n\
 \n\
+/* line 52, ../plugins/table/style/table.scss */\n\
 .raptor-ui-table-delete-row:hover .ui-icon {\n\
   filter: progid:DXImageTransform.Microsoft.Alpha(Opacity=100);\n\
-  opacity: 1; }\n\
+  opacity: 1;\n\
+}\n\
 \n\
+/* line 56, ../plugins/table/style/table.scss */\n\
 .raptor-ui-table-delete-column .ui-icon {\n\
   filter: progid:DXImageTransform.Microsoft.Alpha(Opacity=85);\n\
   opacity: 0.85;\n\
-  background: url(\'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAMAAAAoLQ9TAAABJlBMVEX///9Vf38LKytEFBRRenowVVVEa2sYOjp6AABHb28pTU00WlpTfX0LKyuKAABVf39AZ2dOd3cIKCg8Y2NLc3MNLS04Xl5jVlZDYGBzAABEzP+8zc29zs76/Pz1+flDy/7u9fXx9/e3MDC7MzP+///M3NyI7v/8/v7x+fm4MTH0+/uqJiblxsahHx/u+PiG0uyyLCylIyPk9PS1Ly/3/Pz5/f00vO9Cyv2uKSnp+fnp9vacHBye4vzm9fXr9/fT4OD6Z2fI7PmF6/zX5OSiICDX4+PH6/j8bW2a5/RAyPua3vhkzvX4YGCE0er+c3PQ4OD2+vrzUlKJ0ut5xt94xd543u/xTEw1vfD1WVn///+O1/HvR0fI2dmh7vvb5+fH19f/d3fi8/OZ9EmDAAAAGnRSTlMAZocAaHdugZltenVnAMxNcGoAcmtlc0REzGDVx0oAAADWSURBVHheTcrDYgRBAIThSgZrZZnuMde2FdvW+79Eum/7H6ouHxJ7uyWA6NtuUUB0iD44m1qWdf7Sd0Qg5RNvsP6qbqunT30/BWR6RL+4el/dHt8/PPYyQKhLvIaq2ratqrQbAuQy0Ruf36Xf0pFCyzKQLDKhaZ3rjqbRYhJI17nYNE+aC4XW00BuzoRpDpdD06TzHBAZc+FWLis/Ch1HAGnGhGG0XluGQWcSEG5zcVO7q7kKbYeBwOiPN3mesB0FgOw+Lx//iBfYZ4HYAU8IHgYF9jH8A8JjJyK0AUFIAAAAAElFTkSuQmCC\') 0 0; }\n\
+  background: url(\'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAMAAAAoLQ9TAAABJlBMVEX///9Vf38LKytEFBRRenowVVVEa2sYOjp6AABHb28pTU00WlpTfX0LKyuKAABVf39AZ2dOd3cIKCg8Y2NLc3MNLS04Xl5jVlZDYGBzAABEzP+8zc29zs76/Pz1+flDy/7u9fXx9/e3MDC7MzP+///M3NyI7v/8/v7x+fm4MTH0+/uqJiblxsahHx/u+PiG0uyyLCylIyPk9PS1Ly/3/Pz5/f00vO9Cyv2uKSnp+fnp9vacHBye4vzm9fXr9/fT4OD6Z2fI7PmF6/zX5OSiICDX4+PH6/j8bW2a5/RAyPua3vhkzvX4YGCE0er+c3PQ4OD2+vrzUlKJ0ut5xt94xd543u/xTEw1vfD1WVn///+O1/HvR0fI2dmh7vvb5+fH19f/d3fi8/OZ9EmDAAAAGnRSTlMAZocAaHdugZltenVnAMxNcGoAcmtlc0REzGDVx0oAAADWSURBVHheTcrDYgRBAIThSgZrZZnuMde2FdvW+79Eum/7H6ouHxJ7uyWA6NtuUUB0iD44m1qWdf7Sd0Qg5RNvsP6qbqunT30/BWR6RL+4el/dHt8/PPYyQKhLvIaq2ratqrQbAuQy0Ruf36Xf0pFCyzKQLDKhaZ3rjqbRYhJI17nYNE+aC4XW00BuzoRpDpdD06TzHBAZc+FWLis/Ch1HAGnGhGG0XluGQWcSEG5zcVO7q7kKbYeBwOiPN3mesB0FgOw+Lx//iBfYZ4HYAU8IHgYF9jH8A8JjJyK0AUFIAAAAAElFTkSuQmCC\') 0 0;\n\
+}\n\
 \n\
+/* line 61, ../plugins/table/style/table.scss */\n\
 .raptor-ui-table-delete-column:hover .ui-icon {\n\
   filter: progid:DXImageTransform.Microsoft.Alpha(Opacity=100);\n\
-  opacity: 1; }\n\
+  opacity: 1;\n\
+}\n\
 \n\
+/* line 65, ../plugins/table/style/table.scss */\n\
 .raptor-ui-table-merge-cells .ui-icon {\n\
   filter: progid:DXImageTransform.Microsoft.Alpha(Opacity=85);\n\
   opacity: 0.85;\n\
-  background: url(\'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAMAAAAoLQ9TAAAA81BMVEX///9Vf38LKytOd3c8Y2NLc3MwVVUpTU0YOjoNLS1Vf39TfX04Xl5RenpEa2tAZ2c0WlpHb29EzP/6/Pzu9fXA0dH5/f3r9/eG0uzk9PTp+fk0vO/1+fnx9/e8zc3u+PhDy/7F1tb0+/tCyv3C09M4wPP8/v7i8/O+z8/m9fXx+flhg+n+//8nSbg5W9o9xfi9zs73/PyI7v8mSK3D1NRCZMjJ2trp9vbH2Ng1vfA2vvE/x/qF6/w8w/Y6wvV94/R64PF43u+E6vt/5fZByfyF0uuD0OmBzuf///+AzOV+y+R8yeJ6x+B5xt94xd5kzvXK2dmu5BAUAAAAEnRSTlMAZodqcmt3eoFlTWdzaG5wdW1C/rgCAAAAtklEQVR4Xl3Kw7rDUBRA4d0b1TgIjdq2dYn3f5qeL5k0/QdrtCCbSshC7j0hB4UOcoPLur/dVVdLo1MAroZGwebUP++rh6NR40CQkft3vd0/Pr++f35lASpDNFIx9jCmGNvDChR95KqzRTvmF6HUYodpTk2TsrZKwDvRMZ6E/43B2OEhr7DDsrqWRVmVPJTn0dGLzcsgNtlBiEcIJcRuiiBp0eFNQtoY2JoEab3+RE9D5i0hA68e7McfFiRaMwIAAAAASUVORK5CYII=\') 0 0; }\n\
+  background: url(\'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAMAAAAoLQ9TAAAA81BMVEX///9Vf38LKytOd3c8Y2NLc3MwVVUpTU0YOjoNLS1Vf39TfX04Xl5RenpEa2tAZ2c0WlpHb29EzP/6/Pzu9fXA0dH5/f3r9/eG0uzk9PTp+fk0vO/1+fnx9/e8zc3u+PhDy/7F1tb0+/tCyv3C09M4wPP8/v7i8/O+z8/m9fXx+flhg+n+//8nSbg5W9o9xfi9zs73/PyI7v8mSK3D1NRCZMjJ2trp9vbH2Ng1vfA2vvE/x/qF6/w8w/Y6wvV94/R64PF43u+E6vt/5fZByfyF0uuD0OmBzuf///+AzOV+y+R8yeJ6x+B5xt94xd5kzvXK2dmu5BAUAAAAEnRSTlMAZodqcmt3eoFlTWdzaG5wdW1C/rgCAAAAtklEQVR4Xl3Kw7rDUBRA4d0b1TgIjdq2dYn3f5qeL5k0/QdrtCCbSshC7j0hB4UOcoPLur/dVVdLo1MAroZGwebUP++rh6NR40CQkft3vd0/Pr++f35lASpDNFIx9jCmGNvDChR95KqzRTvmF6HUYodpTk2TsrZKwDvRMZ6E/43B2OEhr7DDsrqWRVmVPJTn0dGLzcsgNtlBiEcIJcRuiiBp0eFNQtoY2JoEab3+RE9D5i0hA68e7McfFiRaMwIAAAAASUVORK5CYII=\') 0 0;\n\
+}\n\
 \n\
+/* line 70, ../plugins/table/style/table.scss */\n\
 .raptor-ui-table-merge-cells:hover .ui-icon {\n\
   filter: progid:DXImageTransform.Microsoft.Alpha(Opacity=100);\n\
-  opacity: 1; }\n\
+  opacity: 1;\n\
+}\n\
 \n\
+/* line 75, ../plugins/table/style/table.scss */\n\
 .raptor-ui-table-split-cells .ui-icon {\n\
   filter: progid:DXImageTransform.Microsoft.Alpha(Opacity=85);\n\
   opacity: 0.85;\n\
-  background: url(\'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAMAAAAoLQ9TAAAA8FBMVEX///9Vf38LKys8Y2MwVVU0WlpVf39TfX0YOjoNLS1Od3dAZ2dRenpEa2s4Xl5Lc3MpTU1Hb29EzP/6/Pzu9fXm9fW8zc35/f3k9PTp+fnu+Pjx9/f8/v7A0dH0+/tDy/7+///F1tY4wPOG0uz3/Pw9xfjp9vZCyv1CZMjx+fn1+fk0vO8mSK3r9/eI7v8nSbjJ2tqF0uuD0Ok1vfA2vvGAzOWBzuc/x/qF6/w8w/Y6wvV94/R64PF43u+E6vt/5fZByfzD1NTC09O+z8+9zs7///9hg+nH2Nji8/M5W9p+y+R8yeJ6x+B5xt94xd5kzvVtEZTHAAAAEnRSTlMAZodyd3VNZ4FlanBobnNrem0aKGmPAAAArUlEQVR4Xl3KRZLDMBQA0Z8xU0CSmR1mZoZhuv9t4rI2cV71soEv5PAgvOYIoEYobJ6W9fUmmU27kQqyhwbN1aF+3Ca7fdeToWSi8H88Wcy/vn9+/8wSVGpoUMU4xtjH2KhVQAtQWB29v1GBBko7PTqdFq2tAONkR49yGCj208N1h7R+EbhGdnxSDQ5YPT0IiQnxCTF0FspWdsTni3+9GVYZRPvjgS2C9JIjwbM7cpQh7ppJ8UgAAAAASUVORK5CYII=\') 0 0; }\n\
+  background: url(\'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAMAAAAoLQ9TAAAA8FBMVEX///9Vf38LKys8Y2MwVVU0WlpVf39TfX0YOjoNLS1Od3dAZ2dRenpEa2s4Xl5Lc3MpTU1Hb29EzP/6/Pzu9fXm9fW8zc35/f3k9PTp+fnu+Pjx9/f8/v7A0dH0+/tDy/7+///F1tY4wPOG0uz3/Pw9xfjp9vZCyv1CZMjx+fn1+fk0vO8mSK3r9/eI7v8nSbjJ2tqF0uuD0Ok1vfA2vvGAzOWBzuc/x/qF6/w8w/Y6wvV94/R64PF43u+E6vt/5fZByfzD1NTC09O+z8+9zs7///9hg+nH2Nji8/M5W9p+y+R8yeJ6x+B5xt94xd5kzvVtEZTHAAAAEnRSTlMAZodyd3VNZ4FlanBobnNrem0aKGmPAAAArUlEQVR4Xl3KRZLDMBQA0Z8xU0CSmR1mZoZhuv9t4rI2cV71soEv5PAgvOYIoEYobJ6W9fUmmU27kQqyhwbN1aF+3Ca7fdeToWSi8H88Wcy/vn9+/8wSVGpoUMU4xtjH2KhVQAtQWB29v1GBBko7PTqdFq2tAONkR49yGCj208N1h7R+EbhGdnxSDQ5YPT0IiQnxCTF0FspWdsTni3+9GVYZRPvjgS2C9JIjwbM7cpQh7ppJ8UgAAAAASUVORK5CYII=\') 0 0;\n\
+}\n\
 \n\
+/* line 80, ../plugins/table/style/table.scss */\n\
 .raptor-ui-table-split-cells:hover .ui-icon {\n\
   filter: progid:DXImageTransform.Microsoft.Alpha(Opacity=100);\n\
-  opacity: 1; }\n\
-\n\
-/**\n\
- * Table plugin.\n\
- *\n\
- * @author David Neilsen <david@panmedia.co.nz>\n\
- */\n\
-.raptor-table-support-selected ::selection,\n\
-.raptor-table-support-selected ::-moz-selection {\n\
-  background: transparent; }\n\
-\n\
-.raptor-table-support-cell-selected {\n\
-  background-color: Highlight; }\n\
+  opacity: 1;\n\
+}\n\
 \n\
 /**\n\
  * Tag menu plugin\n\
  *\n\
  * @author David Neilsen <david@panmedia.co.nz>\n\
  */\n\
+/* line 6, ../plugins/tag-menu/tag-menu.scss */\n\
 .raptor-ui-tag-menu .ui-icon {\n\
   filter: progid:DXImageTransform.Microsoft.Alpha(Opacity=85);\n\
   opacity: 0.85;\n\
-  background: url(\'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAAU5JREFUeNpi/P//PwMlgAVEMDExNQIpbRL1Xv337189C5Sj29zcHPjnzx+4LMhlQAVg/PfvXzgNwuzs7AxdXV1McBcAAfPv378Zbt68+XblypVHYYYUFxf7gTRMmDBhE0zM0tLSWl1dXRikB+x6ZK8ANZ8EUv5QzPLp0yeGz58/w+TB4sePHz/JxsYG1wNzwbWmpiYQex5y+Pz8+ZMBGsgsSOLzZs2aBeJfQ5YoxRbA379/B/sZzYC1UMyALoEOWH/+/AUMPLALWPFGIy4DQEHEyMhAvgGMjCxAAxiJMwBLimRjZgaFNiNIjg1dEmowJBqxaDYHYg6QARBDGDigYgzoFjJhcdUKUJLQ1TUVg6QVZgY9PTMxkBhUDtUlIJNgzoGCZ9HRWZIg8b9/QbbAXMcITGgzngMZUsiuwGbABiC2whFmx4A4AMMASgBAgAEAx96Jw4UbHlsAAAAASUVORK5CYII=\') 0 0; }\n\
+  background: url(\'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAAU5JREFUeNpi/P//PwMlgAVEMDExNQIpbRL1Xv337189C5Sj29zcHPjnzx+4LMhlQAVg/PfvXzgNwuzs7AxdXV1McBcAAfPv378Zbt68+XblypVHYYYUFxf7gTRMmDBhE0zM0tLSWl1dXRikB+x6ZK8ANZ8EUv5QzPLp0yeGz58/w+TB4sePHz/JxsYG1wNzwbWmpiYQex5y+Pz8+ZMBGsgsSOLzZs2aBeJfQ5YoxRbA379/B/sZzYC1UMyALoEOWH/+/AUMPLALWPFGIy4DQEHEyMhAvgGMjCxAAxiJMwBLimRjZgaFNiNIjg1dEmowJBqxaDYHYg6QARBDGDigYgzoFjJhcdUKUJLQ1TUVg6QVZgY9PTMxkBhUDtUlIJNgzoGCZ9HRWZIg8b9/QbbAXMcITGgzngMZUsiuwGbABiC2whFmx4A4AMMASgBAgAEAx96Jw4UbHlsAAAAASUVORK5CYII=\') 0 0;\n\
+}\n\
 \n\
+/* line 11, ../plugins/tag-menu/tag-menu.scss */\n\
 .raptor-ui-tag-menu:hover .ui-icon {\n\
   filter: progid:DXImageTransform.Microsoft.Alpha(Opacity=100);\n\
-  opacity: 1; }\n\
+  opacity: 1;\n\
+}\n\
 \n\
 /**\n\
  * Text alignment plugin\n\
  *\n\
  * @author David Neilsen <david@panmedia.co.nz>\n\
  */\n\
+/* line 8, ../plugins/text-align/style/text-align.scss */\n\
 .raptor-ui-align-left .ui-icon {\n\
   filter: progid:DXImageTransform.Microsoft.Alpha(Opacity=85);\n\
   opacity: 0.85;\n\
-  background: url(\'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAAItJREFUeNpi/P//PwMlgImBQsACN4mJqRFIaQExIxQzYWEzQfHlf//+lYL0McK8ADSAJJuBBqC6AAjWYrEN2VYPbAZR1QUb0WxEZmPD1lR3wTYCttpSJQxg6mE0sgt2E/AzCLMBMTsQcwCxAskuQE722FwwEYiNsNjKClR8EUjH4w2DActMFBsAEGAAnS84DrgEl1wAAAAASUVORK5CYII=\') 0 0; }\n\
+  background: url(\'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAAItJREFUeNpi/P//PwMlgImBQsACN4mJqRFIaQExIxQzYWEzQfHlf//+lYL0McK8ADSAJJuBBqC6AAjWYrEN2VYPbAZR1QUb0WxEZmPD1lR3wTYCttpSJQxg6mE0sgt2E/AzCLMBMTsQcwCxAskuQE722FwwEYiNsNjKClR8EUjH4w2DActMFBsAEGAAnS84DrgEl1wAAAAASUVORK5CYII=\') 0 0;\n\
+}\n\
 \n\
+/* line 13, ../plugins/text-align/style/text-align.scss */\n\
 .raptor-ui-align-left:hover .ui-icon {\n\
   filter: progid:DXImageTransform.Microsoft.Alpha(Opacity=100);\n\
-  opacity: 1; }\n\
+  opacity: 1;\n\
+}\n\
 \n\
+/* line 17, ../plugins/text-align/style/text-align.scss */\n\
 .raptor-ui-align-right .ui-icon {\n\
-  background: url(\'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAAIxJREFUeNpi/P//PwMlgImBQsACN4mJqRFIaQExIxQzYWEzQfHlf//+lYL0McK8ADSAJJuBBqC6AAvYjGYrMhuEHanugo0EbETH1jQPg714bGcGYhOqu2A3AT+DMBvQQnYgzQHECiS7ADnZw9j4wmA61J+sQMUcUFtBtrMC8TEg9kNxwYBlJooNAAgwAJo0OAu5XKT8AAAAAElFTkSuQmCC\') 0 0; }\n\
+  background: url(\'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAAIxJREFUeNpi/P//PwMlgImBQsACN4mJqRFIaQExIxQzYWEzQfHlf//+lYL0McK8ADSAJJuBBqC6AAvYjGYrMhuEHanugo0EbETH1jQPg714bGcGYhOqu2A3AT+DMBvQQnYgzQHECiS7ADnZw9j4wmA61J+sQMUcUFtBtrMC8TEg9kNxwYBlJooNAAgwAJo0OAu5XKT8AAAAAElFTkSuQmCC\') 0 0;\n\
+}\n\
 \n\
+/* line 21, ../plugins/text-align/style/text-align.scss */\n\
 .raptor-ui-align-right:hover .ui-icon {\n\
   filter: progid:DXImageTransform.Microsoft.Alpha(Opacity=100);\n\
-  opacity: 1; }\n\
+  opacity: 1;\n\
+}\n\
 \n\
+/* line 25, ../plugins/text-align/style/text-align.scss */\n\
 .raptor-ui-align-center .ui-icon {\n\
-  background: url(\'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAAI1JREFUeNpi/P//PwMlgImBQsACN4mJqRFIaQExIxQzYWEzQfHlf//+lYL0McK8ADSAJJuBBqC6AAlswGErjO2KrJiqLtiIw0Zc2JpmYbCTgM2WFIUBTD2MRnbBbgI2gzAbELMDMQcQK5DsAuRkj80FMDAFiI2RbGUFKuaA2noGiEOwhsGAZSaKDQAIMAB/BzgOq8akNwAAAABJRU5ErkJggg==\') 0 0; }\n\
+  background: url(\'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAAI1JREFUeNpi/P//PwMlgImBQsACN4mJqRFIaQExIxQzYWEzQfHlf//+lYL0McK8ADSAJJuBBqC6AAlswGErjO2KrJiqLtiIw0Zc2JpmYbCTgM2WFIUBTD2MRnbBbgI2gzAbELMDMQcQK5DsAuRkj80FMDAFiI2RbGUFKuaA2noGiEOwhsGAZSaKDQAIMAB/BzgOq8akNwAAAABJRU5ErkJggg==\') 0 0;\n\
+}\n\
 \n\
+/* line 29, ../plugins/text-align/style/text-align.scss */\n\
 .raptor-ui-align-center:hover .ui-icon {\n\
   filter: progid:DXImageTransform.Microsoft.Alpha(Opacity=100);\n\
-  opacity: 1; }\n\
+  opacity: 1;\n\
+}\n\
 \n\
+/* line 33, ../plugins/text-align/style/text-align.scss */\n\
 .raptor-ui-align-justify .ui-icon {\n\
-  background: url(\'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAAJFJREFUeNpi/P//PwMlgImBQsACN4mJqRFIaQExIxQzYWEzQfHlf//+lYL0McK8ADSAJJuBBqC6AAjWYrEN2VZkNgg7Ut0FGwnYiI6tqe6CbUTYCsPMQGxCdRfsJsJmNqCF7ECaA4gVSHYBcrKHsZFdMBGIjbDYygpUzAG1FWQ7KxAfA2I/FBcMWGai2ACAAAMAvPA4C7ttvJ4AAAAASUVORK5CYII=\') 0 0; }\n\
+  background: url(\'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAAJFJREFUeNpi/P//PwMlgImBQsACN4mJqRFIaQExIxQzYWEzQfHlf//+lYL0McK8ADSAJJuBBqC6AAjWYrEN2VZkNgg7Ut0FGwnYiI6tqe6CbUTYCsPMQGxCdRfsJsJmNqCF7ECaA4gVSHYBcrKHsZFdMBGIjbDYygpUzAG1FWQ7KxAfA2I/FBcMWGai2ACAAAMAvPA4C7ttvJ4AAAAASUVORK5CYII=\') 0 0;\n\
+}\n\
 \n\
+/* line 37, ../plugins/text-align/style/text-align.scss */\n\
 .raptor-ui-align-justify:hover .ui-icon {\n\
   filter: progid:DXImageTransform.Microsoft.Alpha(Opacity=100);\n\
-  opacity: 1; }\n\
+  opacity: 1;\n\
+}\n\
+\n\
+/**\n\
+ * Block quote plugin.\n\
+ *\n\
+ * @author David Neilsen <david@panmedia.co.nz>\n\
+ */\n\
+/* line 8, ../plugins/text-style/style/block-quote.scss */\n\
+.raptor-ui-text-block-quote .ui-icon {\n\
+  filter: progid:DXImageTransform.Microsoft.Alpha(Opacity=85);\n\
+  opacity: 0.85;\n\
+  background: url(\'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAAGVJREFUeNpi/P//PwMlgImBQjAcDWBhYZEA4r1AHA/EKHxiXQBS+BKIF+LgEzTAG4h3I0UvOh+/AUCFbECcDmROA2lC5mMzgAWLGDuUtsTBJ+iFeUDMC6Wx8VEA42hSptwAgAADAO3wKLgntfGkAAAAAElFTkSuQmCC\') 0 0;\n\
+}\n\
+\n\
+/* line 13, ../plugins/text-style/style/block-quote.scss */\n\
+.raptor-ui-text-block-quote:hover .ui-icon {\n\
+  filter: progid:DXImageTransform.Microsoft.Alpha(Opacity=100);\n\
+  opacity: 1;\n\
+}\n\
+\n\
+/**\n\
+ * Bold text style plugin.\n\
+ *\n\
+ * @author David Neilsen <david@panmedia.co.nz>\n\
+ */\n\
+/* line 8, ../plugins/text-style/style/bold.scss */\n\
+.raptor-ui-text-bold .ui-icon {\n\
+  filter: progid:DXImageTransform.Microsoft.Alpha(Opacity=85);\n\
+  opacity: 0.85;\n\
+  background: url(\'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAAKRJREFUeNpi/P//PwMlgImBQjDwBrCgmMbEpA2kGnGofQ3E9UD86t+/fzhdcBWIpwExMxQ3AHEIEK8BYgkgdsLrAih4A8SsaBYwQcWYiDGAEcmAbiwuJBiIIAPYoLgfiMuBeBmUXwHEXIQMYEIy4BUQXwDiy1C+HBBrEPKCDBCzwwwDpVRGRkZksU8ozkVOykCFVkBqOZ5oB3lpAoqe0bzAABBgANfuIyxmXKp/AAAAAElFTkSuQmCC\') 0 0;\n\
+}\n\
+\n\
+/* line 13, ../plugins/text-style/style/bold.scss */\n\
+.raptor-ui-text-bold:hover .ui-icon {\n\
+  filter: progid:DXImageTransform.Microsoft.Alpha(Opacity=100);\n\
+  opacity: 1;\n\
+}\n\
+\n\
+/**\n\
+ * Italic text style plugin.\n\
+ *\n\
+ * @author David Neilsen <david@panmedia.co.nz>\n\
+ */\n\
+/* line 8, ../plugins/text-style/style/italic.scss */\n\
+.raptor-ui-text-italic .ui-icon {\n\
+  filter: progid:DXImageTransform.Microsoft.Alpha(Opacity=85);\n\
+  opacity: 0.85;\n\
+  background: url(\'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAAH1JREFUeNpi/P//PwMlgImBQjDwBrBgmMgEN1MbiBvRpOv//ft3FUUEFIjImJGRERnrAPF6IO6BiaGrZyLCi6xAvJDcMLAA4j9AfJlcA/yBeCe5sWAExAJAfIKkWIAFJBAUATE7kM+M143ooQoEVkD8EA1b4Yy10bzAABBgAC7mS5rTXrDAAAAAAElFTkSuQmCC\') 0 0;\n\
+}\n\
+\n\
+/* line 13, ../plugins/text-style/style/italic.scss */\n\
+.raptor-ui-text-italic:hover .ui-icon {\n\
+  filter: progid:DXImageTransform.Microsoft.Alpha(Opacity=100);\n\
+  opacity: 1;\n\
+}\n\
+\n\
+/**\n\
+ * strike text style plugin.\n\
+ *\n\
+ * @author David Neilsen <david@panmedia.co.nz>\n\
+ */\n\
+/* line 8, ../plugins/text-style/style/strike.scss */\n\
+.raptor-ui-text-strike .ui-icon {\n\
+  filter: progid:DXImageTransform.Microsoft.Alpha(Opacity=85);\n\
+  opacity: 0.85;\n\
+  background: url(\'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAAL5JREFUeNpi/P//PwMlgImBQkCxASwopjHBzbMB4nQg5oTyrwKxNhAXAfGjf//+EXRBFhC/BOI0KAapYwZpxusCJPASquEdlD8FiHWwKWREjgUkL4gDcQ0QfwfiXqiBcIDsBXQD9hATcEADXOAckAEwzMjIiI4lgHgiEM8GYkmYOLIeXAZ4I2sA4vlQjGEArkBsAeJzQAUVYH8yMnIAKTmC6QAaHhpALALEPCBDoOJfgFQ5wVgYmnmBYgMAAgwAEGZWNyZpBykAAAAASUVORK5CYII=\') 0 0;\n\
+}\n\
+\n\
+/* line 13, ../plugins/text-style/style/strike.scss */\n\
+.raptor-ui-text-strike:hover .ui-icon {\n\
+  filter: progid:DXImageTransform.Microsoft.Alpha(Opacity=100);\n\
+  opacity: 1;\n\
+}\n\
+\n\
+/**\n\
+ * Sub script text style plugin.\n\
+ *\n\
+ * @author David Neilsen <david@panmedia.co.nz>\n\
+ */\n\
+/* line 8, ../plugins/text-style/style/sub.scss */\n\
+.raptor-ui-text-sub .ui-icon {\n\
+  filter: progid:DXImageTransform.Microsoft.Alpha(Opacity=85);\n\
+  opacity: 0.85;\n\
+  background: url(\'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAAKZJREFUeNpi/P//PwMlgImBQjDwBrDATWJCMWs6lM7Ep/nfv39YXSAPxL+AWALKJtkLLkB8EohZoWySDbAH4uNQQ+xJNUAJiH8DMT8QPwZiWagYDEwA4v1QGgJACQmEGRkZQTgXiI+i4VyoHAy7AfEaEBucCNEM2AzEKkiKu6BiYMuAdAYQLwZiKQwDgGAVED+E0iBgBeUjiy1HErMCWzyaFxgAAgwA5Gw9vTeiCqoAAAAASUVORK5CYII=\') 0 0;\n\
+}\n\
+\n\
+/* line 13, ../plugins/text-style/style/sub.scss */\n\
+.raptor-ui-text-sub:hover .ui-icon {\n\
+  filter: progid:DXImageTransform.Microsoft.Alpha(Opacity=100);\n\
+  opacity: 1;\n\
+}\n\
+\n\
+/**\n\
+ * Super script text style plugin.\n\
+ *\n\
+ * @author David Neilsen <david@panmedia.co.nz>\n\
+ */\n\
+/* line 8, ../plugins/text-style/style/super.scss */\n\
+.raptor-ui-text-super .ui-icon {\n\
+  filter: progid:DXImageTransform.Microsoft.Alpha(Opacity=85);\n\
+  opacity: 0.85;\n\
+  background: url(\'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAALdJREFUeNpi/P//PwMlgImBQjDwBrCgmMaEYt50KJ0JpRuBWBuIrwJx/b9///C6QB6IfwGxBJQNAvVAPAkqRtALLkB8EohZoWwQiAbiICCuI8YAeyA+DjXEHiqmD8SaQLwIysYMAyhQAuLfQMwPxI+B2AkqVkZsLHgDsQYQTwXiVCBmg4phB6CUCMOMjIwgvBmIVaBsEO6CijEgY5geFAOAYBUQP4TSIGAF5SOLoVjMOJoXGAACDACTRz3jjn6PnwAAAABJRU5ErkJggg==\') 0 0;\n\
+}\n\
+\n\
+/* line 13, ../plugins/text-style/style/super.scss */\n\
+.raptor-ui-text-super:hover .ui-icon {\n\
+  filter: progid:DXImageTransform.Microsoft.Alpha(Opacity=100);\n\
+  opacity: 1;\n\
+}\n\
 \n\
 /**\n\
  * Font size plugin\n\
  *\n\
  * @author David Neilsen <david@panmedia.co.nz>\n\
  */\n\
+/* line 8, ../plugins/text-style/style/text-size.scss */\n\
 .raptor-ui-text-size-increase .ui-icon {\n\
   filter: progid:DXImageTransform.Microsoft.Alpha(Opacity=85);\n\
   opacity: 0.85;\n\
-  background: url(\'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAAOhJREFUeNpi/P//PwMlgImBQkCxASxgU5gwzJkOpTORBZ2ilzO8+MjFwMIixnBhnTlOF8gD8U8gFoey4UBSyZooLzgD8Umo65xhgsYu5USHgS0QHwfiE1A2TtuxGaAIxL+B+AEQnwFiaagYg6Qi2AAHIP4PpbEa4AHEz4HYAIi/QL3hgSS/H4gfQmlELCAHNBBLQGlksenP7x9l4Bc3YMTnBRWogbZIuBOIZUFyW2b5EQwDVyA+giYPcionSA6U5Jc0yTK8vrUcVQU0L1gB8RMotkKSXoMkXgQT5BM3A+sDYcahn5kAAgwArro7Z1GYijsAAAAASUVORK5CYII=\') 0 0; }\n\
+  background: url(\'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAAOhJREFUeNpi/P//PwMlgImBQkCxASxgU5gwzJkOpTORBZ2ilzO8+MjFwMIixnBhnTlOF8gD8U8gFoey4UBSyZooLzgD8Umo65xhgsYu5USHgS0QHwfiE1A2TtuxGaAIxL+B+AEQnwFiaagYg6Qi2AAHIP4PpbEa4AHEz4HYAIi/QL3hgSS/H4gfQmlELCAHNBBLQGlksenP7x9l4Bc3YMTnBRWogbZIuBOIZUFyW2b5EQwDVyA+giYPcionSA6U5Jc0yTK8vrUcVQU0L1gB8RMotkKSXoMkXgQT5BM3A+sDYcahn5kAAgwArro7Z1GYijsAAAAASUVORK5CYII=\') 0 0;\n\
+}\n\
 \n\
+/* line 13, ../plugins/text-style/style/text-size.scss */\n\
 .raptor-ui-text-size-increase:hover .ui-icon {\n\
   filter: progid:DXImageTransform.Microsoft.Alpha(Opacity=100);\n\
-  opacity: 1; }\n\
+  opacity: 1;\n\
+}\n\
 \n\
+/* line 17, ../plugins/text-style/style/text-size.scss */\n\
 .raptor-ui-text-size-decrease .ui-icon {\n\
   filter: progid:DXImageTransform.Microsoft.Alpha(Opacity=85);\n\
   opacity: 0.85;\n\
-  background: url(\'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAAKxJREFUeNpi/P//PwMlgImBQjAMDGBBMY0Jbp4JEFcAcQcQnwEJpLa/Zfj27SvD+fPnGVhYxBgurDPH6wI9IP4DpRmMXcpJ9oIZELcBcRiaOCjOH0BpnAYoAbE6EE8EYnYgtjq7pxMm5wjE8lAapwFOQLwFiIuB+AQ0PBi2zvYHUQeAmBFKYxoATJWWQOwLxJJAfA6I5YE4FyT+9O5hBiSXwAHjaFKm3ACAAAMA85o8WKYZErQAAAAASUVORK5CYII=\') 0 0; }\n\
+  background: url(\'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAAKxJREFUeNpi/P//PwMlgImBQjAMDGBBMY0Jbp4JEFcAcQcQnwEJpLa/Zfj27SvD+fPnGVhYxBgurDPH6wI9IP4DpRmMXcpJ9oIZELcBcRiaOCjOH0BpnAYoAbE6EE8EYnYgtjq7pxMm5wjE8lAapwFOQLwFiIuB+AQ0PBi2zvYHUQeAmBFKYxoATJWWQOwLxJJAfA6I5YE4FyT+9O5hBiSXwAHjaFKm3ACAAAMA85o8WKYZErQAAAAASUVORK5CYII=\') 0 0;\n\
+}\n\
 \n\
+/* line 22, ../plugins/text-style/style/text-size.scss */\n\
 .raptor-ui-text-size-decrease:hover .ui-icon {\n\
   filter: progid:DXImageTransform.Microsoft.Alpha(Opacity=100);\n\
-  opacity: 1; }\n\
+  opacity: 1;\n\
+}\n\
 \n\
 /**\n\
- * Basic text style plugin\n\
+ * Underline text style plugin\n\
  *\n\
  * @author David Neilsen <david@panmedia.co.nz>\n\
  */\n\
-.raptor-ui-text-bold .ui-icon {\n\
-  filter: progid:DXImageTransform.Microsoft.Alpha(Opacity=85);\n\
-  opacity: 0.85;\n\
-  background: url(\'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAAKRJREFUeNpi/P//PwMlgImBQjDwBrCgmMbEpA2kGnGofQ3E9UD86t+/fzhdcBWIpwExMxQ3AHEIEK8BYgkgdsLrAih4A8SsaBYwQcWYiDGAEcmAbiwuJBiIIAPYoLgfiMuBeBmUXwHEXIQMYEIy4BUQXwDiy1C+HBBrEPKCDBCzwwwDpVRGRkZksU8ozkVOykCFVkBqOZ5oB3lpAoqe0bzAABBgANfuIyxmXKp/AAAAAElFTkSuQmCC\') 0 0; }\n\
-\n\
-.raptor-ui-text-bold:hover .ui-icon {\n\
-  filter: progid:DXImageTransform.Microsoft.Alpha(Opacity=100);\n\
-  opacity: 1; }\n\
-\n\
-.raptor-ui-text-block-quote .ui-icon {\n\
-  filter: progid:DXImageTransform.Microsoft.Alpha(Opacity=85);\n\
-  opacity: 0.85;\n\
-  background: url(\'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAAGVJREFUeNpi/P//PwMlgImBQjAcDWBhYZEA4r1AHA/EKHxiXQBS+BKIF+LgEzTAG4h3I0UvOh+/AUCFbECcDmROA2lC5mMzgAWLGDuUtsTBJ+iFeUDMC6Wx8VEA42hSptwAgAADAO3wKLgntfGkAAAAAElFTkSuQmCC\') 0 0; }\n\
-\n\
-.raptor-ui-text-block-quote:hover .ui-icon {\n\
-  filter: progid:DXImageTransform.Microsoft.Alpha(Opacity=100);\n\
-  opacity: 1; }\n\
-\n\
-.raptor-ui-text-italic .ui-icon {\n\
-  filter: progid:DXImageTransform.Microsoft.Alpha(Opacity=85);\n\
-  opacity: 0.85;\n\
-  background: url(\'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAAH1JREFUeNpi/P//PwMlgImBQjDwBrBgmMgEN1MbiBvRpOv//ft3FUUEFIjImJGRERnrAPF6IO6BiaGrZyLCi6xAvJDcMLAA4j9AfJlcA/yBeCe5sWAExAJAfIKkWIAFJBAUATE7kM+M143ooQoEVkD8EA1b4Yy10bzAABBgAC7mS5rTXrDAAAAAAElFTkSuQmCC\') 0 0; }\n\
-\n\
-.raptor-ui-text-italic:hover .ui-icon {\n\
-  filter: progid:DXImageTransform.Microsoft.Alpha(Opacity=100);\n\
-  opacity: 1; }\n\
-\n\
+/* line 8, ../plugins/text-style/style/text-style.scss */\n\
 .raptor-ui-text-underline .ui-icon {\n\
   filter: progid:DXImageTransform.Microsoft.Alpha(Opacity=85);\n\
   opacity: 0.85;\n\
-  background: url(\'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAAKZJREFUeNpi/P//PwMlgImBQkCxASwopjExhQGpMCSheijdiCz279+/q3AeKAxgmJGREYSdgHgdlIaJ6SCLIevB5oXXUJe9RhK7gkUMZxgwAjEzlEYG2MRwGsCKRTErKQawYFHMQqwBn6G2qSCJGULFPmPYhpwSgdEIY6YCcTKa2rlAPBvEAEYjdgNAUYRMowOYWmQ9LFjUPSGQP2RwemFoZiaAAAMAlEI7bVBRJkoAAAAASUVORK5CYII=\') 0 0; }\n\
+  background: url(\'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAAKZJREFUeNpi/P//PwMlgImBQkCxASwopjExhQGpMCSheijdiCz279+/q3AeKAxgmJGREYSdgHgdlIaJ6SCLIevB5oXXUJe9RhK7gkUMZxgwAjEzlEYG2MRwGsCKRTErKQawYFHMQqwBn6G2qSCJGULFPmPYhpwSgdEIY6YCcTKa2rlAPBvEAEYjdgNAUYRMowOYWmQ9LFjUPSGQP2RwemFoZiaAAAMAlEI7bVBRJkoAAAAASUVORK5CYII=\') 0 0;\n\
+}\n\
 \n\
+/* line 13, ../plugins/text-style/style/text-style.scss */\n\
 .raptor-ui-text-underline:hover .ui-icon {\n\
   filter: progid:DXImageTransform.Microsoft.Alpha(Opacity=100);\n\
-  opacity: 1; }\n\
+  opacity: 1;\n\
+}\n\
 \n\
-.raptor-ui-text-strike .ui-icon {\n\
+/**\n\
+ * Underline text style plugin.\n\
+ *\n\
+ * @author David Neilsen <david@panmedia.co.nz>\n\
+ */\n\
+/* line 8, ../plugins/text-style/style/underline.scss */\n\
+.raptor-ui-text-underline .ui-icon {\n\
   filter: progid:DXImageTransform.Microsoft.Alpha(Opacity=85);\n\
   opacity: 0.85;\n\
-  background: url(\'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAAL5JREFUeNpi/P//PwMlgImBQkCxASwopjHBzbMB4nQg5oTyrwKxNhAXAfGjf//+EXRBFhC/BOI0KAapYwZpxusCJPASquEdlD8FiHWwKWREjgUkL4gDcQ0QfwfiXqiBcIDsBXQD9hATcEADXOAckAEwzMjIiI4lgHgiEM8GYkmYOLIeXAZ4I2sA4vlQjGEArkBsAeJzQAUVYH8yMnIAKTmC6QAaHhpALALEPCBDoOJfgFQ5wVgYmnmBYgMAAgwAEGZWNyZpBykAAAAASUVORK5CYII=\') 0 0; }\n\
+  background: url(\'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAAKZJREFUeNpi/P//PwMlgImBQkCxASwopjExhQGpMCSheijdiCz279+/q3AeKAxgmJGREYSdgHgdlIaJ6SCLIevB5oXXUJe9RhK7gkUMZxgwAjEzlEYG2MRwGsCKRTErKQawYFHMQqwBn6G2qSCJGULFPmPYhpwSgdEIY6YCcTKa2rlAPBvEAEYjdgNAUYRMowOYWmQ9LFjUPSGQP2RwemFoZiaAAAMAlEI7bVBRJkoAAAAASUVORK5CYII=\') 0 0;\n\
+}\n\
 \n\
-.raptor-ui-text-strike:hover .ui-icon {\n\
+/* line 13, ../plugins/text-style/style/underline.scss */\n\
+.raptor-ui-text-underline:hover .ui-icon {\n\
   filter: progid:DXImageTransform.Microsoft.Alpha(Opacity=100);\n\
-  opacity: 1; }\n\
-\n\
-.raptor-ui-text-sub .ui-icon {\n\
-  filter: progid:DXImageTransform.Microsoft.Alpha(Opacity=85);\n\
-  opacity: 0.85;\n\
-  background: url(\'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAAKZJREFUeNpi/P//PwMlgImBQjDwBrDATWJCMWs6lM7Ep/nfv39YXSAPxL+AWALKJtkLLkB8EohZoWySDbAH4uNQQ+xJNUAJiH8DMT8QPwZiWagYDEwA4v1QGgJACQmEGRkZQTgXiI+i4VyoHAy7AfEaEBucCNEM2AzEKkiKu6BiYMuAdAYQLwZiKQwDgGAVED+E0iBgBeUjiy1HErMCWzyaFxgAAgwA5Gw9vTeiCqoAAAAASUVORK5CYII=\') 0 0; }\n\
-\n\
-.raptor-ui-text-sub:hover .ui-icon {\n\
-  filter: progid:DXImageTransform.Microsoft.Alpha(Opacity=100);\n\
-  opacity: 1; }\n\
-\n\
-.raptor-ui-text-super .ui-icon {\n\
-  filter: progid:DXImageTransform.Microsoft.Alpha(Opacity=85);\n\
-  opacity: 0.85;\n\
-  background: url(\'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAALdJREFUeNpi/P//PwMlgImBQjDwBrCgmMaEYt50KJ0JpRuBWBuIrwJx/b9///C6QB6IfwGxBJQNAvVAPAkqRtALLkB8EohZoWwQiAbiICCuI8YAeyA+DjXEHiqmD8SaQLwIysYMAyhQAuLfQMwPxI+B2AkqVkZsLHgDsQYQTwXiVCBmg4phB6CUCMOMjIwgvBmIVaBsEO6CijEgY5geFAOAYBUQP4TSIGAF5SOLoVjMOJoXGAACDACTRz3jjn6PnwAAAABJRU5ErkJggg==\') 0 0; }\n\
-\n\
-.raptor-ui-text-super:hover .ui-icon {\n\
-  filter: progid:DXImageTransform.Microsoft.Alpha(Opacity=100);\n\
-  opacity: 1; }\n\
+  opacity: 1;\n\
+}\n\
 \n\
 /**\n\
  * Basic text style plugin\n\
  *\n\
  * @author David Neilsen <david@panmedia.co.nz>\n\
  */\n\
+/* line 9, ../plugins/tool-tip/tool-tip.scss */\n\
 .raptor-wrapper [data-title]:after {\n\
   opacity: 0;\n\
   content: attr(data-title);\n\
@@ -20120,33 +21025,38 @@ html body div.ui-wrapper div.ui-dialog-titlebar a.ui-dialog-titlebar-close span.
   -webkit-pointer-events: none;\n\
   -moz-pointer-events: none;\n\
   pointer-events: none;\n\
-  -webkit-transition: opacity 0.23s 0s;\n\
+  -webkit-transition: opacity 0.23s;\n\
+  -webkit-transition-delay: 0s;\n\
   -moz-transition: opacity 0.23s 0s;\n\
-  -ms-transition: opacity 0.23s 0s;\n\
   -o-transition: opacity 0.23s 0s;\n\
   transition: opacity 0.23s 0s;\n\
-  background: url(\'data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0idXRmLTgiPz4gPHN2ZyB2ZXJzaW9uPSIxLjEiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGRlZnM+PGxpbmVhckdyYWRpZW50IGlkPSJncmFkIiBncmFkaWVudFVuaXRzPSJ1c2VyU3BhY2VPblVzZSIgeDE9IjUwJSIgeTE9IjAlIiB4Mj0iNTAlIiB5Mj0iMTAwJSI+PHN0b3Agb2Zmc2V0PSI1cHgiIHN0b3AtY29sb3I9InJnYmEoNDAsIDQwLCA0MCwgMCkiLz48c3RvcCBvZmZzZXQ9IjZweCIgc3RvcC1jb2xvcj0iIzI4MjgyOCIvPjxzdG9wIG9mZnNldD0iMTAwJSIgc3RvcC1jb2xvcj0iIzI4MjgyOCIvPjwvbGluZWFyR3JhZGllbnQ+PC9kZWZzPjxyZWN0IHg9IjAiIHk9IjAiIHdpZHRoPSIxMDAlIiBoZWlnaHQ9IjEwMCUiIGZpbGw9InVybCgjZ3JhZCkiIC8+PC9zdmc+IA==\'), url(\'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAwAAAAGAgMAAACKgJcSAAAADFBMVEUAAAAoKCgoKCgoKCj7f2xyAAAAA3RSTlMATLP00ibhAAAAJklEQVR4XgXAMRUAEBQF0GtSwK6KYrKpIIz5P4eBTcvSc808J/UBPj4IdoCAGiAAAAAASUVORK5CYII=\') no-repeat 10px 0;\n\
+  background: url(\'data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0idXRmLTgiPz4gPHN2ZyB2ZXJzaW9uPSIxLjEiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGRlZnM+PGxpbmVhckdyYWRpZW50IGlkPSJncmFkIiBncmFkaWVudFVuaXRzPSJ1c2VyU3BhY2VPblVzZSIgeDE9IjUwJSIgeTE9IjAlIiB4Mj0iNTAlIiB5Mj0iMTAwJSI+PHN0b3Agb2Zmc2V0PSI1cHgiIHN0b3AtY29sb3I9IiMyODI4MjgiIHN0b3Atb3BhY2l0eT0iMCIvPjxzdG9wIG9mZnNldD0iNnB4IiBzdG9wLWNvbG9yPSIjMjgyODI4Ii8+PHN0b3Agb2Zmc2V0PSIxMDAlIiBzdG9wLWNvbG9yPSIjMjgyODI4Ii8+PC9saW5lYXJHcmFkaWVudD48L2RlZnM+PHJlY3QgeD0iMCIgeT0iMCIgd2lkdGg9IjEwMCUiIGhlaWdodD0iMTAwJSIgZmlsbD0idXJsKCNncmFkKSIgLz48L3N2Zz4g\'), url(\'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAwAAAAGAgMAAACKgJcSAAAADFBMVEUAAAAoKCgoKCgoKCj7f2xyAAAAA3RSTlMATLP00ibhAAAAJklEQVR4XgXAMRUAEBQF0GtSwK6KYrKpIIz5P4eBTcvSc808J/UBPj4IdoCAGiAAAAAASUVORK5CYII=\') no-repeat 10px 0;\n\
   background: -webkit-gradient(linear, 50% 0%, 50% 100%, color-stop(5px, rgba(40, 40, 40, 0)), color-stop(6px, #282828), color-stop(100%, #282828)), url(\'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAwAAAAGAgMAAACKgJcSAAAADFBMVEUAAAAoKCgoKCgoKCj7f2xyAAAAA3RSTlMATLP00ibhAAAAJklEQVR4XgXAMRUAEBQF0GtSwK6KYrKpIIz5P4eBTcvSc808J/UBPj4IdoCAGiAAAAAASUVORK5CYII=\') no-repeat 10px 0;\n\
   background: -webkit-linear-gradient(rgba(40, 40, 40, 0) 5px, #282828 6px, #282828), url(\'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAwAAAAGAgMAAACKgJcSAAAADFBMVEUAAAAoKCgoKCgoKCj7f2xyAAAAA3RSTlMATLP00ibhAAAAJklEQVR4XgXAMRUAEBQF0GtSwK6KYrKpIIz5P4eBTcvSc808J/UBPj4IdoCAGiAAAAAASUVORK5CYII=\') no-repeat 10px 0;\n\
   background: -moz-linear-gradient(rgba(40, 40, 40, 0) 5px, #282828 6px, #282828), url(\'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAwAAAAGAgMAAACKgJcSAAAADFBMVEUAAAAoKCgoKCgoKCj7f2xyAAAAA3RSTlMATLP00ibhAAAAJklEQVR4XgXAMRUAEBQF0GtSwK6KYrKpIIz5P4eBTcvSc808J/UBPj4IdoCAGiAAAAAASUVORK5CYII=\') no-repeat 10px 0;\n\
   background: -o-linear-gradient(rgba(40, 40, 40, 0) 5px, #282828 6px, #282828), url(\'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAwAAAAGAgMAAACKgJcSAAAADFBMVEUAAAAoKCgoKCgoKCj7f2xyAAAAA3RSTlMATLP00ibhAAAAJklEQVR4XgXAMRUAEBQF0GtSwK6KYrKpIIz5P4eBTcvSc808J/UBPj4IdoCAGiAAAAAASUVORK5CYII=\') no-repeat 10px 0;\n\
-  background: -ms-linear-gradient(rgba(40, 40, 40, 0) 5px, #282828 6px, #282828), url(\'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAwAAAAGAgMAAACKgJcSAAAADFBMVEUAAAAoKCgoKCgoKCj7f2xyAAAAA3RSTlMATLP00ibhAAAAJklEQVR4XgXAMRUAEBQF0GtSwK6KYrKpIIz5P4eBTcvSc808J/UBPj4IdoCAGiAAAAAASUVORK5CYII=\') no-repeat 10px 0;\n\
-  background: linear-gradient(rgba(40, 40, 40, 0) 5px, #282828 6px, #282828), url(\'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAwAAAAGAgMAAACKgJcSAAAADFBMVEUAAAAoKCgoKCgoKCj7f2xyAAAAA3RSTlMATLP00ibhAAAAJklEQVR4XgXAMRUAEBQF0GtSwK6KYrKpIIz5P4eBTcvSc808J/UBPj4IdoCAGiAAAAAASUVORK5CYII=\') no-repeat 10px 0; }\n\
+  background: linear-gradient(rgba(40, 40, 40, 0) 5px, #282828 6px, #282828), url(\'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAwAAAAGAgMAAACKgJcSAAAADFBMVEUAAAAoKCgoKCgoKCj7f2xyAAAAA3RSTlMATLP00ibhAAAAJklEQVR4XgXAMRUAEBQF0GtSwK6KYrKpIIz5P4eBTcvSc808J/UBPj4IdoCAGiAAAAAASUVORK5CYII=\') no-repeat 10px 0;\n\
+}\n\
 \n\
+/* line 30, ../plugins/tool-tip/tool-tip.scss */\n\
 .raptor-wrapper [data-title]:hover:after {\n\
-  opacity: 1; }\n\
+  opacity: 1;\n\
+}\n\
 \n\
+/* line 34, ../plugins/tool-tip/tool-tip.scss */\n\
 .raptor-wrapper .raptor-select-element {\n\
-  position: relative; }\n\
+  position: relative;\n\
+}\n\
 \n\
+/* line 38, ../plugins/tool-tip/tool-tip.scss */\n\
 .raptor-wrapper .raptor-select-element:after {\n\
-  background: url(\'data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0idXRmLTgiPz4gPHN2ZyB2ZXJzaW9uPSIxLjEiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGRlZnM+PGxpbmVhckdyYWRpZW50IGlkPSJncmFkIiBncmFkaWVudFVuaXRzPSJ1c2VyU3BhY2VPblVzZSIgeDE9IjUwJSIgeTE9IjAlIiB4Mj0iNTAlIiB5Mj0iMTAwJSI+PHN0b3Agb2Zmc2V0PSI1cHgiIHN0b3AtY29sb3I9InJnYmEoNDAsIDQwLCA0MCwgMCkiLz48c3RvcCBvZmZzZXQ9IjZweCIgc3RvcC1jb2xvcj0iIzI4MjgyOCIvPjxzdG9wIG9mZnNldD0iMTAwJSIgc3RvcC1jb2xvcj0iIzI4MjgyOCIvPjwvbGluZWFyR3JhZGllbnQ+PC9kZWZzPjxyZWN0IHg9IjAiIHk9IjAiIHdpZHRoPSIxMDAlIiBoZWlnaHQ9IjEwMCUiIGZpbGw9InVybCgjZ3JhZCkiIC8+PC9zdmc+IA==\'), url(\'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAwAAAAGAgMAAACKgJcSAAAADFBMVEUAAAAoKCgoKCgoKCj7f2xyAAAAA3RSTlMATLP00ibhAAAAJklEQVR4XgXAMRUAEBQF0GtSwK6KYrKpIIz5P4eBTcvSc808J/UBPj4IdoCAGiAAAAAASUVORK5CYII=\') no-repeat 3px 0;\n\
+  background: url(\'data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0idXRmLTgiPz4gPHN2ZyB2ZXJzaW9uPSIxLjEiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGRlZnM+PGxpbmVhckdyYWRpZW50IGlkPSJncmFkIiBncmFkaWVudFVuaXRzPSJ1c2VyU3BhY2VPblVzZSIgeDE9IjUwJSIgeTE9IjAlIiB4Mj0iNTAlIiB5Mj0iMTAwJSI+PHN0b3Agb2Zmc2V0PSI1cHgiIHN0b3AtY29sb3I9IiMyODI4MjgiIHN0b3Atb3BhY2l0eT0iMCIvPjxzdG9wIG9mZnNldD0iNnB4IiBzdG9wLWNvbG9yPSIjMjgyODI4Ii8+PHN0b3Agb2Zmc2V0PSIxMDAlIiBzdG9wLWNvbG9yPSIjMjgyODI4Ii8+PC9saW5lYXJHcmFkaWVudD48L2RlZnM+PHJlY3QgeD0iMCIgeT0iMCIgd2lkdGg9IjEwMCUiIGhlaWdodD0iMTAwJSIgZmlsbD0idXJsKCNncmFkKSIgLz48L3N2Zz4g\'), url(\'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAwAAAAGAgMAAACKgJcSAAAADFBMVEUAAAAoKCgoKCgoKCj7f2xyAAAAA3RSTlMATLP00ibhAAAAJklEQVR4XgXAMRUAEBQF0GtSwK6KYrKpIIz5P4eBTcvSc808J/UBPj4IdoCAGiAAAAAASUVORK5CYII=\') no-repeat 3px 0;\n\
   background: -webkit-gradient(linear, 50% 0%, 50% 100%, color-stop(5px, rgba(40, 40, 40, 0)), color-stop(6px, #282828), color-stop(100%, #282828)), url(\'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAwAAAAGAgMAAACKgJcSAAAADFBMVEUAAAAoKCgoKCgoKCj7f2xyAAAAA3RSTlMATLP00ibhAAAAJklEQVR4XgXAMRUAEBQF0GtSwK6KYrKpIIz5P4eBTcvSc808J/UBPj4IdoCAGiAAAAAASUVORK5CYII=\') no-repeat 3px 0;\n\
   background: -webkit-linear-gradient(rgba(40, 40, 40, 0) 5px, #282828 6px, #282828), url(\'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAwAAAAGAgMAAACKgJcSAAAADFBMVEUAAAAoKCgoKCgoKCj7f2xyAAAAA3RSTlMATLP00ibhAAAAJklEQVR4XgXAMRUAEBQF0GtSwK6KYrKpIIz5P4eBTcvSc808J/UBPj4IdoCAGiAAAAAASUVORK5CYII=\') no-repeat 3px 0;\n\
   background: -moz-linear-gradient(rgba(40, 40, 40, 0) 5px, #282828 6px, #282828), url(\'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAwAAAAGAgMAAACKgJcSAAAADFBMVEUAAAAoKCgoKCgoKCj7f2xyAAAAA3RSTlMATLP00ibhAAAAJklEQVR4XgXAMRUAEBQF0GtSwK6KYrKpIIz5P4eBTcvSc808J/UBPj4IdoCAGiAAAAAASUVORK5CYII=\') no-repeat 3px 0;\n\
   background: -o-linear-gradient(rgba(40, 40, 40, 0) 5px, #282828 6px, #282828), url(\'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAwAAAAGAgMAAACKgJcSAAAADFBMVEUAAAAoKCgoKCgoKCj7f2xyAAAAA3RSTlMATLP00ibhAAAAJklEQVR4XgXAMRUAEBQF0GtSwK6KYrKpIIz5P4eBTcvSc808J/UBPj4IdoCAGiAAAAAASUVORK5CYII=\') no-repeat 3px 0;\n\
-  background: -ms-linear-gradient(rgba(40, 40, 40, 0) 5px, #282828 6px, #282828), url(\'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAwAAAAGAgMAAACKgJcSAAAADFBMVEUAAAAoKCgoKCgoKCj7f2xyAAAAA3RSTlMATLP00ibhAAAAJklEQVR4XgXAMRUAEBQF0GtSwK6KYrKpIIz5P4eBTcvSc808J/UBPj4IdoCAGiAAAAAASUVORK5CYII=\') no-repeat 3px 0;\n\
-  background: linear-gradient(rgba(40, 40, 40, 0) 5px, #282828 6px, #282828), url(\'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAwAAAAGAgMAAACKgJcSAAAADFBMVEUAAAAoKCgoKCgoKCj7f2xyAAAAA3RSTlMATLP00ibhAAAAJklEQVR4XgXAMRUAEBQF0GtSwK6KYrKpIIz5P4eBTcvSc808J/UBPj4IdoCAGiAAAAAASUVORK5CYII=\') no-repeat 3px 0; }\n\
+  background: linear-gradient(rgba(40, 40, 40, 0) 5px, #282828 6px, #282828), url(\'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAwAAAAGAgMAAACKgJcSAAAADFBMVEUAAAAoKCgoKCgoKCj7f2xyAAAAA3RSTlMATLP00ibhAAAAJklEQVR4XgXAMRUAEBQF0GtSwK6KYrKpIIz5P4eBTcvSc808J/UBPj4IdoCAGiAAAAAASUVORK5CYII=\') no-repeat 3px 0;\n\
+}\n\
 \n\
 /**\n\
  * Unsaved edit warning plugin\n\
@@ -20154,6 +21064,7 @@ html body div.ui-wrapper div.ui-dialog-titlebar a.ui-dialog-titlebar-close span.
  * @author Michael Robinson <michael@panmedia.co.nz>\n\
  * @author David Neilsen <david@panmedia.co.nz>\n\
  */\n\
+/* line 11, ../plugins/unsaved-edit-warning/unsaved-edit-warning.scss */\n\
 .raptor-unsaved-edit-warning {\n\
   position: fixed;\n\
   bottom: 0;\n\
@@ -20167,27 +21078,32 @@ html body div.ui-wrapper div.ui-dialog-titlebar a.ui-dialog-titlebar-close span.
   background: -webkit-linear-gradient(top, #fffff2, #edecbd);\n\
   background: -moz-linear-gradient(top, #fffff2, #edecbd);\n\
   background: -o-linear-gradient(top, #fffff2, #edecbd);\n\
-  background: -ms-linear-gradient(top, #fffff2, #edecbd);\n\
   background: linear-gradient(top, #fffff2, #edecbd);\n\
   -webkit-transition: opacity 0.5s;\n\
   -moz-transition: opacity 0.5s;\n\
-  -ms-transition: opacity 0.5s;\n\
   -o-transition: opacity 0.5s;\n\
   transition: opacity 0.5s;\n\
   filter: progid:DXImageTransform.Microsoft.Alpha(Opacity=0);\n\
-  opacity: 0; }\n\
-  .raptor-unsaved-edit-warning .ui-icon {\n\
-    display: inline-block;\n\
-    float: left;\n\
-    margin: 8px 5px 0 5px; }\n\
+  opacity: 0;\n\
+}\n\
+/* line 23, ../plugins/unsaved-edit-warning/unsaved-edit-warning.scss */\n\
+.raptor-unsaved-edit-warning .ui-icon {\n\
+  display: inline-block;\n\
+  float: left;\n\
+  margin: 8px 5px 0 5px;\n\
+}\n\
 \n\
+/* line 30, ../plugins/unsaved-edit-warning/unsaved-edit-warning.scss */\n\
 .raptor-unsaved-edit-warning-visible {\n\
   filter: progid:DXImageTransform.Microsoft.Alpha(Opacity=100);\n\
-  opacity: 1; }\n\
+  opacity: 1;\n\
+}\n\
 \n\
+/* line 34, ../plugins/unsaved-edit-warning/unsaved-edit-warning.scss */\n\
 .raptor-unsaved-edit-warning-dirty {\n\
   outline: 1px dotted #aaaaaa;\n\
-  background-image: url(\'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACgAAAAoAQMAAAC2MCouAAAABlBMVEUAAACfn5/FQV4CAAAAAnRSTlMAG/z2BNQAAABPSURBVHhexc2xEYAgEAXRdQwILYFSKA1LsxRKIDRwOG8LMDb9++aO8tAvjps4qXMLaGNf5JglxyyEhWVBXpAfyCvyhrwjD74OySfy8dffFyMcWadc9txXAAAAAElFTkSuQmCC\') !important; }\n\
+  background-image: url(\'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACgAAAAoAQMAAAC2MCouAAAABlBMVEUAAACfn5/FQV4CAAAAAnRSTlMAG/z2BNQAAABPSURBVHhexc2xEYAgEAXRdQwILYFSKA1LsxRKIDRwOG8LMDb9++aO8tAvjps4qXMLaGNf5JglxyyEhWVBXpAfyCvyhrwjD74OySfy8dffFyMcWadc9txXAAAAAElFTkSuQmCC\') !important;\n\
+}\n\
 \n\
 /**\n\
  * View source plugin\n\
@@ -20195,18 +21111,25 @@ html body div.ui-wrapper div.ui-dialog-titlebar a.ui-dialog-titlebar-close span.
  * @author Michael Robinson <michael@panmedia.co.nz>\n\
  * @author David Neilsen <david@panmedia.co.nz>\n\
  */\n\
+/* line 10, ../plugins/view-source/view-source.scss */\n\
 .raptor-ui-view-source .ui-icon-view-source {\n\
   filter: progid:DXImageTransform.Microsoft.Alpha(Opacity=85);\n\
   opacity: 0.85;\n\
-  background: url(\'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAAKtJREFUeNpi/P//PwMlgImBQkCxAQwgLzAyMqLjMCCehsSfBhVDUQf2PhYDIoB4JhCLIYmJQcUiCBkQBcRzgFgci6vEoXJRuAyIAeIFODQjG7IAqhbFAAMg3gOlGQhguFp0FyQC8UoglgTx0QFUjSRUTSKuMEgG4nUghVgMkITKJROKhXQg3gbUI42kXxokBpUjGI0gDYVAfBzJABC7EFs6YBz6eYFiAwACDAADJlDtLE22CAAAAABJRU5ErkJggg==\') 0 0; }\n\
+  background: url(\'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAAKtJREFUeNpi/P//PwMlgImBQkCxAQwgLzAyMqLjMCCehsSfBhVDUQf2PhYDIoB4JhCLIYmJQcUiCBkQBcRzgFgci6vEoXJRuAyIAeIFODQjG7IAqhbFAAMg3gOlGQhguFp0FyQC8UoglgTx0QFUjSRUTSKuMEgG4nUghVgMkITKJROKhXQg3gbUI42kXxokBpUjGI0gDYVAfBzJABC7EFs6YBz6eYFiAwACDAADJlDtLE22CAAAAABJRU5ErkJggg==\') 0 0;\n\
+}\n\
 \n\
+/* line 15, ../plugins/view-source/view-source.scss */\n\
 .raptor-ui-view-source:hover .ui-icon-view-source {\n\
   filter: progid:DXImageTransform.Microsoft.Alpha(Opacity=100);\n\
-  opacity: 1; }\n\
+  opacity: 1;\n\
+}\n\
 \n\
+/* line 19, ../plugins/view-source/view-source.scss */\n\
 .raptor-ui-view-source-dialog .ui-dialog-content {\n\
-  overflow: visible; }\n\
+  overflow: visible;\n\
+}\n\
 \n\
+/* line 23, ../plugins/view-source/view-source.scss */\n\
 .raptor-ui-view-source-inner-wrapper {\n\
   width: 100%;\n\
   height: 100%;\n\
@@ -20217,15 +21140,18 @@ html body div.ui-wrapper div.ui-dialog-titlebar a.ui-dialog-titlebar-close span.
   -webkit-box-orient: vertical;\n\
   -moz-box-orient: vertical;\n\
   -ms-box-orient: vertical;\n\
-  box-orient: vertical; }\n\
+  box-orient: vertical;\n\
+}\n\
 \n\
+/* line 30, ../plugins/view-source/view-source.scss */\n\
 .raptor-ui-view-source-dialog textarea {\n\
   width: 100%;\n\
   height: 100%;\n\
   -webkit-box-flex: 1;\n\
   -moz-box-flex: 1;\n\
   -ms-box-flex: 1;\n\
-  box-flex: 1; }\n\
+  box-flex: 1;\n\
+}\n\
 \n\
-                /* End of file: temp/default/packages/raptor-theme.css */\n\
-            </style>').appendTo('head');
+                /* End of file: temp/default/src/style/raptor.css */\n\
+            </style>');
