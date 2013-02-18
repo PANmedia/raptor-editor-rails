@@ -30,6 +30,8 @@ and then run:
 bundle install
 ```
 
+and restart your app.
+
 Now add Raptor Editor to your `app/assets/javascripts/application.js` after jQuery and jQuery UI:
 
 ```js
