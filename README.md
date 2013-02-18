@@ -12,8 +12,8 @@ It provides the Raptor Editor assets to your Rails applications via the asset pi
 
 ## Requirements
 
-* [jQuery][jQuery 1.9+]
-* [jQuery UI][jQuery UI 1.10+] (minimally Button, Dialog, Menu and Tabs for custom builds)
+* [jQuery 1.9+][jQuery]
+* [jQuery UI 1.10+][jQuery UI] (minimally Button, Dialog, Menu and Tabs for custom builds)
 * a jQuery UI theme
 
 ## Usage
