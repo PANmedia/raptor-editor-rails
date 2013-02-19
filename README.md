@@ -12,8 +12,8 @@ It provides the Raptor Editor assets to your Rails applications via the asset pi
 
 ## Requirements
 
-* [jQuery][jQuery 1.9+]
-* [jQuery UI][jQuery UI 1.10+] (minimally Button, Dialog, Menu and Tabs for custom builds)
+* [jQuery 1.9+][jQuery]
+* [jQuery UI 1.10+][jQuery UI] (minimally Button, Dialog, Menu and Tabs for custom builds)
 * a jQuery UI theme
 
 The minimum versions of the [jquery-rails] and [jquery-ui-rails] gems are already dependencies. So, you shouldn't have any trouble if you use these to provide jQuery and jQuery-UI.
@@ -31,6 +31,8 @@ and then run:
 ```sh
 bundle install
 ```
+
+and restart your app.
 
 Now add Raptor Editor to your `app/assets/javascripts/application.js` after jQuery and jQuery UI:
 
