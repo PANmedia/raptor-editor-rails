@@ -6,7 +6,7 @@ Gem::Specification.new do |s|
   s.name        = "raptor-editor-rails"
   s.version     = RaptorEditorRails::VERSION
   s.authors     = ["Tristan McHardie"]
-  s.email       = ["info@jquery-raptor.com"]
+  s.email       = ["info@raptor-editor.com"]
   s.homepage    = "http://www.github.com/PANmedia/raptor-editor-rails"
   s.summary     = "Raptor Editor on the Rails Asset Pipeline"
   s.description = "The simplest way to get Raptor Editor onto the Asset Pipeline in your Rails applications."
