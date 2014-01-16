@@ -1,0 +1,9 @@
+Description:
+    Copies config/raptor.yml to your project so you can configure and download
+    your own Raptor Editor builds using `rake raptor_editor_rails:fetch`.
+
+Example:
+    rails generate raptor_editor_rails:install
+
+    This will create:
+        config/raptor.yml

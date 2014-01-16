@@ -1,0 +1,85 @@
+normal: &normal
+  plugins:
+    - logo
+
+    # Text styling plugins
+    - block-quote
+    - bold
+    - clear-formatting
+    - hr
+    - italic
+    - strike-through
+    - subscript-superscript
+    - text-align
+    - text-style
+    - underline
+
+    # Advanced editing plugins
+    - class-menu
+    - color-menu-basic
+    - embed
+    - float
+    - font-family
+    - image-resize-button
+    - insert-file
+    - link
+    - list
+    - snippet-menu
+    - special-characters
+    - table
+    - tag-menu
+    - view-source
+
+    # Other plugins
+    - cancel
+    - click-button-to-edit
+    - dock-to-element
+    - dock-to-screen
+    - guides
+    - history
+    - language-menu
+    - no-break
+    - normalise-line-breaks
+    - paste
+    - placeholder
+    # - save-json
+    - save-rest
+    - statistics
+    - tool-tip
+    - unsaved-edit-warning
+
+  libraries:
+    - rangy
+    - jquery
+    - jquery-ui
+    - jquery-hotkeys
+
+  theme: mammoth # mammoth|aristo|redmond|smoothness|none
+
+  locales:
+    - en    # English
+    # - de    # Deutsch
+    # - es    # Español
+    # - fr    # Français
+    # - nl    # Nederlands
+    # - ru    # Russian
+    # - sv    # Svenska
+    # - zh-cn # 简体中文
+
+  options: []
+
+  build:
+    - no-conflict
+    # - expose-api
+
+debug:
+  <<: *normal
+
+  options:
+    # - usage-statistics
+    - strict
+    - debug
+
+  build:
+    - no-conflict
+    - expose-api

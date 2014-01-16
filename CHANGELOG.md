@@ -2,6 +2,10 @@
 
 ## Master
 
+* Rewrote downloader from scratch
+* Updated gem to latest standards
+* Added `install` generator and `fetch` task that can be used both in the gem and in an app
+
 [All changes](https://github.com/PANmedia/raptor-editor-rails/compare/v0.2.2...master)
 
 ## 0.2.2 (Feb 19, 2013)

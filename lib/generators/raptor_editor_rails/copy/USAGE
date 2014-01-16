@@ -1,0 +1,10 @@
+Description:
+    Copies prebuilt raptor.js and raptor-front-end.css to your project's
+    vendor/assets directory.
+
+Example:
+    rails generate raptor_editor_rails:copy
+
+    This will create:
+        vendor/assets/javascripts/raptor.js
+        vendor/assets/stylesheets/raptor-front-end.css
