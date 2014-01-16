@@ -3,8 +3,6 @@
 The simplest way to get [Raptor Editor](http://www.raptor-editor.com/) onto the
 asset pipeline in your Rails applications.
 
-__IMPORTANT: PLEASE READ!__ Some folks are having difficulties with Raptor Editor in its beta form as supplied by this gem. The Raptor core team is literally on the brink of a new release which brings major changes to their build process. We're sitting tight waiting for the new Raptor Editor release before we upgrade raptor-editor-rails. In the mean time, you may want to download and install Raptor Editor manually from http://www.raptor-editor.com/.
-
 ## Version
 
 Version 0.2.2 contains Raptor Editor 0.5.11.
