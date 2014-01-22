@@ -30,9 +30,9 @@ This gem comes with a pre-packaged build Raptor Editor from the options in
 
 4. Make elements of your site editable:
 
-```js
-$("#my_editable_element").raptor();
-```
+    ```js
+    $("#my_editable_element").raptor();
+    ```
 
 See the [Raptor Editor docs](http://www.raptor-editor.com/docs) for more.
 
