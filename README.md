@@ -16,17 +16,17 @@ This gem comes with a pre-packaged build Raptor Editor from the options in
 
 1. Add raptor-editor-rails to your `Gemfile`:
 
-```ruby
-gem "raptor-editor-rails"
-```
+    ```ruby
+    gem "raptor-editor-rails"
+    ```
 
 2. Run `bundle install`. Don't forget to restart your app!
 
 3. Add Raptor Editor to your `app/assets/javascripts/application.js`:
 
-```js
-//= require raptor
-```
+    ```js
+    //= require raptor
+    ```
 
 4. Make elements of your site editable:
 
