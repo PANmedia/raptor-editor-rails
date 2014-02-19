@@ -61,7 +61,7 @@ to your project.
 For all issues related to raptor-editor-rails, please raise an issue on
 [GitHub](https://github.com/PANmedia/raptor-editor-rails/issues). If the issue
 is related to Raptor Editor, please raise an issue
-[over there][https://github.com/PANmedia/raptor-editor/issues].
+[over there](https://github.com/PANmedia/raptor-editor/issues).
 
 Better still, fork and contribute!
 
