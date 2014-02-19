@@ -8,7 +8,7 @@
 
 * Updated to Raptor Editor 1.2.3
 
-[All changes](https://github.com/PANmedia/raptor-editor-rails/compare/v0.3.0...0.3.1)
+[All changes](https://github.com/PANmedia/raptor-editor-rails/compare/v0.3.0...v0.3.1)
 
 ## 0.3.0 (Jan 16, 2014)
 
@@ -17,7 +17,7 @@
 * Added `install` generator and `fetch` task that can be used both in the gem and in an app
 * Updated to Raptor Editor 1.2.2
 
-[All changes](https://github.com/PANmedia/raptor-editor-rails/compare/v0.2.2...0.3.0)
+[All changes](https://github.com/PANmedia/raptor-editor-rails/compare/v0.2.2...v0.3.0)
 
 ## 0.2.2 (Feb 19, 2013)
 
