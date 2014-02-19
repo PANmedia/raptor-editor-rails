@@ -5,7 +5,7 @@ asset pipeline in your Rails applications.
 
 ## Version
 
-Version 0.3.0 contains Raptor Editor 1.2.2.
+Version 0.3.1 contains Raptor Editor 1.2.3.
 
 ## Usage
 

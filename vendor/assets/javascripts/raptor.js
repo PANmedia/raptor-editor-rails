@@ -41925,7 +41925,7 @@ var Raptor =  {
 
     globalDefaults: {},
     defaults: {},
-            
+
     /** @type {Boolean} True to enable hotkeys */
     enableHotkeys: true,
 
@@ -42086,7 +42086,7 @@ var Raptor =  {
 
         this.plugins[plugin.name] = plugin;
     },
-            
+
     registerPreset: function(preset, setDefault) {
         // <strict/>
 
@@ -42106,20 +42106,24 @@ var Raptor =  {
      */
     persist: function(key, value, namespace) {
         key = namespace ? namespace + '.' + key : key;
-        if (localStorage) {
-            var storage;
-            if (localStorage.uiWidgetEditor) {
-                storage = JSON.parse(localStorage.uiWidgetEditor);
-            } else {
-                storage = {};
+        // Local storage throws an error when using XUL
+        try {
+            if (localStorage) {
+                var storage;
+                if (localStorage.uiWidgetEditor) {
+                    storage = JSON.parse(localStorage.uiWidgetEditor);
+                } else {
+                    storage = {};
+                }
+                if (value === undefined) {
+                    return storage[key];
+                }
+                storage[key] = value;
+                localStorage.uiWidgetEditor = JSON.stringify(storage);
             }
-            if (value === undefined) {
-                return storage[key];
-            }
-            storage[key] = value;
-            localStorage.uiWidgetEditor = JSON.stringify(storage);
-        }
+        } catch (e) {
 
+        }
         return value;
     }
 
@@ -42673,6 +42677,14 @@ var RaptorWidget = {
             clean(this.getElement());
             this.fire('enabled');
             this.showLayout();
+
+            if (this.options.autoSelect) {
+                if (this.options.partialEdit) {
+                    selectionSelectInner(this.getElement().find('[contenteditable]')[0]);
+                } else {
+                    selectionSelectInner(this.getNode());
+                }
+            }
         }
     },
 
@@ -43142,7 +43154,7 @@ var RaptorWidget = {
 };
 
 $.widget('ui.raptor', RaptorWidget);
-;
+$.fn.raptor.Raptor = Raptor;;
 // File end: /var/deployments/www.raptor-editor.com.3/raptor-gold/raptor-editor/src/raptor-widget.js
 ;
 // File start: /var/deployments/www.raptor-editor.com.3/raptor-gold/raptor-editor/src/components/layout.js
@@ -44760,7 +44772,7 @@ ColorMenuBasic.prototype.changeColor = function(color, permanent) {
         } else {
             var uniqueId = elementUniqueId();
             selectionToggleWrapper('span', {
-                classes: this.options.classes || this.options.cssPrefix + 'color ' + this.options.cssPrefix + color,
+                classes: this.options.cssPrefix + 'color ' + this.options.cssPrefix + color,
                 attributes: {
                     id: uniqueId
                 }
@@ -44796,7 +44808,6 @@ ColorMenuBasic.prototype.menuItemMouseEnter = function(event) {
  */
 ColorMenuBasic.prototype.menuItemMouseLeave = function(event) {
     this.raptor.actionPreviewRestore();
-    this.changeColor(this.currentColor);
 };
 
 /**
@@ -46866,7 +46877,7 @@ function PastePlugin(name, overrides) {
          * @type {Array}
          */
         allowedTags: [
-            'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'div', 'ul', 'ol', 'li', 'blockquote',
+            'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'ul', 'ol', 'li', 'blockquote',
             'p', 'a', 'span', 'hr', 'br', 'strong', 'em'
         ],
 
@@ -49249,6 +49260,13 @@ Raptor.globalDefaults = {
     partialEdit: false,
 
     /**
+     * Automatically select the editable content when editing is enabled.
+     *
+     * @type boolean
+     */
+    autoSelect: true,
+
+    /**
      * Switch to specify if the editor should automatically enable all plugins,
      * if set to false, only the plugins specified in the 'plugins' option
      * object will be enabled
@@ -50150,10 +50168,6 @@ Base Style\n\
   color: #333333;\n\
 }\n\
 \n\
-/* pan/core.scss */\n\
-*[disabled] {\n\
-  pointer-events: none;\n\
-}\n\
 \n\
 /* Interaction states */\n\
 /* pan/core.scss */\n\
@@ -52215,8 +52229,12 @@ Form Style\n\
 \n\
 /* line 28, style.scss */\n\
 .raptor-editing-inline * {\n\
-  color: inherit;\n\
   text-shadow: inherit;\n\
+}\n\
+\n\
+/* line 32, style.scss */\n\
+.raptor-editing-inline *:not(.cms-color) {\n\
+  color: inherit;\n\
 }\n\
 \n\
 /**\n\

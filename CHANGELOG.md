@@ -2,7 +2,13 @@
 
 ## Master
 
-[All changes](https://github.com/PANmedia/raptor-editor-rails/compare/v0.3.0...master)
+[All changes](https://github.com/PANmedia/raptor-editor-rails/compare/v0.3.1...master)
+
+## 0.3.1 (Jan 16, 2014)
+
+* Updated to Raptor Editor 1.2.3
+
+[All changes](https://github.com/PANmedia/raptor-editor-rails/compare/v0.3.0...0.3.1)
 
 ## 0.3.0 (Jan 16, 2014)
 
