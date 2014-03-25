@@ -11,7 +11,7 @@ Gem::Specification.new do |s|
   s.summary     = "Raptor Editor on the Rails Asset Pipeline"
   s.description = "The simplest way to get Raptor Editor onto the Asset Pipeline in your Rails applications."
 
-  s.files = Dir["{lib,vendor}/**/*", "MIT-LICENSE", "Rakefile", "README.md"]
+  s.files = Dir["{config,lib,vendor}/**/*", "MIT-LICENSE", "Rakefile", "README.md"]
 
   s.add_dependency "rails", "> 3.1"
 end
